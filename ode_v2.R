@@ -4,7 +4,7 @@
 library(deSolve)
 
 # Define the function that returns the derivatives
-derivs <- function(t, y, parms) {
+DetectPoints <- function(t, y, parms) {
   with(as.list(c(y, parms)), {
     dY1 <- Y1 * (Y1 - z) * (k - Y1) - Y1 * Y2
     dY2 <- y * (Y1 - h) * Y2
