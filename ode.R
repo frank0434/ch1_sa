@@ -21,17 +21,17 @@ ode_func <- function(t, State, parameters) {
 }
 
 # Set initial conditions
-initial_state <- c(Y1 = 1, Y2 = 0.01)
+initial_state <- c(Y1 = 1, Y2 = 0.1)
 
 # Set parameter values
-parameters1 <- c(ζ = 0.5, κ = 1.2, γ = 0.8, h = 0.3)
+parameters1 <- c(z = 0.5, k = 1, y = 1, h = 0.9)
 
 
 # Set the time points to solve the ODEs at
 t <- seq(0, 150, by = 1)
 
 # Solve the ODEs using ode()
-sol <- ode(y = initial_state, times = t, func = ode_func, parms = parameters)
+sol <- ode(y = initial_state, times = t, func = ode_func, parms = parameters1)
 
 oneset <- sol |> 
   as.data.table()
@@ -86,9 +86,9 @@ print(dY2_dζ)
 # r pkg  ------------------------------------------------------------------
 library(ODEsensitivity)
 parameters
-LVpars <- c("z", "k", "y", "h")
-LVbinf <- c(0,0,0,0)
-LVbsup <- c(1, 1, 1,1)
+LVpars <- c("z", "h", "Y2")
+LVbinf <- c(0,0, 0)
+LVbsup <- c(1,1, 1)
 # The initial values of the state variables:
 LVinit <- c(Y1 = 1, Y2 = 0.1)
 # The timepoints of interest:
@@ -112,3 +112,10 @@ LVres_morris <- ODEmorris(mod = ode_func,
 plot(LVres_morris)
 names(LVres_morris)
 plot(LVres_morris, state_plot = "Y2")
+sa_res <- LVres_morris$Y2 |> 
+  t() |> 
+  as.data.table()
+
+sa_res |> 
+  ggplot(aes(mu.star_z, y = mu.star_Y2 ))+
+  geom_point()
