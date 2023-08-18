@@ -63,7 +63,7 @@ system_derivatives <- function(t, y, z, κ, γ, h) {
     return(c(dY1_dt, dY2_dt))
   })
 }
-parameters <- c(z = 0.1, κ = 1, γ = 0.8, h = 0.15)
+parameters <- c(z = 0.1, k = 1, y = 0.8, h = 0.15)
 
 # Set initial conditions
 initial_state <- c(Y1 = 1, Y2 = 0.01)
@@ -72,23 +72,16 @@ initial_state <- c(Y1 = 1, Y2 = 0.01)
 t <- seq(0, 100, by = 1)
 
 # Calculate the partial derivatives
-partial_derivatives <- deriv(system_derivatives, "z")
+# partial_derivatives <- deriv(system_derivatives, "z")
 
-# Extract the partial derivatives
-dY1_dζ <- partial_derivatives[, "Y1/ζ"]
-dY2_dζ <- partial_derivatives[, "Y2/ζ"]
-
-# Print the results
-print(dY1_dζ)
-print(dY2_dζ)
 
 
 # r pkg  ------------------------------------------------------------------
 library(ODEsensitivity)
 parameters
-LVpars <- c("z", "h", "Y2")
-LVbinf <- c(0,0, 0)
-LVbsup <- c(1,1, 1)
+LVpars <- c("z", "h", "Y2", "k", "y")
+LVbinf <- c(0,0, 0,1,1)
+LVbsup <- c(1,1, 1,1,1)
 # The initial values of the state variables:
 LVinit <- c(Y1 = 1, Y2 = 0.1)
 # The timepoints of interest:
