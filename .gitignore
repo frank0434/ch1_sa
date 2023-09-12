@@ -4,3 +4,6 @@
 .Ruserdata
 *.pkl
 *.png
+*.pickle
+*xlsx
+*.dat
