@@ -1,0 +1,67 @@
+<mxfile host="65bd71144e">
+    <diagram id="a_T-5h9Q82RHRgM_TcTy" name="Page-1">
+        <mxGraphModel dx="1002" dy="571" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1600" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="15" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;strokeWidth=3;fontSize=15;fontColor=#000000;fontFamily=Cambria;" parent="1" source="2" target="3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;fontSize=15;fontColor=#000000;fontFamily=Cambria;" parent="1" source="2" target="14" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="Models " style="ellipse;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;fontSize=15;fontStyle=1;fontFamily=Cambria;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="100" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;fontSize=15;fontColor=#000000;strokeWidth=3;fontFamily=Cambria;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" parent="1" source="3" target="2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="Understanding &#10;systems" style="ellipse;fillColor=#008a00;fontColor=#000000;strokeColor=#005700;fontSize=15;fontStyle=1;fontFamily=Cambria;" parent="1" vertex="1">
+                    <mxGeometry x="430" y="100" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;fontSize=15;fontColor=#000000;fontFamily=Cambria;" parent="1" source="9" target="10" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Discrepancies" style="ellipse;fillColor=#e51400;strokeColor=#B20000;fontColor=#ffffff;fontSize=15;fontStyle=1;fontFamily=Cambria;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="350" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;strokeWidth=3;fontSize=15;fontColor=#000000;fontFamily=Cambria;" parent="1" source="10" target="13" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Hypothesis" style="strokeWidth=2;shape=mxgraph.flowchart.decision;fontSize=15;fontColor=#ffffff;fillColor=#0050ef;strokeColor=#001DBC;rounded=1;fontStyle=1;fontFamily=Cambria;" parent="1" vertex="1">
+                    <mxGeometry x="440" y="340" width="100" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;fontSize=15;fontColor=#000000;fontFamily=Cambria;" parent="1" source="12" target="3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Updated&#10; Model&#10;Parameter value " style="ellipse;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;fontSize=15;fontStyle=1;fontFamily=Cambria;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="190" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=0;strokeWidth=3;fontSize=24;fontColor=#000000;fontFamily=Cambria;" parent="1" source="13" target="12" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontFamily=Cambria;curved=1;fontSize=24;fontColor=#000000;strokeWidth=3;dashed=1;dashPattern=1 2;" edge="1" parent="1" source="13" target="28">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="Collecting &#10;More Data" style="shape=parallelogram;strokeWidth=2;perimeter=parallelogramPerimeter;rounded=1;arcSize=12;size=0.23;fontSize=15;fillColor=#cdeb8b;strokeColor=#36393d;fontStyle=1;fontFamily=Cambria;" parent="1" vertex="1">
+                    <mxGeometry x="245" y="360" width="150" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;fontSize=24;fontColor=#000000;fontFamily=Cambria;" parent="1" source="14" target="9" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="New systems" style="rounded=1;fontSize=15;fontColor=#ffffff;fillColor=#60a917;strokeColor=#2D7600;fontStyle=1;fontFamily=Cambria;" parent="1" vertex="1">
+                    <mxGeometry x="720" y="240" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="Iteractive &#10;Modelling" style="text;align=center;verticalAlign=middle;rounded=0;fontSize=24;fontStyle=1;fontFamily=Cambria;" parent="1" vertex="1">
+                    <mxGeometry x="490" y="230" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=1 2;fontFamily=Cambria;fontSize=24;fontColor=#000000;strokeWidth=3;" edge="1" parent="1" source="28" target="3">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="Updated&#10; Model &#10;Structure" style="ellipse;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;fontSize=15;fontStyle=1;fontFamily=Cambria;" vertex="1" parent="1">
+                    <mxGeometry x="160" y="190" width="140" height="80" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
