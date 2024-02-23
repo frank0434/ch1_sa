@@ -1,3 +1,10 @@
+
+
+## the growth rate~temperature function for eq 3b in george 2023 paper 
+f_t <- function(x.t){
+  (1 + exp(T_AL/(x.t+273) - T_AL/T_L) + exp(T_AH/T_H - T_AH/(x.t+273))) ^ -1
+}
+
 library(deSolve) ### https://cran.r-project.org/web/packages/deSolve/vignettes/deSolve.pdf
 ### Set vector with parameters and initial condition for simulation
 parms1 <- c(r = 0.25, Mx = 10, M = 0.1, sr = 0, sMx = 0, sM0 = 1)
@@ -41,10 +48,12 @@ x.t <- x/100
 Tt <- (1 + exp(T_AL/(x.t+273) - T_AL/T_L) + exp(T_AH/T_H - T_AH/(x.t+273))) ^ -1
 plot(Tt)
 
-Tmin <- 2
-a <- log(2)/log((35 - Tmin)/(25-Tmin))
-Teff <- (2 * (x-Tmin)^a * (25- Tmin)^a - (x - Tmin) ^ (2*a))/((25-Tmin)^ (2*a))
+# Tmin <- 2
+# a <- log(2)/log((35 - Tmin)/(25-Tmin))
+# Teff <- (2 * (x-Tmin)^a * (25- Tmin)^a - (x - Tmin) ^ (2*a))/((25-Tmin)^ (2*a))
 plot(Teff)
+
+f_t(25)
 
 
 Mod <- function(t, y, par) {
@@ -72,14 +81,16 @@ TH <- 303
 TAL <- 20000
 TAH <- 60000
 
-y.vec <- seq(from = 1, to = 4000, by = 1) ### Vector with temperature points
+y.vec <- seq(from = 1, to = 40, by = 1) ### Vector with temperature points
 r.adapt <- y.vec ### Same no. of elements
 for (y in y.vec) {
   temp.t <- y/100
   r.adapt[y] <- (1 + exp(TAL/(temp.t + 273) - TAL/TL) + exp(TAH/TH - TAH/(temp.t + 273) ))^-1
 }
 
-plot(r.adapt)
+# plot(r.adapt)
+plot(y.vec/100, r.adapt, main = header.pic, xlab = "temperature (degrees Celsius)", 
+     ylab = "factor", xlim = c(0,40), type = "l", lwd = 2)
 ### Plot
 filename.pic <- "Fig-Temp.png"
 header.pic <- "Temperature response curve"
