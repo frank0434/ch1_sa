@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from sympy import plot
+
 
 
 AGFUN_DTSMTB = [0.0,  0.0,
@@ -56,6 +56,6 @@ plt.plot(x_smooth, y_smooth, label='Fitted curve')
 plt.legend()
 
 plt.show()
-plt.savefig('../output/DTSMTB_curving_fitting.png', dpi=600, format='png', bbox_inches='tight')
+plt.savefig('../output/DTSMTB_curving_fitting.svg', bbox_inches='tight')
 plt.close()
 # %%
