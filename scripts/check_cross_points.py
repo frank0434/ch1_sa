@@ -1,24 +1,28 @@
 # %%
 import pandas as pd
 import numpy as np
-
 import config
 import pickle
 import matplotlib.pyplot as plt
-import psutil
-import os
-import multiprocessing as mp
 import config
-from tqdm import tqdm
-from matplotlib.ticker import FuncFormatter
 import run_vis_Si as vis
 import pickle
+from sklearn.cluster import DBSCAN
+with open('DummySi_results.pkl', 'rb') as f:
+    Dummy_si = pickle.load(f)
 
 # %%
+    # , cols = ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TEFFMX']
+def process_dataframe(df):
+    df_normal = vis.normalize_sensitivity(df)
+    main_param = df_normal
+    # .loc[:, cols]
+    crossing_points = find_crossing_points(main_param)
+    selected_numbers = process_crossing_points(crossing_points)
+    return main_param, selected_numbers
 
 def find_crossing_points(df):
     crossing_points = {}
-    # Remove the first 10 rows to avoid the initialisation phase
     df2 =  df.iloc[10:].copy()  
     columns = df2.columns
 
@@ -33,41 +37,50 @@ def find_crossing_points(df):
             crossing_points[(col1, col2)] = crossing_x_values
 
     return crossing_points
-# %%
-# try to add a composition graph over time 
-# %% 
-col = 'DVS'
-df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
-df_pawn_long = vis.create_dataframe_from_dict(vis.load_PAWN(col))
-df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
-df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
-df_pawn_median.set_index('DAP',inplace =True)
-df_pawn_median.rename_axis("index", axis='index', inplace=True)
-# %%
-# vis.plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn_median, col)
-# %%
-df_pawn_normal = vis.normalize_sensitivity(df_pawn_median)
-df_s1_normal = vis.normalize_sensitivity(df_sensitivity_S1)
-df_st_normal = vis.normalize_sensitivity(df_sensitivity_ST)
-# %%
-visualise = ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TEFFMX']
-main_param_s1 = df_s1_normal.loc[:, visualise]
-main_param_st = df_st_normal.loc[:, visualise]
-main_pawn = df_pawn_normal.loc[:, visualise]
 
-crossing_points_s1 = find_crossing_points(main_param_s1)
-crossing_points_st = find_crossing_points(main_param_st)
-crossing_points_pawn = find_crossing_points(main_pawn)
-print(crossing_points_s1), print(crossing_points_st), print(crossing_points_pawn)
-# Usage:
-# %%
+def process_crossing_points(crossing_points):
+    points = [item for sublist in crossing_points.values() for item in sublist]
+    X = np.array(points).reshape(-1, 1)
+    model = DBSCAN(eps=3, min_samples=2)
+    model.fit(X)
+    labels = model.labels_
+    selected_numbers = [int(X[np.where(model.labels_ == label)[0]][0]) for label in labels]
+    return selected_numbers
 
 # %%
-# df_pawn_normal = normalize_sensitivity(df_pawn_median)
+
+col_variables = ['DVS', 'LAI', 'TWSO']
+results = []
+
+for col in col_variables:
+    df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
+    df_pawn_long = vis.create_dataframe_from_dict(vis.load_PAWN(col))
+    df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
+    df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
+    df_pawn_median.set_index('DAP',inplace =True)
+    df_pawn_median.rename_axis("index", axis='index', inplace=True)
+    df_pawn_normal = vis.normalize_sensitivity(df_pawn_median)
+    print(df_pawn_normal.columns)
+    lai_cols = ['SPAN', 'te', 't1_pheno', 'TSUM1', 'TDWI', 'TSUM2', 'TSUMEM', 't2','TEFFMX', 'TBASEM', 'Q10', 't1']
+    main_param_s1, selected_numbers_s1 = process_dataframe(df_sensitivity_S1)
+    main_param_st, selected_numbers_st = process_dataframe(df_sensitivity_ST)
+    main_pawn, selected_numbers_pawn = process_dataframe(df_pawn_median)
+
+    results.append({
+        'variable': col,
+        'selected_numbers_s1': list(set(selected_numbers_s1)),
+        'selected_numbers_st': list(set(selected_numbers_st)),
+        'selected_numbers_pawn': list(set(selected_numbers_pawn))
+    })
+
+    fig, axs = plt.subplots(3, 1, figsize=(10, 15))
+    plot_data(main_param_s1, selected_numbers_s1, f'main_param_s1 for {col}', axs[0])
+    plot_data(main_param_st, selected_numbers_st, f'main_param_st for {col}', axs[1])
+    plot_data(main_pawn, selected_numbers_pawn, f'main_pawn for {col}', axs[2])
+
+    plt.tight_layout()
+    plt.show()
+
+df_results = pd.DataFrame(results)
 # %%
-
-df_normal.plot()
-for x_values in selected_numbers:
-    plt.axvline(x=x_values, color='r', linestyle='--')  # plot as red dashed vertical line
-
-plt.show()
+df_results
