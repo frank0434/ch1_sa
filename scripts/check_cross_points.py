@@ -19,7 +19,7 @@ def process_dataframe(df):
     # .loc[:, cols]
     crossing_points = find_crossing_points(main_param)
     selected_numbers = process_crossing_points(crossing_points)
-    return main_param, selected_numbers
+    return main_param, selected_numbers, crossing_points
 
 def find_crossing_points(df):
     crossing_points = {}
@@ -47,6 +47,48 @@ def process_crossing_points(crossing_points):
     selected_numbers = [int(X[np.where(model.labels_ == label)[0]][0]) for label in labels]
     return selected_numbers
 
+
+# %% 
+# I want to know all the crossing points
+col = 'LAI'
+df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
+df_pawn_long = vis.create_dataframe_from_dict(vis.load_PAWN(col))
+df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
+df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
+df_pawn_median.set_index('DAP',inplace =True)
+df_pawn_median.rename_axis("index", axis='index', inplace=True)
+
+df_pawn_median_normal = vis.normalize_sensitivity(df_pawn_median)
+
+# %%
+_, _ , crossing_s1 = process_dataframe(df_sensitivity_S1)
+_, _ , crossing_st = process_dataframe(df_sensitivity_ST)
+_, _ , crossing_pawn = process_dataframe(df_pawn_median_normal)
+
+crossing_s1 = {k: v for k, v in crossing_s1.items() if v}
+crossing_st = {k: v for k, v in crossing_st.items() if v}
+crossing_pawn = {k: v for k, v in crossing_pawn.items() if v}
+df_s1 = pd.DataFrame(list(crossing_s1.items()), columns=['Keys', 'Values'])
+df_st = pd.DataFrame(list(crossing_st.items()), columns=['Keys', 'Values'])
+df_pawn = pd.DataFrame(list(crossing_pawn.items()), columns=['Keys', 'Values'])
+
+
+# %%
+df_merged = df_s1.merge(df_st, on='Keys', how='outer').merge(df_pawn, on='Keys', how='outer')
+df_merged.rename(columns={'Values_x': 'Values_S1', 'Values_y': 'Values_ST', 'Values': 'Values_PAWN'}, inplace=True)
+
+print(df_merged)
+# Output the DataFrame to LaTeX
+# Output the DataFrame to LaTeX
+latex_output = df_merged.to_latex(index=False)
+
+# Add the necessary LaTeX commands
+latex_output = '\\begin{table}[]\n\\centering\n' + latex_output
+latex_output += '\n\\caption{Caption}\n\\label{tab:my_label}\n\\end{table}'
+
+# Write the LaTeX output to a file
+with open(f'df_merged_{col}.tex', 'w') as f:
+    f.write(latex_output)
 # %%
 
 col_variables = ['DVS', 'LAI', 'TWSO']
