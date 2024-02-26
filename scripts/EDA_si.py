@@ -45,7 +45,7 @@ samplesize = 32768
 config.set_variables(samplesize, local=True)
 
 fig, axs = plt.subplots(3, 4, figsize=(12, 14), sharex=True)
-plt.subplots_adjust(wspace=0.1, hspace=0.1)
+plt.subplots_adjust(wspace=0.4, hspace=0.1)
 for j, var in enumerate(['DVS','LAI','TWSO']):
     for i, d in enumerate(differences):
         # Load data
@@ -61,9 +61,9 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
 
         # Plot sorted DataFrame
         barplot = Sis.plot(kind='barh', yerr=confs, ax=axs[j, i])
-        if i > 0:
-            axs[j, i].set_yticklabels([])
-            axs[j, i].set_yticks([])
+        # if i > 0:
+        #     axs[j, i].set_yticklabels([])
+        #     axs[j, i].set_yticks([])
         # Create custom legend
         column_sums = df.loc[:, ~conf_cols].sum().round(2)
 
@@ -93,7 +93,7 @@ dummy = Dummy_si
 # num_rows = len(day)
 # Create a figure with multiple subplots
 fig, axs = plt.subplots(3, 4, figsize=(12, 14), sharex=True)
-plt.subplots_adjust(wspace=0.1)
+plt.subplots_adjust(wspace=0.4)
 # Loop over the output variables
 for j, var in enumerate(['DVS','LAI','TWSO']):
     # Loop over the days and axes
@@ -115,9 +115,9 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
         # Add combined legend to plot
         axs[j, i].legend(handles=handles, labels=labels, loc='lower right')
         # Remove y-axis for 2nd, 3rd, 4th, etc. column subplots
-        if i > 0:
-            axs[j, i].set_yticklabels([])
-            axs[j, i].set_yticks([])
+        # if i > 0:
+        #     axs[j, i].set_yticklabels([])
+        #     axs[j, i].set_yticks([])
         # Add label to top row only
         if j == 0:
             axs[j, i].text(-0, 1.01, chr(65 + i )+ ') ' +str(d) + " DAP", transform=axs[j, i].transAxes, size=20, weight='bold')
@@ -125,9 +125,7 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
         if i == 0:
             axs[j, i].set_ylabel(var, fontsize=20)
 # Add x-label to the entire figure
-fig.text(0.5, 0, 'Sensitivity index', ha='center')
 # Add y-label to the entire figure
-fig.text(-0.01, 0.5, 'Parameter name', va='center', rotation='vertical')
 plt.tight_layout()
 plt.xlim(0, 1)
 plt.savefig(f'{config.p_out}/ParameterRank_{method}_days_{differences}.svg', bbox_inches='tight')
