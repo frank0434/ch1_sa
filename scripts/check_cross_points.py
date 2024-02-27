@@ -50,8 +50,13 @@ def process_crossing_points(crossing_points):
 
 # %% 
 # I want to know all the crossing points
-col = 'LAI'
+col = 'DVS'
+# key parameters are manually selected from the area graphs
+key_paras = ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TEFFMX', 'TBASEM']
+
 df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
+df_sensitivity_S1_normal = vis.normalize_sensitivity(df_sensitivity_S1)
+df_sensitivity_ST_normal = vis.normalize_sensitivity(df_sensitivity_ST)
 df_pawn_long = vis.create_dataframe_from_dict(vis.load_PAWN(col))
 df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
 df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
@@ -61,9 +66,9 @@ df_pawn_median.rename_axis("index", axis='index', inplace=True)
 df_pawn_median_normal = vis.normalize_sensitivity(df_pawn_median)
 
 # %%
-_, _ , crossing_s1 = process_dataframe(df_sensitivity_S1)
-_, _ , crossing_st = process_dataframe(df_sensitivity_ST)
-_, _ , crossing_pawn = process_dataframe(df_pawn_median_normal)
+_, _ , crossing_s1 = process_dataframe(df_sensitivity_S1_normal.loc[:, key_paras])
+_, _ , crossing_st = process_dataframe(df_sensitivity_ST_normal.loc[:, key_paras])
+_, _ , crossing_pawn = process_dataframe(df_pawn_median_normal.loc[:, key_paras])
 
 crossing_s1 = {k: v for k, v in crossing_s1.items() if v}
 crossing_st = {k: v for k, v in crossing_st.items() if v}
@@ -90,39 +95,210 @@ latex_output += '\n\\caption{Caption}\n\\label{tab:my_label}\n\\end{table}'
 with open(f'df_merged_{col}.tex', 'w') as f:
     f.write(latex_output)
 # %%
+# examine the crossing points
+fig, axs = plt.subplots(3, 1, figsize=(10, 15))
 
-col_variables = ['DVS', 'LAI', 'TWSO']
-results = []
+# Plot the normalized dataframes and the crossing points as vertical lines
+for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_normal, df_pawn_median_normal], [crossing_s1, crossing_st, crossing_pawn]):
+    df.plot(ax=ax)
+    for key, values in crossing.items():
+        for value in values:
+            ax.vlines(x=value, ymin=0, ymax=1, colors='r')
+            ax.text(x=value, y=0.5, s=str(value), color='r', ha='right')
 
-for col in col_variables:
-    df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
-    df_pawn_long = vis.create_dataframe_from_dict(vis.load_PAWN(col))
-    df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
-    df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
-    df_pawn_median.set_index('DAP',inplace =True)
-    df_pawn_median.rename_axis("index", axis='index', inplace=True)
-    df_pawn_normal = vis.normalize_sensitivity(df_pawn_median)
-    print(df_pawn_normal.columns)
-    lai_cols = ['SPAN', 'te', 't1_pheno', 'TSUM1', 'TDWI', 'TSUM2', 'TSUMEM', 't2','TEFFMX', 'TBASEM', 'Q10', 't1']
-    main_param_s1, selected_numbers_s1 = process_dataframe(df_sensitivity_S1)
-    main_param_st, selected_numbers_st = process_dataframe(df_sensitivity_ST)
-    main_pawn, selected_numbers_pawn = process_dataframe(df_pawn_median)
+plt.tight_layout()
+plt.show()
 
-    results.append({
-        'variable': col,
-        'selected_numbers_s1': list(set(selected_numbers_s1)),
-        'selected_numbers_st': list(set(selected_numbers_st)),
-        'selected_numbers_pawn': list(set(selected_numbers_pawn))
-    })
-
-    fig, axs = plt.subplots(3, 1, figsize=(10, 15))
-    plot_data(main_param_s1, selected_numbers_s1, f'main_param_s1 for {col}', axs[0])
-    plot_data(main_param_st, selected_numbers_st, f'main_param_st for {col}', axs[1])
-    plot_data(main_pawn, selected_numbers_pawn, f'main_pawn for {col}', axs[2])
-
-    plt.tight_layout()
-    plt.show()
-
-df_results = pd.DataFrame(results)
 # %%
-df_results
+# bring back the crossing points clustering
+clusters_s1 = process_crossing_points(crossing_s1)
+clusters_st = process_crossing_points(crossing_st)
+clusters_pawn = process_crossing_points(crossing_pawn)
+# %%
+# examine the crossing points
+fig, axs = plt.subplots(3, 1, figsize=(10, 15))
+
+# Plot the normalized dataframes and the crossing points as vertical lines
+for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_normal, df_pawn_median_normal], [clusters_s1, clusters_st, clusters_pawn]):
+    df.plot(ax=ax)
+    values = list(set(crossing))
+    for value in values:
+        ax.vlines(x=value, ymin=0, ymax=1, colors='r')
+        ax.text(x=value, y=0.5, s=str(value), color='r', ha='right')
+
+
+plt.tight_layout()
+fig.suptitle('Crossing points after clustering - could be used as a supplementary figure in the manuscript')
+
+plt.savefig(f'{config.p_out}/{col}_Si_crossing_points_afterClustering.png', dpi = 300, bbox_inches = 'tight')
+plt.show()
+# %%
+col = 'LAI'
+# key parameters are manually selected from the area graphs
+key_paras = ['SPAN', 'te',  'TDWI']
+
+df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
+df_sensitivity_S1_normal = vis.normalize_sensitivity(df_sensitivity_S1)
+df_sensitivity_ST_normal = vis.normalize_sensitivity(df_sensitivity_ST)
+df_pawn_long = vis.create_dataframe_from_dict(vis.load_PAWN(col))
+df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
+df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
+df_pawn_median.set_index('DAP',inplace =True)
+df_pawn_median.rename_axis("index", axis='index', inplace=True)
+
+df_pawn_median_normal = vis.normalize_sensitivity(df_pawn_median)
+
+# %%
+_, _ , crossing_s1 = process_dataframe(df_sensitivity_S1_normal.loc[:, key_paras])
+_, _ , crossing_st = process_dataframe(df_sensitivity_ST_normal.loc[:, key_paras])
+_, _ , crossing_pawn = process_dataframe(df_pawn_median_normal.loc[:, key_paras])
+
+crossing_s1 = {k: v for k, v in crossing_s1.items() if v}
+crossing_st = {k: v for k, v in crossing_st.items() if v}
+crossing_pawn = {k: v for k, v in crossing_pawn.items() if v}
+df_s1 = pd.DataFrame(list(crossing_s1.items()), columns=['Keys', 'Values'])
+df_st = pd.DataFrame(list(crossing_st.items()), columns=['Keys', 'Values'])
+df_pawn = pd.DataFrame(list(crossing_pawn.items()), columns=['Keys', 'Values'])
+
+
+# %%
+df_merged = df_s1.merge(df_st, on='Keys', how='outer').merge(df_pawn, on='Keys', how='outer')
+df_merged.rename(columns={'Values_x': 'Values_S1', 'Values_y': 'Values_ST', 'Values': 'Values_PAWN'}, inplace=True)
+
+print(df_merged)
+# Output the DataFrame to LaTeX
+# Output the DataFrame to LaTeX
+latex_output = df_merged.to_latex(index=False)
+
+# Add the necessary LaTeX commands
+latex_output = '\\begin{table}[]\n\\centering\n' + latex_output
+latex_output += '\n\\caption{Caption}\n\\label{tab:my_label}\n\\end{table}'
+
+# Write the LaTeX output to a file
+with open(f'df_merged_{col}.tex', 'w') as f:
+    f.write(latex_output)
+# %%
+# examine the crossing points
+fig, axs = plt.subplots(3, 1, figsize=(10, 15))
+
+# Plot the normalized dataframes and the crossing points as vertical lines
+for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_normal, df_pawn_median_normal], [crossing_s1, crossing_st, crossing_pawn]):
+    df.plot(ax=ax)
+    for key, values in crossing.items():
+        for value in values:
+            ax.vlines(x=value, ymin=0, ymax=1, colors='r')
+            ax.hlines(y = 0.1, xmin = 0, xmax = 100, colors = 'b')
+            ax.text(x=value, y=0.5, s=str(value), color='r', ha='right')
+
+
+plt.tight_layout()
+plt.show()
+
+# %%
+# bring back the crossing points clustering
+clusters_s1 = process_crossing_points(crossing_s1)
+clusters_st = process_crossing_points(crossing_st)
+clusters_pawn = process_crossing_points(crossing_pawn)
+# %%
+# examine the crossing points
+fig, axs = plt.subplots(3, 1, figsize=(10, 15))
+
+# Plot the normalized dataframes and the crossing points as vertical lines
+for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_normal, df_pawn_median_normal], [clusters_s1, clusters_st, clusters_pawn]):
+    df.plot(ax=ax)
+    values = list(set(crossing))
+    for value in values:
+        ax.vlines(x=value, ymin=0, ymax=1, colors='r')
+        ax.text(x=value, y=0.5, s=str(value), color='r', ha='right')
+
+
+plt.tight_layout()
+fig.suptitle('Crossing points after clustering - could be used as a supplementary figure in the manuscript')
+plt.show()
+plt.savefig(f'{config.p_out}/{col}_Si_crossing_points_afterClustering.png', dpi = 300, bbox_inches = 'tight')
+
+
+# %%
+col = 'TWSO'
+# key parameters are manually selected from the area graphs
+key_paras = ['SPAN', 'te', 't1_pheno', 'TSUM1', 'TDWI', 'TSUMEM', 't2']
+
+df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
+df_sensitivity_S1_normal = vis.normalize_sensitivity(df_sensitivity_S1)
+df_sensitivity_ST_normal = vis.normalize_sensitivity(df_sensitivity_ST)
+df_pawn_long = vis.create_dataframe_from_dict(vis.load_PAWN(col))
+df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
+df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
+df_pawn_median.set_index('DAP',inplace =True)
+df_pawn_median.rename_axis("index", axis='index', inplace=True)
+
+df_pawn_median_normal = vis.normalize_sensitivity(df_pawn_median)
+
+# %%
+_, _ , crossing_s1 = process_dataframe(df_sensitivity_S1_normal.loc[:, key_paras])
+_, _ , crossing_st = process_dataframe(df_sensitivity_ST_normal.loc[:, key_paras])
+_, _ , crossing_pawn = process_dataframe(df_pawn_median_normal.loc[:, key_paras])
+
+crossing_s1 = {k: v for k, v in crossing_s1.items() if v}
+crossing_st = {k: v for k, v in crossing_st.items() if v}
+crossing_pawn = {k: v for k, v in crossing_pawn.items() if v}
+df_s1 = pd.DataFrame(list(crossing_s1.items()), columns=['Keys', 'Values'])
+df_st = pd.DataFrame(list(crossing_st.items()), columns=['Keys', 'Values'])
+df_pawn = pd.DataFrame(list(crossing_pawn.items()), columns=['Keys', 'Values'])
+
+
+# %%
+df_merged = df_s1.merge(df_st, on='Keys', how='outer').merge(df_pawn, on='Keys', how='outer')
+df_merged.rename(columns={'Values_x': 'Values_S1', 'Values_y': 'Values_ST', 'Values': 'Values_PAWN'}, inplace=True)
+
+print(df_merged)
+# Output the DataFrame to LaTeX
+# Output the DataFrame to LaTeX
+latex_output = df_merged.to_latex(index=False)
+
+# Add the necessary LaTeX commands
+latex_output = '\\begin{table}[]\n\\centering\n' + latex_output
+latex_output += '\n\\caption{Caption}\n\\label{tab:my_label}\n\\end{table}'
+
+# Write the LaTeX output to a file
+with open(f'df_merged_{col}.tex', 'w') as f:
+    f.write(latex_output)
+# %%
+# examine the crossing points
+fig, axs = plt.subplots(3, 1, figsize=(10, 15))
+
+# Plot the normalized dataframes and the crossing points as vertical lines
+for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_normal, df_pawn_median_normal], [crossing_s1, crossing_st, crossing_pawn]):
+    df.plot(ax=ax)
+    for key, values in crossing.items():
+        for value in values:
+            ax.vlines(x=value, ymin=0, ymax=1, colors='r')
+            ax.text(x=value, y=0.5, s=str(value), color='r', ha='right')
+
+
+plt.tight_layout()
+plt.show()
+
+# %%
+# bring back the crossing points clustering
+clusters_s1 = process_crossing_points(crossing_s1)
+clusters_st = process_crossing_points(crossing_st)
+clusters_pawn = process_crossing_points(crossing_pawn)
+# %%
+# examine the crossing points
+fig, axs = plt.subplots(3, 1, figsize=(10, 15))
+
+# Plot the normalized dataframes and the crossing points as vertical lines
+for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_normal, df_pawn_median_normal], [clusters_s1, clusters_st, clusters_pawn]):
+    df.plot(ax=ax)
+    values = list(set(crossing))
+    for value in values:
+        ax.vlines(x=value, ymin=0, ymax=1, colors='r')
+        ax.text(x=value, y=0.5, s=str(value), color='r', ha='right')
+
+
+plt.tight_layout()
+fig.suptitle('Crossing points after clustering - could be used as a supplementary figure in the manuscript')
+plt.show()
+plt.savefig(f'{config.p_out}/{col}_Si_crossing_points_afterClustering.png', dpi = 300, bbox_inches = 'tight')
+
