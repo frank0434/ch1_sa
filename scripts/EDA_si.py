@@ -12,7 +12,7 @@ with open('DummySi_results.pkl', 'rb') as f:
     Dummy_si = pickle.load(f)
 # %%
 planting = "2022-11-10"
-harvest = ['2022-12-19', '2023-01-16', '2023-02-14']
+harvest = ['2022-12-19', '2023-01-16']
 
 
 def calculate_days_difference(planting, harvest):
@@ -43,8 +43,67 @@ def to_df(self):
 differences = calculate_days_difference(planting, harvest)
 samplesize = 32768
 config.set_variables(samplesize, local=True)
+cols = len(differences)
+#%%
+width = cols * 2.5
+fig, axs = plt.subplots(3, cols, figsize=(width, 10), sharex=True)
+plt.subplots_adjust(wspace=0.2, hspace=0.05)
+for j, var in enumerate(['DVS','LAI','TWSO']):
+    for i, d in enumerate(differences):
+        # Load data
+        Si = load_data(d, var, 'Saltelli')
+        df = to_df(Si[f'si_day_{d}_{var}'])
 
-fig, axs = plt.subplots(3, 4, figsize=(12, 14), sharex=True)
+
+        if i == 0:
+        # Sort DataFrame by 'S1' column in descending order
+            df_sorted = df.sort_values(by='S1', ascending=True)
+            order = df_sorted.index 
+            conf_cols = df_sorted.columns.str.contains('_conf')
+            confs = df_sorted.loc[:, conf_cols]
+            confs.columns = [c.replace('_conf', "") for c in confs.columns]
+            Sis = df_sorted.loc[:, ~conf_cols]
+
+            # Plot sorted DataFrame
+            barplot = Sis.plot(kind='barh', yerr=confs, ax=axs[j, i])
+        if i > 0:
+            df_sorted_new = df.reindex(order)
+            conf_cols = df_sorted_new.columns.str.contains('_conf')
+            confs = df_sorted_new.loc[:, conf_cols]
+            confs.columns = [c.replace('_conf', "") for c in confs.columns]
+            Sis = df_sorted_new.loc[:, ~conf_cols]
+
+            # Plot sorted DataFrame
+            barplot = Sis.plot(kind='barh', yerr=confs, ax=axs[j, i])
+
+        column_sums = df.loc[:, ~conf_cols].sum().round(2)
+        if i > 0:
+            axs[j, i].set_yticklabels([])
+            axs[j, i].set_yticks([])
+        # Get handles and labels of original legend
+        handles, labels = barplot.get_legend_handles_labels()
+
+        # Create custom legend elements and add them to handles and labels
+        for col, sum in column_sums.items():
+            line = plt.Line2D([0], [0], color='b', lw=4, label=f'{col}: {sum:.2f}')
+            handles.append(line)
+            labels.append(f'{col} Sum: {sum:.2f}')
+
+        # Add combined legend to plot
+        axs[j, i].legend(handles=handles, labels=labels)
+        if i == 0:
+            axs[j, i].set_ylabel(var, size=16, weight='bold')
+        if j == 0:
+            axs[j, i].text(-0, 1.01, str(d) + " DAP", transform=axs[j, i].transAxes, size=16, weight='bold')
+plt.xlim(0, 1)
+plt.xlabel('Sensitivity index')
+plt.savefig(f'{config.p_out}/ParameterRank_Saltelli_days_{differences}.svg', bbox_inches='tight')
+plt.show()
+
+# %%
+
+width = cols * 2.5
+fig, axs = plt.subplots(3, cols, figsize=(width, 10), sharex=True)
 plt.subplots_adjust(wspace=0.4, hspace=0.1)
 for j, var in enumerate(['DVS','LAI','TWSO']):
     for i, d in enumerate(differences):
@@ -93,7 +152,7 @@ dummy = Dummy_si
 # num_rows = len(day)
 # Create a figure with multiple subplots
 fig, axs = plt.subplots(3, 4, figsize=(12, 14), sharex=True)
-plt.subplots_adjust(wspace=0.4)
+plt.subplots_adjust(wspace=0.5)
 # Loop over the output variables
 for j, var in enumerate(['DVS','LAI','TWSO']):
     # Loop over the days and axes
