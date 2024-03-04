@@ -46,7 +46,7 @@ config.set_variables(samplesize, local=True)
 cols = len(differences)
 #%%
 width = cols * 2.5
-fig, axs = plt.subplots(3, cols, figsize=(width, 10), sharex=True)
+fig, axs = plt.subplots(3, cols, figsize=(width, 9), sharex=True)
 plt.subplots_adjust(wspace=0.2, hspace=0.05)
 for j, var in enumerate(['DVS','LAI','TWSO']):
     for i, d in enumerate(differences):
@@ -96,10 +96,67 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
         if j == 0:
             axs[j, i].text(-0, 1.01, str(d) + " DAP", transform=axs[j, i].transAxes, size=16, weight='bold')
 plt.xlim(0, 1)
-plt.xlabel('Sensitivity index')
+fig.text(0.5, .05, 'Sensitivity index', ha='center', size = 16, weight='bold')
 plt.savefig(f'{config.p_out}/ParameterRank_Saltelli_days_{differences}.svg', bbox_inches='tight')
 plt.show()
 
+# %% # pAWN
+method='PAWN'
+sortby='median'
+dummy = Dummy_si
+# Calculate the number of rows for the subplots
+cols = len(differences)
+width = cols * 2.5
+# Create a figure with multiple subplots
+fig, axs = plt.subplots(3, cols, figsize=(width, 9), sharex=True)
+plt.subplots_adjust(wspace=0.15)
+# Loop over the output variables
+for j, var in enumerate(['DVS','LAI','TWSO']):
+    # Loop over the days and axes
+    for i, d in enumerate(differences):
+        # Load data
+        data = load_data(d, var, 'PAWN')
+        df = data[f'si_day_{d}_{var}'].to_df()
+        # Sort DataFrame by 'median' column in descending order
+        if i == 0:
+            df_sorted = df.sort_values(by=sortby, ascending=True)
+            order = df_sorted.index
+            column_sums = df.sum().round(2).drop(['minimum', "maximum",'CV'])
+            # Plot sorted DataFrame
+            barplot = df_sorted[sortby].plot(kind='barh', ax=axs[j, i], width=0.5)
+            axs[j, i].axvline(x=dummy[1][1], color='r', linestyle='-')
+        if i > 0:
+            df_sorted_new = df.reindex(order)
+            column_sums = df_sorted_new.sum().round(2).drop(['minimum', "maximum",'CV'])
+            # Plot sorted DataFrame
+            barplot = df_sorted_new[sortby].plot(kind='barh', ax=axs[j, i], width=0.5)
+            axs[j, i].axvline(x=dummy[1][1], color='r', linestyle='-')
+        handles, labels = barplot.get_legend_handles_labels()
+        
+        for col, sum in column_sums.items():
+            line = plt.Line2D([0], [0], color='b', lw=4, label=f'{col}: {sum:.2f}')
+            handles.append(line)
+            labels.append(f'{col} Sum: {sum:.2f}')
+        # Add combined legend to plot
+        axs[j, i].legend(handles=handles[1:], labels=labels[1:])
+        # Remove y-axis for 2nd, 3rd, 4th, etc. column subplots
+        if i > 0:
+            axs[j, i].set_yticklabels([])
+            axs[j, i].set_yticks([])
+        # Add label to top row only
+        if j == 0:
+            axs[j, i].text(-0, 1.01, chr(65 + i )+ ') ' +str(d) + " DAP", transform=axs[j, i].transAxes, size=20, weight='bold')
+        # Add y-label for each row
+        if i == 0:
+            axs[j, i].set_ylabel(var, fontsize=20)
+# Add x-label to the entire figure
+# Add y-label to the entire figure
+plt.tight_layout()
+plt.xlim(0, 1)
+fig.text(0.5, -.01, 'Sensitivity index', ha='center', size = 16, weight='bold')
+
+plt.savefig(f'{config.p_out}/ParameterRank_{method}_days_{differences}.svg', bbox_inches='tight')
+plt.show()
 # %%
 
 width = cols * 2.5
@@ -144,51 +201,7 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
 plt.xlim(0, 1)
 plt.savefig(f'{config.p_out}/ParameterRank_Saltelli_days_{differences}.svg', bbox_inches='tight')
 plt.show()
-# %% # pAWN
-method='PAWN'
-sortby='median'
-dummy = Dummy_si
-# Calculate the number of rows for the subplots
-# num_rows = len(day)
-# Create a figure with multiple subplots
-fig, axs = plt.subplots(3, 4, figsize=(12, 14), sharex=True)
-plt.subplots_adjust(wspace=0.5)
-# Loop over the output variables
-for j, var in enumerate(['DVS','LAI','TWSO']):
-    # Loop over the days and axes
-    for i, d in enumerate(differences):
-        # Load data
-        data = load_data(d, var, 'PAWN')
-        df = data[f'si_day_{d}_{var}'].to_df()
-        # Sort DataFrame by 'median' column in descending order
-        df_sorted = df.sort_values(by=sortby, ascending=True)
-        column_sums = df.sum().round(2).drop(['minimum', "maximum",'CV'])
-        # Plot sorted DataFrame
-        barplot = df_sorted[sortby].plot(kind='barh', ax=axs[j, i], width=0.5)
-        axs[j, i].axvline(x=dummy[1][1], color='r', linestyle='-')
-        handles, labels = barplot.get_legend_handles_labels()
-        for col, sum in column_sums.items():
-            line = plt.Line2D([0], [0], color='b', lw=4, label=f'{col}: {sum:.2f}')
-            handles.append(line)
-            labels.append(f'{col} Sum: {sum:.2f}')
-        # Add combined legend to plot
-        axs[j, i].legend(handles=handles, labels=labels, loc='lower right')
-        # Remove y-axis for 2nd, 3rd, 4th, etc. column subplots
-        # if i > 0:
-        #     axs[j, i].set_yticklabels([])
-        #     axs[j, i].set_yticks([])
-        # Add label to top row only
-        if j == 0:
-            axs[j, i].text(-0, 1.01, chr(65 + i )+ ') ' +str(d) + " DAP", transform=axs[j, i].transAxes, size=20, weight='bold')
-        # Add y-label for each row
-        if i == 0:
-            axs[j, i].set_ylabel(var, fontsize=20)
-# Add x-label to the entire figure
-# Add y-label to the entire figure
-plt.tight_layout()
-plt.xlim(0, 1)
-plt.savefig(f'{config.p_out}/ParameterRank_{method}_days_{differences}.svg', bbox_inches='tight')
-plt.clf()
+
 # %%
 def plot_sorted_df(day, output_var=['TWSO'], method='Saltelli', samplesize=32768, sortby='S1'):
     # Check if day is a list
@@ -198,7 +211,7 @@ def plot_sorted_df(day, output_var=['TWSO'], method='Saltelli', samplesize=32768
 
         # Create a figure with multiple subplots
         fig, axs = plt.subplots(len(output_var), len(day), figsize=(14, 14), sharex=True)
-        plt.subplots_adjust(wspace=0.4)
+        plt.subplots_adjust(wspace=0.15)
 
         # Loop over the output variables
         for j, var in enumerate(output_var):
@@ -234,7 +247,7 @@ def plot_sorted_df(day, output_var=['TWSO'], method='Saltelli', samplesize=32768
                     labels.append(f'{col} Sum: {sum:.2f}')
 
                 # Add combined legend to plot
-                axs[j, i].legend(handles=handles, labels=labels, loc='lower right')
+                axs[j, i].legend(handles=handles, labels=labels)
                 axs[j, i].text(-0, 1.01, chr(65 + i )+ ') ' +str(d) + " DAP", transform=axs[j, i].transAxes, size=16, weight='bold')
         plt.xlim(0, 1)
         # Add y-label to the entire figure
