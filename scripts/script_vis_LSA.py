@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import itertools
+import math
 # %%
 para = config.params_of_interests
 config.p_out_LSAsims
@@ -146,14 +147,19 @@ plt.show()
 
 def create_subplots(df, para, variable, colors):
     n = len(para)
-    rows = n // 3
-    fig, ax = plt.subplots(rows, 3, figsize=(15, 15))
+    rows = math.ceil(n / 3)
+    fig_height = rows * 5  # Adjust this value to change the height of each subplot
+
+    fig, axes = plt.subplots(rows, 3, figsize=(15, fig_height))
 
     # Use the function for each parameter
-    for ax, param in zip(ax.flatten(), para):
+    for ax, param in zip(axes.flatten(), para):
         plot_diff_for_key(df, param, ax, variable, colors[param])
         ax.set_xlabel('')
 
+    # If the number of subplots is odd, remove the last one
+    if n % 3 != 0:
+        fig.delaxes(axes.flatten()[-1])
     plt.legend()
     fig.text(0.5, 0, 'DAP', ha='center', va='center', fontsize=16)
     fig.text(0, 0.5, f'delta {variable}', va='center', rotation='vertical', fontsize=16)
@@ -162,27 +168,33 @@ def create_subplots(df, para, variable, colors):
 
     plt.show()
 
-def create_subplots_final(df, para, variable, colors):
+def create_subplots_final(df, para, variable, colors, suffix = 'allparams'):
     n = len(para)
-    rows = n // 3
-    fig, ax = plt.subplots(rows, 3, figsize=(15, 15))
+    rows = math.ceil(n / 2)
+    fig_height = rows * 3  # Adjust this value to change the height of each subplot
+
+    fig, axes = plt.subplots(rows, 2, figsize=(9, fig_height))
 
     # Use the function for each parameter
-    for ax, param in zip(ax.flatten(), para):
+    for ax, param in zip(axes.flatten(), para):
         plot_final_for_key(df, param, ax, variable, colors[param])
         ax.set_xlabel('')
         ax.set_ylabel('')
-
+    if n % 3 != 0:
+        fig.delaxes(axes.flatten()[-1])
     plt.legend()
     fig.text(0.5, 0, 'value', ha='center', va='center', fontsize=16)
     fig.text(0, 0.5, f'{variable}', va='center', rotation='vertical', fontsize=16)
     plt.tight_layout()
-    plt.savefig(f'{config.p_out_LSAsims}/{variable}_final.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
+    plt.savefig(f'{config.p_out_LSA}/{variable}_final_{suffix}.svg', bbox_inches='tight', pad_inches=0.1)
+
+    plt.savefig(f'{config.p_out_LSAsims}/{variable}_final_{suffix}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
 
     plt.show()
 def create_subplots_time(df, para, variable, colors):
     n = len(para)
-    rows = n // 3
+    rows = math.ceil(n / 3)
+
     fig, ax = plt.subplots(rows, 3, figsize=(15, 15))
 
     # Use the function for each parameter
@@ -199,6 +211,26 @@ def create_subplots_time(df, para, variable, colors):
 
     plt.show()
 # %% 
+# second round of visualization 
+para_LAI = ['TSUM1', 'SPAN', 'te', 'TBASEM', 'TSUMEM', 'TEFFMX', 'TDWI','t1_pheno']
+final_lai_df  = large_df[(large_df['key'].isin(para_LAI))&(large_df['day'] == '2023-02-24')]
+
+create_subplots_final(final_lai_df, para_LAI, 'LAI', colors, suffix='selected')
+# %%
+# DVS
+para_DVS = ['TSUM1', 'TSUM2','t1','TBASEM', 'TSUMEM', 'TEFFMX','t1_pheno']
+final_DVS_df  = large_df[(large_df['key'].isin(para_DVS))&(large_df['day'] == '2023-02-24')]
+
+create_subplots_final(final_DVS_df, para_DVS, 'DVS', colors, suffix='selected')
+# %%
+para_TWSO = ['TSUM1', 'SPAN', 'TBASEM', 'TSUMEM', 'TEFFMX', 'TDWI','te', 't1_pheno']
+final_TWSO_df  = large_df[(large_df['key'].isin(para_TWSO))&(large_df['day'] == '2023-02-24')]
+
+create_subplots_final(final_TWSO_df, para_TWSO, 'TWSO', colors, suffix='selected')
+
+# %%
+
+# first round visualization 
 # Call the function for each variable
 for i in config.cols_of_interests:
     create_subplots(large_df, para, i, colors)
