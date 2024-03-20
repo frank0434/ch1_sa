@@ -52,7 +52,7 @@ def process_crossing_points(crossing_points):
 # I want to know all the crossing points
 col = 'DVS'
 # key parameters are manually selected from the area graphs
-key_paras = ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TEFFMX', 'TBASEM']
+key_paras = ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TEFFMX']
 
 df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
 df_sensitivity_S1_normal = vis.normalize_sensitivity(df_sensitivity_S1)
@@ -99,7 +99,10 @@ with open(f'df_merged_{col}.tex', 'w') as f:
 fig, axs = plt.subplots(3, 1, figsize=(10, 15))
 
 # Plot the normalized dataframes and the crossing points as vertical lines
-for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_normal, df_pawn_median_normal], [crossing_s1, crossing_st, crossing_pawn]):
+for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal.loc[: , key_paras],
+                                  df_sensitivity_ST_normal.loc[: , key_paras],
+                                  df_pawn_median_normal.loc[: , key_paras]], 
+                                  [crossing_s1, crossing_st, crossing_pawn]):
     df.plot(ax=ax)
     for key, values in crossing.items():
         for value in values:
@@ -108,7 +111,15 @@ for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_no
 
 plt.tight_layout()
 plt.show()
+# %% # do the area under the curve 
+from scipy import integrate
 
+# Calculate the area under the curve for each column in df_sensitivity_S1_normal
+areas_pawn = df_pawn_median_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
+areas_ST = df_sensitivity_ST_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
+
+print("Areas under the curve for each column in df_sensitivity_S1_normal:", areas_pawn)
+print("Areas under the curve for each column in df_sensitivity_ST_normal:", areas_ST)
 # %%
 # bring back the crossing points clustering
 clusters_s1 = process_crossing_points(crossing_s1)
@@ -193,7 +204,15 @@ for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_no
 
 plt.tight_layout()
 plt.show()
+# %%
+from scipy import integrate
 
+# Calculate the area under the curve for each column in df_sensitivity_S1_normal
+areas_pawn = df_pawn_median_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
+areas_ST = df_sensitivity_ST_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
+
+print("Areas under the curve for each column in df_sensitivity_S1_normal:", areas_pawn)
+print("Areas under the curve for each column in df_sensitivity_ST_normal:", areas_ST)
 # %%
 # bring back the crossing points clustering
 clusters_s1 = process_crossing_points(crossing_s1)
@@ -279,6 +298,13 @@ for ax, df, crossing in zip(axs, [df_sensitivity_S1_normal, df_sensitivity_ST_no
 plt.tight_layout()
 plt.show()
 
+# Calculate the area under the curve for each column in df_sensitivity_S1_normal
+areas_pawn = df_pawn_median_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
+areas_ST = df_sensitivity_ST_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
+
+print("Areas under the curve for each column in df_sensitivity_S1_normal:", areas_pawn.round(0))
+print("Areas under the curve for each column in df_sensitivity_ST_normal:", areas_ST.round(0))
+#
 # %%
 # bring back the crossing points clustering
 clusters_s1 = process_crossing_points(crossing_s1)
