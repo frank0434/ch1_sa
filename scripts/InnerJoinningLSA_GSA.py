@@ -13,8 +13,18 @@ with open('DummySi_results.pkl', 'rb') as f:
     Dummy_si = pickle.load(f)
 planting = "2022-11-10"
 harvest = ['2022-12-19', '2023-01-16', '2023-02-24']
+from pcse.fileinput import ExcelWeatherDataProvider
+# load weather data
+wdp = ExcelWeatherDataProvider(config.Weather_real)
+# %%
+weather_df = pd.DataFrame(wdp.export() )
+weather_df = weather_df.loc[:, ['DAY','TMAX', 'TMIN','RAIN','IRRAD']]
+weather_df.plot(x='DAY', subplots=True, layout=(2,2), figsize=(15,10))
+weather_df.describe()
+weather_df['IRRAD'] = weather_df['IRRAD']/100
 
-
+weather_df['IRRAD'].cumsum()
+# %%
 def calculate_days_difference(planting, harvest):
     # Convert planting date to datetime
     planting_date = datetime.strptime(planting, "%Y-%m-%d")
@@ -184,3 +194,58 @@ table_wide
 
 
 # %%
+def find_common_indices_GSA(d, var):
+    """
+    Find the common indices between LSA, Saltelli, and PAWN results.
+
+    Parameters:
+    d (int): The day for which to find the common indices.
+    var (str): The variable for which to find the common indices.
+
+    Returns:
+    DataFrame: The common indices and their sources.
+    """
+    Si = load_data(d, var, 'Saltelli')
+    df = to_df(Si[f'si_day_{d}_{var}'])
+    data_PAWN = load_data(d, var, 'PAWN')
+    df_PAWN = data_PAWN[f'si_day_{d}_{var}'].to_df()
+    index_Saltelli = df[df['ST']> 0.05 ].index
+
+    index_pawn = df_PAWN[df_PAWN['median']>Dummy_si[1][1]].index
+    df_Saltelli = pd.DataFrame(index_Saltelli, columns=['param'])
+    df_Saltelli['source'] = 'Saltelli'
+    df_pawn = pd.DataFrame(index_pawn, columns=['param'])
+    df_pawn['source'] = 'PAWN'
+    df_all = pd.concat([df_Saltelli, df_pawn])
+    df_all = df_all.drop_duplicates().pivot(index='param', columns='source', values='param')
+    df_all['day'] = d
+    df_all['var'] = var
+    df_all
+    return df_all
+# List of variables and days to iterate over
+variables = ['DVS', 'LAI', 'TWSO']  # Replace with your actual variables
+
+# Initialize an empty list to store the DataFrames
+df_list = []
+
+# Iterate over variables and days
+for var in variables:
+    for d in differences:
+        common_indices = find_common_indices_GSA(d, var)
+
+        # Add the current DataFrame to the list
+        df_list.append(common_indices)
+
+# Concatenate all the DataFrames in the list
+common_indices_df = pd.concat(df_list, ignore_index=True)
+
+# Print the DataFrame
+table = common_indices_df.sort_values(by = ['day', 'var']).dropna()
+table_wide = table.melt(id_vars = ['day', 'var'], value_name='param').pivot(index = ['day', 'var','source'], columns='param', values='param').reset_index()
+table_wide.iloc[:, -4:].applymap(lambda x: 1 if pd.notnull(x) else 0)
+# Apply the function to the last four columns and assign the result back to those columns
+table_wide.iloc[:, 3:] = table_wide.iloc[:, 3:].applymap(lambda x: 1 if pd.notnull(x) else 0)
+
+
+table_wide
+
