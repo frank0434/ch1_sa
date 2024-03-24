@@ -48,15 +48,16 @@ def plot_final_for_key(df, key, ax, output_var = 'TWSO', color = 'blue'):
     filtered_df = df[df['key'] == key]
     filtered_df.loc[:, 'value'] = filtered_df['value'].astype(float)
     filtered_df.plot(x='value', y=output_var, kind='scatter', ax=ax, label=key, color=color)
-def plot_timeseries_for_key(df, key, ax, output_var = 'TWSO', color = 'blue'):
+def plot_timeseries_for_key(df, key, ax, output_var = 'TWSO', c='value', cmap='viridis'):
     filtered_df = df[df['key'] == key]
     filtered_df.loc[:, 'value'] = filtered_df['value'].astype(float)
-    filtered_df.plot(x='DAP', y=output_var, kind='scatter', ax=ax, label=key, color=color)
+    filtered_df.plot(x='DAP', y=output_var, kind='scatter', ax=ax, label=key, c=c, cmap='viridis')
 def plot_2nd_diff_for_key(df, key, ax, output_var = 'TWSO', color = 'blue'):
     filtered_df = df[df['key'] == key].sort_values('day').groupby('value')
     diff_df = filtered_df[output_var].apply(lambda x: x.diff()).reset_index()
 
-
+# %%
+plot_timeseries_for_key(large_df, 'TBASEM', plt.gca(), 'LAI')
 
 # %% 
 final_output = large_df[large_df['day'] == '2023-02-24'].drop(columns=['DAP','day','WWLOW','RD','SM'])
@@ -162,7 +163,7 @@ def create_subplots(df, para, variable, colors):
         fig.delaxes(axes.flatten()[-1])
     plt.legend()
     fig.text(0.5, 0, 'DAP', ha='center', va='center', fontsize=16)
-    fig.text(0, 0.5, f'delta {variable}', va='center', rotation='vertical', fontsize=16)
+    fig.text(0, 0.5, f'{variable}', va='center', rotation='vertical', fontsize=16)
     plt.tight_layout()
     plt.savefig(f'{config.p_out_LSAsims}/{variable}_diff.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
 
@@ -173,7 +174,7 @@ def create_subplots_final(df, para, variable, colors, suffix = 'allparams'):
     rows = math.ceil(n / 2)
     fig_height = rows * 3  # Adjust this value to change the height of each subplot
 
-    fig, axes = plt.subplots(rows, 2, figsize=(9, fig_height))
+    fig, axes = plt.subplots(rows, 2, figsize=(9, fig_height), sharey=True)
 
     # Use the function for each parameter
     for ax, param in zip(axes.flatten(), para):
@@ -212,13 +213,13 @@ def create_subplots_time(df, para, variable, colors):
     plt.show()
 # %% 
 # second round of visualization 
-para_LAI = ['TSUM1', 'SPAN', 'te', 'TBASEM', 'TSUMEM', 'TEFFMX', 'TDWI','t1_pheno']
+para_LAI = ['TDWI']
 final_lai_df  = large_df[(large_df['key'].isin(para_LAI))&(large_df['day'] == '2023-02-24')]
 
 create_subplots_final(final_lai_df, para_LAI, 'LAI', colors, suffix='selected')
 # %%
 # DVS
-para_DVS = ['TSUM1', 'TSUM2','t1','TBASEM', 'TSUMEM', 'TEFFMX','t1_pheno']
+para_DVS = ['TSUM1', 'SPAN', 'TBASEM', 'TSUMEM', 'TEFFMX', 'TDWI','te', 't1_pheno']
 final_DVS_df  = large_df[(large_df['key'].isin(para_DVS))&(large_df['day'] == '2023-02-24')]
 
 create_subplots_final(final_DVS_df, para_DVS, 'DVS', colors, suffix='selected')
@@ -227,6 +228,17 @@ para_TWSO = ['TSUM1', 'SPAN', 'TBASEM', 'TSUMEM', 'TEFFMX', 'TDWI','te', 't1_phe
 final_TWSO_df  = large_df[(large_df['key'].isin(para_TWSO))&(large_df['day'] == '2023-02-24')]
 
 create_subplots_final(final_TWSO_df, para_TWSO, 'TWSO', colors, suffix='selected')
+
+# %%
+#  ['2022-12-19', '2023-01-16']
+para_LAI = ['SPAN']
+final_lai_df  = large_df[(large_df['day'] == '2022-12-19')]
+
+create_subplots_final(final_lai_df, config.params_of_interests, 'LAI', colors)
+
+final_lai_df  = large_df[(large_df['day'] == '2023-01-16')]
+
+create_subplots_final(final_lai_df, config.params_of_interests, 'LAI', colors)
 
 # %%
 
