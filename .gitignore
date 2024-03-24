@@ -11,4 +11,5 @@
 notebooks/BDD69600
 *.json
 ch1_SA.code-workspace
-scripts/__pycache__/config.cpython-38.pyc
+scripts/__pycache__/*
+*.tex
