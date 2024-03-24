@@ -109,7 +109,7 @@ plt.show()
 # %% # pAWN
 method='PAWN'
 sortby='median'
-dummy = Dummy_si
+dummy = Dummy_si[1][1] # select the upper bound of the dummy si
 # Calculate the number of rows for the subplots
 cols = len(differences)
 width = cols * 2.5
@@ -130,13 +130,13 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
             column_sums = df.sum().round(2).drop(['minimum', "maximum",'CV'])
             # Plot sorted DataFrame
             barplot = df_sorted[sortby].plot(kind='barh', ax=axs[j, i], width=0.5)
-            axs[j, i].axvline(x=dummy[1][1], color='r', linestyle='-')
+            axs[j, i].axvline(x=dummy, color='r', linestyle='-')
         if i > 0:
             df_sorted_new = df.reindex(order)
             column_sums = df_sorted_new.sum().round(2).drop(['minimum', "maximum",'CV'])
             # Plot sorted DataFrame
             barplot = df_sorted_new[sortby].plot(kind='barh', ax=axs[j, i], width=0.5)
-            axs[j, i].axvline(x=dummy[1][1], color='r', linestyle='-')
+            axs[j, i].axvline(x=dummy, color='r', linestyle='-')
         handles, labels = barplot.get_legend_handles_labels()
         
         for col, sum in column_sums.items():
