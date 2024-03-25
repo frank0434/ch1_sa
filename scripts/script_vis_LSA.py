@@ -96,7 +96,7 @@ import seaborn as sns
 # Assuming your long-format DataFrame is named 'df'
 # Define the variables for x, y, and facets
 g = sns.FacetGrid(df, col='variable', row='key', sharex=False, sharey=False)
-g.map(sns.scatterplot, 'value', 'second_derivative', color='black')
+g.map(sns.scatterplot, 'value', 'first_derivative', color='black')
 # g.map(sns.scatterplot, 'value', 'vals', color='black')
 # %% 
 
