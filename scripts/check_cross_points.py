@@ -118,8 +118,12 @@ from scipy import integrate
 areas_pawn = df_pawn_median_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
 areas_ST = df_sensitivity_ST_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
 
-print("Areas under the curve for each column in df_sensitivity_S1_normal:", areas_pawn)
-print("Areas under the curve for each column in df_sensitivity_ST_normal:", areas_ST)
+combined_areas = pd.concat([areas_pawn, areas_ST], axis=1, join='outer', keys=['PAWN', 'ST'])
+
+combined_areas.round().to_csv(f'areas_{col}.csv')
+# combined_areas
+# %% 
+
 # %%
 # bring back the crossing points clustering
 clusters_s1 = process_crossing_points(crossing_s1)
@@ -210,7 +214,9 @@ from scipy import integrate
 # Calculate the area under the curve for each column in df_sensitivity_S1_normal
 areas_pawn = df_pawn_median_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
 areas_ST = df_sensitivity_ST_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
+combined_areas = pd.concat([areas_pawn, areas_ST], axis=1, join='outer', keys=['PAWN', 'ST'])
 
+combined_areas.round().to_csv(f'areas_{col}.csv')
 print("Areas under the curve for each column in df_sensitivity_S1_normal:", areas_pawn)
 print("Areas under the curve for each column in df_sensitivity_ST_normal:", areas_ST)
 # %%
@@ -301,8 +307,10 @@ plt.show()
 # Calculate the area under the curve for each column in df_sensitivity_S1_normal
 areas_pawn = df_pawn_median_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
 areas_ST = df_sensitivity_ST_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
+combined_areas = pd.concat([areas_pawn, areas_ST], axis=1, join='outer', keys=['PAWN', 'ST'])
 
-print("Areas under the curve for each column in df_sensitivity_S1_normal:", areas_pawn.round(0))
+combined_areas.round().to_csv(f'areas_{col}.csv')
+print("Areas under the curve for each column in df_sensitivity_pawn_normal:", areas_pawn.round(0))
 print("Areas under the curve for each column in df_sensitivity_ST_normal:", areas_ST.round(0))
 #
 # %%
