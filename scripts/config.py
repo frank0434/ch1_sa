@@ -16,6 +16,7 @@ parameter_list = p_dat_raw / "TempRelateParams.xlsx"
 potato_paramters = p_dat_raw / "potato.yaml"
 Weather_AgERA5 = p_dat_processed / "wdp_ind.pickle"
 Weather_real = p_dat_raw / "India2022_23.xlsx"
+Weather_real_NL = p_dat_raw / "350_weatherfile_2021.xls"
 SOIL_DATA_PATH = p_dat_raw / "ec3 sandyloam.soil"
 CROP_DATA_PATH = p_dat_raw 
 
@@ -95,11 +96,14 @@ SIMULATION_END_DATE_real = "2023-02-24"  # Real weather station data ends at 24t
 variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
 planting = "2022-11-10"
 harvest = ['2022-12-19', '2023-01-16', '2023-02-14']
+SIMULATION_START_DATE_NL = "2021-06-08"
+SIMULATION_CROP_START_NL = '2021-06-08'
+SIMULATION_END_DATE_NL = "2021-09-24"
 
 
 # Calculate the difference in days
 sim_period = (datetime.strptime(SIMULATION_END_DATE_real, "%Y-%m-%d") - datetime.strptime(SIMULATION_CROP_START, "%Y-%m-%d")).days
-
+sim_period_NL = (datetime.strptime(SIMULATION_END_DATE_NL, "%Y-%m-%d") - datetime.strptime(SIMULATION_CROP_START_NL, "%Y-%m-%d")).days
 # input and output columns
 
 cols_of_interests = ['DVS', 'LAI', 'TAGP', 'TWSO', 'TWLV', 'TWST', 'TWRT', 'TRA']
