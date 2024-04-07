@@ -12,6 +12,7 @@ p = pathlib.Path().resolve().parent
 run_NL_conditions = False
 local = True
 GSA_sample_size = 32
+LSA_sample_size = 100
 
 calc_second_order = True
 len_hash_dict = 1000
@@ -63,10 +64,7 @@ problem = {
        [25,35]
        ]
 }
-LSA_sample_size = 100
 
-p_out_LSA = p / 'output/LSA'
-p_out_LSA.mkdir(parents=True, exist_ok=True)
 
 
 # run NL conditions
@@ -78,7 +76,6 @@ if run_NL_conditions:
     variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
     planting = "2021-06-08"
     harvest = ['2021-07-17', '2021-08-14', '2021-09-12']
-    p_out_LSAsims = p_out_LSA / f'sims_NL_{LSA_sample_size}'
     # run the NL conditions
     Weather_real = p_dat_raw / "350_weatherfile_2021.xlsx"
 else:
@@ -90,25 +87,28 @@ else:
     variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
     planting = "2022-11-10"
     harvest = ['2022-12-19', '2023-01-16', '2023-02-14']
-    p_out_LSAsims = p_out_LSA / f'sims_{LSA_sample_size}'
     Weather_real = p_dat_raw / "India2022_23.xlsx"
 
-p_out_LSAsims.mkdir(parents=True, exist_ok=True)
 
 def set_variables(GSA_sample_size, local = local, run_NL_conditions = run_NL_conditions):
     global p_out, p_out_sims, p_out_sims_hash, p_out_daysims, p_out_daySi, Total_sims
 
     # output directories 
     if local:
-        p_out = p / 'output'
+        p_out = p / 'output_NL' if run_NL_conditions else p / 'output'
     else:
-        p_out = pathlib.Path('/lustre/nobackup/INDIVIDUAL/liu283/')
-    p_out_sims =  p_out / f'sims_NL_{GSA_sample_size}' if run_NL_conditions else p_out / f'sims_{GSA_sample_size}'
+        p_out = pathlib.Path('/lustre/nobackup/INDIVIDUAL/liu283/NL_output') if run_NL_conditions else pathlib.Path('/lustre/nobackup/INDIVIDUAL/liu283/')
+    p_out_LSA = p / 'output/LSA'
+    p_out_LSAsims = p_out_LSA / f'sims_NL_{LSA_sample_size}' if run_NL_conditions else p_out_LSA / f'sims_{LSA_sample_size}'    
+    p_out_sims =  p_out / f'sims_{GSA_sample_size}'
     p_out_sims_hash = p_out_sims / f'hash_dict_{GSA_sample_size}'
-    p_out_daysims = p_out / f'daysims_NL_{GSA_sample_size}' if run_NL_conditions else p_out / f'daysims_{GSA_sample_size}'
-    p_out_daySi = p_out / f'daySi_NL_{GSA_sample_size}' if run_NL_conditions else p_out / f'daySi_{GSA_sample_size}'
+    p_out_daysims = p_out / f'daysims_{GSA_sample_size}'
+    p_out_daySi = p_out / f'daySi_{GSA_sample_size}'
 
     # Create directories if they don't exist
+    
+    p_out_LSA.mkdir(parents=True, exist_ok=True)
+    p_out_LSAsims.mkdir(parents=True, exist_ok=True)
     p_out.mkdir(parents=True, exist_ok=True)
     p_out_sims.mkdir(parents=True, exist_ok=True)
     p_out_daysims.mkdir(parents=True, exist_ok=True)
