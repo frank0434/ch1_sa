@@ -34,59 +34,11 @@ large_df = pd.concat(dfs)
 # %%
 large_df['value'] = large_df['value'].astype(float)
 colors = config.name_color_map
-colors
-
-# %% 
 no_ofdays = len(large_df.day.unique())
 # %%
 DAPs = np.tile(np.arange(no_ofdays), config.LSA_sample_size * len(para))
 large_df['DAP'] = DAPs[:len(large_df)]
 
-# %% all parameters with one output
-
-# List of parameters
-param_names = config.params_of_interests
-# Create a figure with 15 subplots (3 rows and 5 columns)
-fig, axs = plt.subplots(5, 3, figsize=(9, 12), sharex=True, sharey=True)    
-# Adjust the width of the space between subplots
-fig.subplots_adjust(wspace=-.5, hspace= -0.5)
-# Flatten the axes array
-axs = axs.flatten()
-
-# Loop over each parameter
-for i, param_name in enumerate(param_names):
-    # Filter the DataFrame for the current parameter
-    output_df = large_df[large_df['key'] == param_name].sort_values('day')
-    output_df.set_index('DAP', inplace=True)
-
-    # Create a colormap
-    cmap = plt.get_cmap('viridis')
-
-    # Normalize the 'value' column for the colormap
-    norm = plt.Normalize(output_df['value'].min(), output_df['value'].max())
-
-    # Create the scatter plot in the current subplot
-    sc = axs[i].scatter(output_df.index, output_df['LAI'], c=output_df['value'], cmap=cmap, norm=norm)
-
-    # Add a colorbar to the current subplot
-    fig.colorbar(sc, ax=axs[i])
-
-    # Set labels and title for the current subplot
-    if i >= 12:  # Only for subplots in the last row
-        axs[i].set_xlabel('DAP')
-    else:  # Remove x-axis label and ticks for subplots in the first and second rows
-        axs[i].set_xticklabels([])
-    if i % 3 == 0:  # Only for subplots in the first column
-        axs[i].set_ylabel(output_var)
-  
-    axs[i].set_title(f'{param_name}')
-
-# Adjust the layout
-plt.tight_layout()
-plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries.svg', bbox_inches='tight', pad_inches=0.1)
-plt.savefig(f'{config.p_out_LSAsims}/{output_var}__timeseries.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-# Show the plot
-plt.show()
 # %%
 def create_subplot(ax, output_df, output_var, param_name):
     cmap = plt.get_cmap('viridis')
