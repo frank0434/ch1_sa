@@ -65,7 +65,7 @@ p_out_LSA.mkdir(parents=True, exist_ok=True)
 # If run_NL_conditions is True, the script will run the NL conditions
 # If run_NL_conditions is False, the script will run the Indian conditions
 # To switch between the two, simply change the value of run_NL_conditions
-run_NL_conditions = False
+run_NL_conditions = True
 
 # run NL conditions
 if run_NL_conditions:
