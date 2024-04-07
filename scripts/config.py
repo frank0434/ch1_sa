@@ -103,8 +103,8 @@ def set_variables(GSA_sample_size, local = False, run_NL_conditions = run_NL_con
         p_out = pathlib.Path('/lustre/nobackup/INDIVIDUAL/liu283/')
     p_out_sims =  p_out / f'sims_NL_{GSA_sample_size}' if run_NL_conditions else p_out / f'sims_{GSA_sample_size}'
     p_out_sims_hash = p_out_sims / f'hash_dict_{GSA_sample_size}'
-    p_out_daysims = p_out / f'daysims_{GSA_sample_size}'
-    p_out_daySi = p_out / f'daySi_{GSA_sample_size}'
+    p_out_daysims = p_out / f'daysims_NL_{GSA_sample_size}' if run_NL_conditions else p_out / f'daysims_{GSA_sample_size}'
+    p_out_daySi = p_out / f'daySi_NL_{GSA_sample_size}' if run_NL_conditions else p_out / f'daySi_{GSA_sample_size}'
 
     # Create directories if they don't exist
     p_out.mkdir(parents=True, exist_ok=True)
