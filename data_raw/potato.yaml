@@ -124,11 +124,19 @@ CropParameters:
             - 1550
             - temperature sum from anthesis to maturity
             - ['C.d']
-            DTSMTB:
-            - [ 0.0,  0.0,
-                2.0,  0.0,
-               13.0, 11.0,
-               30.0, 28.0]
+            t1_pheno:
+            - 2
+            - base temperature for phenological development
+            - ['C']
+            te_pheno:
+            - 30
+            - maximum temperature for phenological development
+            - ['C']
+            # DTSMTB:
+            # - [ 0.0,  0.0,
+            #     2.0,  0.0,
+            #    13.0, 11.0,
+            #    30.0, 28.0]
             - daily increase in temperature sum as function of daily average temperature
             - ['C', 'C']
             DVSI:
@@ -220,14 +228,14 @@ CropParameters:
             - 360
             - CO2 level at which AMAX and EFF were measured
             - ['PPM']
-            TMPFTB:
-            - [ 0.0, 0.010,
-                3.0, 0.010,
-               10.0, 0.750,
-               15.0, 1.000,
-               20.0, 1.000,
-               26.0, 0.750,
-               33.0, 0.010]
+            # TMPFTB:
+            # - [ 0.0, 0.010,
+            #     3.0, 0.010,
+            #    10.0, 0.750,
+            #    15.0, 1.000,
+            #    20.0, 1.000,
+            #    26.0, 0.750,
+            #    33.0, 0.010]
             - reduction factor of AMAX as function of average daily temperature
             - ['C', '-']
             TMNFTB:
@@ -593,14 +601,26 @@ CropParameters:
             - 400
             - CO2 level at which AMAX and EFF were measured
             - ['PPM']
-            TMPFTB:
-            - [ 0.0, 0.01,
-                3.0, 0.01,
-                10.0, 0.75,
-                15.0, 1.00,
-                24.0, 1.00,
-                29.0, 0.75,
-                36.0, 0.01]
+            tm1:
+            - 9
+            - ['C']
+            t1:
+            - 14
+            - ['C']
+            t2:
+            -  22 
+            - ['C']
+            te:
+            -  36
+            - ['C']
+            # TMPFTB:
+            # - [ 0.0, 0.01,
+               #  3.0, 0.01,
+               #  10.0, 0.75,
+               #  15.0, 1.00,
+               #  24.0, 1.00,
+               #  29.0, 0.75,
+               #  36.0, 0.01]
             - reduction factor of AMAX as function of average daily temperature
             - ['C', '-']
     Varieties:
