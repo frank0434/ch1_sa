@@ -32,7 +32,7 @@ except:
     GSA_sample_size = 32
     CPUs = psutil.cpu_count(logical=False)
 # Set the variables in config
-config.set_variables(GSA_sample_size, local = True)
+config.set_variables(GSA_sample_size)
 # %%
 # Function to calculate Sobol indices
 start_time = time.time()
