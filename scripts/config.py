@@ -93,7 +93,7 @@ else:
 
 p_out_LSAsims.mkdir(parents=True, exist_ok=True)
 
-def set_variables(GSA_sample_size, local = False, run_NL_conditions = True):
+def set_variables(GSA_sample_size, local = False, run_NL_conditions = run_NL_conditions):
     global p_out, p_out_sims, p_out_sims_hash, p_out_daysims, p_out_daySi, Total_sims
 
     # output directories 
