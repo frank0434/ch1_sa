@@ -5,6 +5,13 @@ from datetime import datetime
 # Resolve the parent directory
 p = pathlib.Path().resolve().parent
 # %% 
+# Switch to choose between NL and Indian conditions
+# If run_NL_conditions is True, the script will run the NL conditions
+# If run_NL_conditions is False, the script will run the Indian conditions
+# To switch between the two, simply change the value of run_NL_conditions
+run_NL_conditions = False
+local = True
+
 
 calc_second_order = True
 len_hash_dict = 1000
@@ -61,11 +68,6 @@ LSA_sample_size = 100
 p_out_LSA = p / 'output/LSA'
 p_out_LSA.mkdir(parents=True, exist_ok=True)
 
-# Switch to choose between NL and Indian conditions
-# If run_NL_conditions is True, the script will run the NL conditions
-# If run_NL_conditions is False, the script will run the Indian conditions
-# To switch between the two, simply change the value of run_NL_conditions
-run_NL_conditions = False
 
 # run NL conditions
 if run_NL_conditions:
