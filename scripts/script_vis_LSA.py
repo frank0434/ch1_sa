@@ -32,253 +32,92 @@ for i, key, value in zip(para_vals.keys(), keys, para_vals.values()):
 # Concatenate all DataFrames
 large_df = pd.concat(dfs)
 # %%
-
+large_df['value'] = large_df['value'].astype(float)
 colors = config.name_color_map
 colors
 
-
+# %% 
+no_ofdays = len(large_df.day.unique())
 # %%
-DAPs = np.tile(np.arange(107), config.LSA_sample_size * len(para))
+DAPs = np.tile(np.arange(no_ofdays), config.LSA_sample_size * len(para))
 large_df['DAP'] = DAPs[:len(large_df)]
-def plot_diff_for_key(df, key, ax, output_var = 'TWSO', color = 'blue'):
-    filtered_df = df[df['key'] == key].sort_values('day').groupby('value')
-    diff_df = filtered_df[output_var].apply(lambda x: x.diff()).reset_index()
-    diff_df.plot(x='level_1', y=output_var, kind='line', ax=ax, label=key, color=color)
-def plot_final_for_key(df, key, ax, output_var = 'TWSO', color = 'blue'):
-    filtered_df = df[df['key'] == key]
-    filtered_df.loc[:, 'value'] = filtered_df['value'].astype(float)
-    filtered_df.plot(x='value', y=output_var, kind='scatter', ax=ax, label=key, color=color)
-def plot_timeseries_for_key(df, key, ax, output_var = 'TWSO', c='value', cmap='viridis'):
-    filtered_df = df[df['key'] == key]
-    filtered_df.loc[:, 'value'] = filtered_df['value'].astype(float)
-    filtered_df.plot(x='DAP', y=output_var, kind='scatter', ax=ax, label=key, c=c, cmap='viridis')
-def plot_2nd_diff_for_key(df, key, ax, output_var = 'TWSO', color = 'blue'):
-    filtered_df = df[df['key'] == key].sort_values('day').groupby('value')
-    diff_df = filtered_df[output_var].apply(lambda x: x.diff()).reset_index()
 
-# %%
-plot_timeseries_for_key(large_df, 'TBASEM', plt.gca(), 'LAI')
+# %% all parameters with one output
 
-# %% 
-final_output = large_df[large_df['day'] == '2023-02-24'].drop(columns=['DAP','day','WWLOW','RD','SM'])
-final_output.loc[:, 'value'] = final_output['value'].astype(float)
+# List of parameters
+param_names = config.params_of_interests
+# Create a figure with 15 subplots (3 rows and 5 columns)
+fig, axs = plt.subplots(5, 3, figsize=(9, 12), sharex=True, sharey=True)    
+# Adjust the width of the space between subplots
+fig.subplots_adjust(wspace=-.5, hspace= -0.5)
+# Flatten the axes array
+axs = axs.flatten()
 
-final_long = final_output.melt(id_vars = ['key', 'value'],  value_name='vals')
-final_long
+# Loop over each parameter
+for i, param_name in enumerate(param_names):
+    # Filter the DataFrame for the current parameter
+    output_df = large_df[large_df['key'] == param_name].sort_values('day')
+    output_df.set_index('DAP', inplace=True)
 
-# Define a function that will sort the values in each group
-def sort_group(group):
-    return group.sort_values(by='value', ascending=True)
+    # Create a colormap
+    cmap = plt.get_cmap('viridis')
 
-# Group the DataFrame by 'group', apply the function, and reset the index
-sorted_df = final_long.groupby(['key', 'variable']).apply(sort_group).reset_index(drop=True)
+    # Normalize the 'value' column for the colormap
+    norm = plt.Normalize(output_df['value'].min(), output_df['value'].max())
 
-# sorted_df.plot(x='value', y='vals', kind='scatter', c=sorted_df['key'].map(colors), cmap='viridis')
+    # Create the scatter plot in the current subplot
+    sc = axs[i].scatter(output_df.index, output_df['LAI'], c=output_df['value'], cmap=cmap, norm=norm)
 
-sorted_df.groupby(['key', 'variable'])
-# Define a function that will calculate the first derivative of 'vals' with respect to 'value' in each group
-def calculate_second_derivative(group):
-    group['first_derivative'] = np.gradient(group['vals'], group['value'])
-    group['second_derivative'] = np.gradient(group['first_derivative'], group['value'])
-    return group
+    # Add a colorbar to the current subplot
+    fig.colorbar(sc, ax=axs[i])
 
-# Group the DataFrame by 'group', apply the function, and reset the index
-df = sorted_df.groupby(['key', 'variable']).apply(calculate_second_derivative).reset_index(drop=True)
+    # Set labels and title for the current subplot
+    if i >= 12:  # Only for subplots in the last row
+        axs[i].set_xlabel('DAP')
+    else:  # Remove x-axis label and ticks for subplots in the first and second rows
+        axs[i].set_xticklabels([])
+    if i % 3 == 0:  # Only for subplots in the first column
+        axs[i].set_ylabel(output_var)
+  
+    axs[i].set_title(f'{param_name}')
 
-print(df)
-# %%
-df[~(df['second_derivative'] == 0)]['key'].unique()
-
-# print(sorted_df)
-# %%
-import seaborn as sns
-
-# Assuming your long-format DataFrame is named 'df'
-# Define the variables for x, y, and facets
-g = sns.FacetGrid(df, col='variable', row='key', sharex=False, sharey=False)
-g.map(sns.scatterplot, 'value', 'first_derivative', color='black')
-# g.map(sns.scatterplot, 'value', 'vals', color='black')
-# %% 
-
-print(df[df['second_derivative'] > 0.001])
-df[df['second_derivative'] > 0.001]['key'].unique()
-# %%
-# make a matrix 
-pre_m = df.loc[:,['key', 'variable', 'second_derivative']].drop_duplicates()
-pre_m = pre_m.groupby(['key', 'variable']).apply(lambda second_derivative: np.mean(np.abs(second_derivative))).reset_index()
-pre_m['effects'] = np.where(abs(pre_m[0]) > 0.0001, 1, 0)
-pre_m = pre_m.pivot(index='key', columns='variable', values='effects')
-pre_m = pre_m.fillna(0).sort_values(by=['DVS', 'LAI', 'TWSO'], ascending=False)
-
-
-# Create a function to generate the annotations
-def create_annotations(df):
-    annotations = df.copy()
-    annotations[df > 0] = '+'
-    annotations[df == 0] = '-'
-    return annotations
-
-# Create heatmap
-sns.heatmap(pre_m, annot=create_annotations(pre_m), fmt='', cmap='viridis', alpha=0, cbar=False)
-plt.ylabel('Input Parameters', fontsize = 16)
-plt.xlabel('')
-
-plt.tick_params(axis='x', bottom=False, top=True, labelbottom=False, labeltop=True)
-plt.savefig(f'{config.p_out_LSAsims}/LSAheatmap_plusM.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-
+# Adjust the layout
+plt.tight_layout()
+plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries.svg', bbox_inches='tight', pad_inches=0.1)
+plt.savefig(f'{config.p_out_LSAsims}/{output_var}__timeseries.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
+# Show the plot
 plt.show()
 # %%
-plt.figure(figsize=(10, 8))
-ax = sns.heatmap(pre_m, annot=True,  fmt='', cbar=False, cmap='RdYlBu')
-for text, color in zip(ax.texts, (color.get_array() for color in ax.collections)):
-    text.set_text('+' if '1' in text.get_text() else '-')
-    text.set_color('black' if '1' in text.get_text() else 'white')
+def create_subplot(ax, output_df, output_var, param_name):
+    cmap = plt.get_cmap('viridis')
+    norm = plt.Normalize(output_df['value'].min(), output_df['value'].max())
+    sc = ax.scatter(output_df.index, output_df[output_var], c=output_df['value'], cmap=cmap, norm=norm)
+    return sc
 
-plt.ylabel('Input Parameters', fontsize = 16)
-plt.xlabel('Output Variables', fontsize = 16)
+def create_figure(large_df, output_var, param_names):
+    fig, axs = plt.subplots(5, 3, figsize=(9, 12), sharex=True, sharey=True)    
+    fig.subplots_adjust(wspace=-.5, hspace= -0.5)
+    axs = axs.flatten()
 
-plt.tick_params(axis='x', bottom=False, top=True, labelbottom=False, labeltop=True)
+    for i, param_name in enumerate(param_names):
+        output_df = large_df[large_df['key'] == param_name].sort_values('day')
+        output_df.set_index('DAP', inplace=True)
+        sc = create_subplot(axs[i], output_df, output_var, param_name)
+        fig.colorbar(sc, ax=axs[i])
 
-plt.savefig(f'{config.p_out_LSAsims}/LSAheatmap.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-plt.show()
-# %%
+        if i >= 12:
+            axs[i].set_xlabel('DAP')
+        else:
+            axs[i].set_xticklabels([])
+        if i % 3 == 0:
+            axs[i].set_ylabel(output_var)
+        axs[i].set_title(f'{param_name}')
 
-# List of all your parameters
-#%%
-
-def create_subplots(df, para, variable, colors):
-    n = len(para)
-    rows = math.ceil(n / 3)
-    fig_height = rows * 5  # Adjust this value to change the height of each subplot
-
-    fig, axes = plt.subplots(rows, 3, figsize=(15, fig_height))
-
-    # Use the function for each parameter
-    for ax, param in zip(axes.flatten(), para):
-        plot_diff_for_key(df, param, ax, variable, colors[param])
-        ax.set_xlabel('')
-
-    # If the number of subplots is odd, remove the last one
-    if n % 3 != 0:
-        fig.delaxes(axes.flatten()[-1])
-    plt.legend()
-    fig.text(0.5, 0, 'DAP', ha='center', va='center', fontsize=16)
-    fig.text(0, 0.5, f'{variable}', va='center', rotation='vertical', fontsize=16)
     plt.tight_layout()
-    plt.savefig(f'{config.p_out_LSAsims}/{variable}_diff.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-
+    plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries.svg', bbox_inches='tight', pad_inches=0.1)
+    plt.savefig(f'{config.p_out_LSAsims}/{output_var}__timeseries.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
     plt.show()
-
-def create_subplots_final(df, para, variable, colors, suffix = 'allparams'):
-    n = len(para)
-    rows = math.ceil(n / 2)
-    fig_height = rows * 3  # Adjust this value to change the height of each subplot
-
-    fig, axes = plt.subplots(rows, 2, figsize=(9, fig_height), sharey=True)
-
-    # Use the function for each parameter
-    for ax, param in zip(axes.flatten(), para):
-        plot_final_for_key(df, param, ax, variable, colors[param])
-        ax.set_xlabel('')
-        ax.set_ylabel('')
-    if n % 3 != 0:
-        fig.delaxes(axes.flatten()[-1])
-    plt.legend()
-    fig.text(0.5, 0, 'value', ha='center', va='center', fontsize=16)
-    fig.text(0, 0.5, f'{variable}', va='center', rotation='vertical', fontsize=16)
-    plt.tight_layout()
-    plt.savefig(f'{config.p_out_LSA}/{variable}_final_{suffix}.svg', bbox_inches='tight', pad_inches=0.1)
-
-    plt.savefig(f'{config.p_out_LSAsims}/{variable}_final_{suffix}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-
-    plt.show()
-def create_subplots_time(df, para, variable, colors):
-    n = len(para)
-    rows = math.ceil(n / 3)
-
-    fig, ax = plt.subplots(rows, 3, figsize=(15, 15))
-
-    # Use the function for each parameter
-    for ax, param in zip(ax.flatten(), para):
-        plot_timeseries_for_key(df, param, ax, variable, colors[param])
-        ax.set_xlabel('')
-        ax.set_ylabel('')
-
-    plt.legend()
-    fig.text(0.5, 0, 'DAP', ha='center', va='center', fontsize=16)
-    fig.text(0, 0.5, f'{variable}', va='center', rotation='vertical', fontsize=16)
-    plt.tight_layout()
-    plt.savefig(f'{config.p_out_LSAsims}/{variable}_timeseries.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-
-    plt.show()
-# %% 
-# second round of visualization 
-para_LAI = ['TDWI']
-final_lai_df  = large_df[(large_df['key'].isin(para_LAI))&(large_df['day'] == '2023-02-24')]
-
-create_subplots_final(final_lai_df, para_LAI, 'LAI', colors, suffix='selected')
-# %%
-# DVS
-para_DVS = ['TSUM1', 'SPAN', 'TBASEM', 'TSUMEM', 'TEFFMX', 'TDWI','te', 't1_pheno']
-final_DVS_df  = large_df[(large_df['key'].isin(para_DVS))&(large_df['day'] == '2023-02-24')]
-
-create_subplots_final(final_DVS_df, para_DVS, 'DVS', colors, suffix='selected')
-# %%
-para_TWSO = ['TSUM1', 'SPAN', 'TBASEM', 'TSUMEM', 'TEFFMX', 'TDWI','te', 't1_pheno']
-final_TWSO_df  = large_df[(large_df['key'].isin(para_TWSO))&(large_df['day'] == '2023-02-24')]
-
-create_subplots_final(final_TWSO_df, para_TWSO, 'TWSO', colors, suffix='selected')
-
-# %%
-#  ['2022-12-19', '2023-01-16']
-para_LAI = ['SPAN']
-final_lai_df  = large_df[(large_df['day'] == '2022-12-19')]
-
-create_subplots_final(final_lai_df, config.params_of_interests, 'LAI', colors)
-
-final_lai_df  = large_df[(large_df['day'] == '2023-01-16')]
-
-create_subplots_final(final_lai_df, config.params_of_interests, 'LAI', colors)
-
 # %%
 
-# first round visualization 
-# Call the function for each variable
-for i in config.cols_of_interests:
-    create_subplots(large_df, para, i, colors)
-
-# create_subplots(large_df, para, 'TWSO', colors)
-# create_subplots(large_df, para, 'LAI', colors)
-# create_subplots(large_df, para, 'DVS', colors)
-# %% 
-# only focus on the final output 
-final_output = large_df[large_df['day'] == '2023-02-24']    
-# final_output[final_output['key'] == 'TSUM1'].plot(x='value', y='TWSO', kind='scatter')
-# final_output[final_output['key'] == 'SPAN'].plot(x='value', y='TWSO', kind='scatter')
-# final_output[final_output['key'] == 'te'].plot(x='value', y='TWSO', kind='scatter')
-# final_output[final_output['key'] == 'SPAN'].plot(x='value', y='TWSO', kind='scatter')
-for i in config.cols_of_interests:
-    create_subplots_final(final_output, para, i, colors)
-
-# %%
-for i in config.cols_of_interests:
-    create_subplots_time(large_df, para, i, colors)
-        
-# %%
-TSUM1 = large_df[large_df['key'] == 'TSUM1'].sort_values('day').groupby('value')
-TWSO_diff = TSUM1['TWSO'].apply(lambda x: x.diff())
-TWSO_diff = TWSO_diff.reset_index()
-TWSO_diff[TWSO_diff['value'] == "150.0"].plot(x='level_1', y='TWSO', kind='line')
-TWSO_diff.plot(x='level_1', y='TWSO', kind='line')
-
-
-SPAN = large_df[large_df['key'] == 'SPAN'].sort_values('day').groupby('value')
-TWSO_diff = SPAN['TWSO'].apply(lambda x: x.diff())
-TWSO_diff = TWSO_diff.reset_index()
-# TWSO_diff[TWSO_diff['value'] == "150.0"].plot(x='level_1', y='TWSO', kind='line')
-TWSO_diff.plot(x='level_1', y='TWSO', kind='line')
-te = large_df[large_df['key'] == 'te'].sort_values('day').groupby('value')
-TWSO_diff = te['TWSO'].apply(lambda x: x.diff())
-TWSO_diff = TWSO_diff.reset_index()
-# TWSO_diff[TWSO_diff['value'] == "150.0"].plot(x='level_1', y='TWSO', kind='line')
-TWSO_diff.plot(x='level_1', y='TWSO', kind='line')
+for var in ['LAI', 'TWSO', 'DVS']:
+    create_figure(large_df, var, config.params_of_interests)
