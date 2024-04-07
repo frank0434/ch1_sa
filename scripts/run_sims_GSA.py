@@ -13,10 +13,6 @@ import psutil
 import os
 import argparse
 
-
-import argparse
-import psutil
-
 try:
     # Create the parser
     parser = argparse.ArgumentParser(description='Run GSA simulations.')
@@ -31,9 +27,9 @@ try:
     CPUs = args.CPUs
 except:
     # Set default values if parsing command line arguments fails
-    GSA_sample_size = 32
+    GSA_sample_size = config.GSA_sample_size
     CPUs = psutil.cpu_count(logical=False)
-config.set_variables(GSA_sample_size, local = True)
+config.set_variables(GSA_sample_size)
 # %%
 # Define a named tuple to hold all details of this run
 RunDetails = namedtuple("RunDetails", ['crop_name','variety_name', 'campaign_start_date', 
