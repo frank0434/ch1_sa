@@ -17,20 +17,24 @@ import pickle
 with open('DummySi_results.pkl', 'rb') as f:
     Dummy_si = pickle.load(f)
 
-# # Create the parser
-# parser = argparse.ArgumentParser(description='Run GSA simulations.')
-# # Add the arguments
-# parser.add_argument('--GSA_sample_size', type=int, help='The GSA sample size')
-# parser.add_argument('--CPUs', type=int, help='The number of CPUs')
-# # Parse the arguments
-# args = parser.parse_args()
-# # Get the GSA_sample_size
-# GSA_sample_size = args.GSA_sample_size
-# # Get the number of CPUs
-# CPUs = args.CPUs
+try:
+    # Create the parser
+    parser = argparse.ArgumentParser(description='Run GSA visualisation.')
+    # Add the arguments
+    parser.add_argument('--GSA_sample_size', type=int, help='The GSA sample size')
+    parser.add_argument('--CPUs', type=int, help='The number of CPUs')
+    # Parse the arguments
+    args = parser.parse_args()
+    # Get the GSA_sample_size
+    GSA_sample_size = args.GSA_sample_size
+    # Get the number of CPUs
+    CPUs = args.CPUs
+except:
+    # Set default values if parsing command line arguments fails
+    GSA_sample_size = 32
+    CPUs = psutil.cpu_count(logical=False)
 # Set the variables in config
-GSA_sample_size = 32768
-config.set_variables(GSA_sample_size,local=True)
+config.set_variables(GSA_sample_size)
 
 # Generator to create the file names
 def generate_file_names(col):
