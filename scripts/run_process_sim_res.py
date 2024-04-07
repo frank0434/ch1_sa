@@ -9,7 +9,7 @@ import argparse
 # %%
 try:
     # Create the parser
-    parser = argparse.ArgumentParser(description='Run GSA simulations.')
+    parser = argparse.ArgumentParser(description='Run GSA result processor.')
     # Add the arguments
     parser.add_argument('--GSA_sample_size', type=int, help='The GSA sample size')
     parser.add_argument('--CPUs', type=int, help='The number of CPUs')
