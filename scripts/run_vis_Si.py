@@ -31,7 +31,7 @@ try:
     CPUs = args.CPUs
 except:
     # Set default values if parsing command line arguments fails
-    GSA_sample_size = 32
+    GSA_sample_size = config.GSA_sample_size
     CPUs = psutil.cpu_count(logical=False)
 # Set the variables in config
 config.set_variables(GSA_sample_size)

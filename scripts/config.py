@@ -11,7 +11,7 @@ p = pathlib.Path().resolve().parent
 # To switch between the two, simply change the value of run_NL_conditions
 run_NL_conditions = False
 local = True
-
+GSA_sample_size = 32
 
 calc_second_order = True
 len_hash_dict = 1000
@@ -95,7 +95,7 @@ else:
 
 p_out_LSAsims.mkdir(parents=True, exist_ok=True)
 
-def set_variables(GSA_sample_size, local = False, run_NL_conditions = run_NL_conditions):
+def set_variables(GSA_sample_size, local = local, run_NL_conditions = run_NL_conditions):
     global p_out, p_out_sims, p_out_sims_hash, p_out_daysims, p_out_daySi, Total_sims
 
     # output directories 
