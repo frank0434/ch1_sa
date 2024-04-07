@@ -24,7 +24,7 @@ except:
     GSA_sample_size = 32
     CPUs = psutil.cpu_count(logical=False)
 # Set the variables in config
-config.set_variables(GSA_sample_size, local = True, run_NL_conditions = True)
+config.set_variables(GSA_sample_size, local = True)
 def total_sims_generator():
     """
     This function creates a generator that yields the numbers from 0 to config.Total_sims - 1.

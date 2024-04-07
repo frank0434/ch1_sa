@@ -33,7 +33,7 @@ except:
     # Set default values if parsing command line arguments fails
     GSA_sample_size = 32
     CPUs = psutil.cpu_count(logical=False)
-config.set_variables(GSA_sample_size, local = True, run_NL_conditions = False)
+config.set_variables(GSA_sample_size, local = True)
 # %%
 # Define a named tuple to hold all details of this run
 RunDetails = namedtuple("RunDetails", ['crop_name','variety_name', 'campaign_start_date', 
