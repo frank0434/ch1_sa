@@ -103,25 +103,9 @@ param_df = pd.DataFrame({'Key' : config.problem['names'],
                         'Min' : [item[0] for item in config.problem['bounds']],
                         'Max' : [item[1] for item in config.problem['bounds']]})
 
-key, value = prepare_simulation_parameters(param_df)
-transformed_paramsets = np.column_stack([key, value])
-
 # %%
 def main():
 
-
-    # parameters = {}
-    # for item in zip(param_df['Key'], param_df['Min'], param_df['Max']):
-    #     key, min_val, max_val = item[0], item[1], item[2]
-    #     parameters[key] = (float(min_val), float(max_val))
-
-    # Define the number of samples
-    # n_samples = config.LSA_sample_size
-
-    # Sample each parameter value
-    # samples = {}
-    # for key, (min_val, max_val) in parameters.items():
-    #     samples[key] = np.random.uniform(min_val, max_val, n_samples)
     key, value = prepare_simulation_parameters(param_df)
     print(key, value)
     transformed_paramsets = np.column_stack([key, value])

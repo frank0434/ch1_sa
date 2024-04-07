@@ -64,6 +64,10 @@ def create_figure(large_df, output_var, param_names):
         if i % 3 == 0:
             axs[i].set_ylabel(output_var)
         axs[i].set_title(f'{param_name}')
+        if output_var == 'LAI':
+            axs[i].set_ylim(0, 5)
+        elif output_var == 'TWSO':
+            axs[i].set_ylim(0, 12500)
 
     plt.tight_layout()
     plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries.svg', bbox_inches='tight', pad_inches=0.1)
@@ -73,3 +77,5 @@ def create_figure(large_df, output_var, param_names):
 
 for var in ['LAI', 'TWSO', 'DVS']:
     create_figure(large_df, var, config.params_of_interests)
+
+# %%
