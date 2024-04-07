@@ -10,15 +10,15 @@
 # --------- Other information -------------
 #SBATCH --comment=
 # --------- Required resources ------------
-#SBATCH --time=0-1:00:00
+#SBATCH --time=0-24:00:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=6G
+#SBATCH --cpus-per-task=64
+#SBATCH --mem=512G
 # ---------- --nodelist=node274-----------
 # --------- Environment , Operations and Job step -------
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate py3_pcse
-GSA_sample_sizes=(32)
+GSA_sample_sizes=(32768)
 # 32 64 125 256 512 1024 2048 4096 8192 16384 32768 65536
 
 for GSA_sample_size in ${GSA_sample_sizes[@]}; do
