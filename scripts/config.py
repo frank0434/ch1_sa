@@ -16,7 +16,8 @@ parameter_list = p_dat_raw / "TempRelateParams.xlsx"
 potato_paramters = p_dat_raw / "potato.yaml"
 Weather_AgERA5 = p_dat_processed / "wdp_ind.pickle"
 Weather_real = p_dat_raw / "India2022_23.xlsx"
-Weather_real_NL = p_dat_raw / "350_weatherfile_2021.xlsx"
+# run the NL conditions
+Weather_real = p_dat_raw / "350_weatherfile_2021.xlsx"
 SOIL_DATA_PATH = p_dat_raw / "ec3 sandyloam.soil"
 CROP_DATA_PATH = p_dat_raw 
 
@@ -63,6 +64,8 @@ LSA_sample_size = 100
 p_out_LSA = p / 'output/LSA'
 p_out_LSA.mkdir(parents=True, exist_ok=True)
 p_out_LSAsims = p_out_LSA / f'sims_{LSA_sample_size}'
+# run NL conditions
+p_out_LSAsims = p_out_LSA / f'sims_NL_{LSA_sample_size}'
 p_out_LSAsims.mkdir(parents=True, exist_ok=True)
 def set_variables(GSA_sample_size, local = False):
     global p_out, p_out_sims, p_out_sims_hash, p_out_daysims, p_out_daySi, Total_sims
@@ -89,21 +92,23 @@ def set_variables(GSA_sample_size, local = False):
 
 
 # Model configuration
-SIMULATION_START_DATE = "2022-11-10"
-SIMULATION_CROP_START = '2022-11-10'
-SIMULATION_END_DATE = "2023-02-28"
-SIMULATION_END_DATE_real = "2023-02-24"  # Real weather station data ends at 24th
-variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
+# SIMULATION_START_DATE = "2022-11-10"
+# SIMULATION_CROP_START = '2022-11-10'
+# SIMULATION_END_DATE = "2023-02-28"
+# SIMULATION_END_DATE_real = "2023-02-24"  # Real weather station data ends at 24th
+# variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
 planting = "2022-11-10"
 harvest = ['2022-12-19', '2023-01-16', '2023-02-14']
-SIMULATION_START_DATE_NL = "2021-06-08"
-SIMULATION_CROP_START_NL = '2021-06-08'
-SIMULATION_END_DATE_real_NL = "2021-09-24"
+# Model configuration for NL conditions
+SIMULATION_START_DATE = "2021-06-08"
+SIMULATION_CROP_START = '2021-06-08'
+SIMULATION_END_DATE = "2021-09-24"
+SIMULATION_END_DATE_real = "2021-09-24"  # Real weather station data ends at 24th
+variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
 
 
 # Calculate the difference in days
 sim_period = (datetime.strptime(SIMULATION_END_DATE_real, "%Y-%m-%d") - datetime.strptime(SIMULATION_CROP_START, "%Y-%m-%d")).days
-sim_period_NL = (datetime.strptime(SIMULATION_END_DATE_real_NL, "%Y-%m-%d") - datetime.strptime(SIMULATION_CROP_START_NL, "%Y-%m-%d")).days
 # input and output columns
 
 cols_of_interests = ['DVS', 'LAI', 'TAGP', 'TWSO', 'TWLV', 'TWST', 'TWRT', 'TRA']
