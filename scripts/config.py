@@ -69,13 +69,13 @@ problem = {
 
 # run NL conditions
 if run_NL_conditions:
-    SIMULATION_START_DATE = "2021-06-08"
-    SIMULATION_CROP_START = '2021-06-08'
-    SIMULATION_END_DATE = "2021-09-24"
-    SIMULATION_END_DATE_real = "2021-09-24"  # Real weather station data ends at 24th
+    SIMULATION_START_DATE = "2021-04-22"
+    SIMULATION_CROP_START = '2021-04-22'
+    SIMULATION_END_DATE = "2021-09-30"
+    SIMULATION_END_DATE_real = "2021-09-30"  # Real weather station data ends at 24th
     variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
-    planting = "2021-06-08"
-    harvest = ['2021-07-17', '2021-08-14', '2021-09-12']
+    planting = "2021-04-22"
+    harvest = ['2021-06-17', '2021-07-14', '2021-08-12']
     # run the NL conditions
     Weather_real = p_dat_raw / "350_weatherfile_2021.xlsx"
     p_out_LSA = p / 'output/LSA_NL'
