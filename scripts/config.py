@@ -11,7 +11,7 @@ p = pathlib.Path().resolve().parent
 # To switch between the two, simply change the value of run_NL_conditions
 run_NL_conditions = True
 local = False
-GSA_sample_size = 32
+GSA_sample_size = 32 # this will only take affect if run the scripts in python 
 LSA_sample_size = 100
 
 calc_second_order = True
