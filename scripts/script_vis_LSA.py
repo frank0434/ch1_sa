@@ -38,12 +38,14 @@ no_ofdays = len(large_df.day.unique())
 # %%
 DAPs = np.tile(np.arange(no_ofdays), config.LSA_sample_size * len(para))
 large_df['DAP'] = DAPs[:len(large_df)]
+large_df.set_index('DAP', inplace=True)
 
 # %%
 def create_subplot(ax, output_df, output_var, param_name):
     cmap = plt.get_cmap('viridis')
     norm = plt.Normalize(output_df['value'].min(), output_df['value'].max())
-    sc = ax.scatter(output_df.index, output_df[output_var], c=output_df['value'], cmap=cmap, norm=norm)
+    sc = ax.scatter(output_df.index, output_df[output_var], 
+                    c=output_df['value'], cmap=cmap, norm=norm, s = 1)
     return sc
 
 def create_figure(large_df, output_var, param_names):
@@ -53,29 +55,82 @@ def create_figure(large_df, output_var, param_names):
 
     for i, param_name in enumerate(param_names):
         output_df = large_df[large_df['key'] == param_name].sort_values('day')
-        output_df.set_index('DAP', inplace=True)
+        # output_df.set_index('DAP', inplace=True)
         sc = create_subplot(axs[i], output_df, output_var, param_name)
         fig.colorbar(sc, ax=axs[i])
 
         if i >= 12:
             axs[i].set_xlabel('DAP')
-        else:
-            axs[i].set_xticklabels([])
         if i % 3 == 0:
             axs[i].set_ylabel(output_var)
         axs[i].set_title(f'{param_name}')
         if output_var == 'LAI':
-            axs[i].set_ylim(0, 5.5)
+            axs[i].set_ylim(0, 6)
         elif output_var == 'TWSO':
-            axs[i].set_ylim(0, 12500)
+            axs[i].set_ylim(0, 20000)
 
     plt.tight_layout()
-    plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries_ss_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
     plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries_ss_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
+    plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries_ss_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
     plt.show()
 # %%
 
-for var in ['LAI', 'TWSO', 'DVS']:
-    create_figure(large_df, var, config.params_of_interests)
+# for var in ['LAI', 'TWSO', 'DVS']:
+    # create_figure(large_df, var, config.params_of_interests)
 
+# %%
+# create_figure(large_df, 'LAI', config.params_of_interests)
+# recreate the TWSO figure
+create_figure(large_df, 'TWSO', config.params_of_interests)
+# %% single plot for the main text
+param_name = 't1_pheno'
+output_var = 'LAI'
+output_df = large_df[large_df['key'] == param_name].sort_values('day')
+param_name_no_effect = 'RGRLAI'
+output_df_no_effect = large_df[large_df['key'] == param_name_no_effect].sort_values('day')
+
+import matplotlib.gridspec as gridspec
+
+fig = plt.figure(figsize=(10, 10))
+
+# Create a GridSpec for the whole figure
+gs = gridspec.GridSpec(2, 2, figure=fig, hspace=0.3)
+
+# First subplot
+ax1 = fig.add_subplot(gs[0, 0])
+cmap = plt.get_cmap('viridis')
+norm = plt.Normalize(output_df['value'].min(), output_df['value'].max())
+sc = ax1.scatter(output_df.index, output_df[output_var], c=output_df['value'], s = 1, cmap=cmap, norm=norm)
+# fig.colorbar(sc, ax=ax1)
+ax1.set_xlabel('DAP')
+ax1.set_ylabel(output_var)
+ax1.vlines(161, 0, 5.5, color='red', linestyle='--')
+ax1.annotate('Detailed plots on the right', xy=(161, 5.5), xytext=(161, 6), 
+             arrowprops=dict(facecolor='black', shrink=0.0), ha = 'center')
+ax1.text(0.05, .9, 'a)', transform=ax1.transAxes, size=20, weight='bold')
+# Second subplot
+ax2 = fig.add_subplot(gs[0, 1])
+# Get the final day of output_df
+final_day_df = output_df[output_df.index == output_df.index.max()]
+
+# Plot LAI against parameter values
+sc2 = ax2.scatter(final_day_df['value'], final_day_df[output_var], c=final_day_df['value'], s = 5, cmap=cmap, norm=norm)
+fig.colorbar(sc2, ax=ax2)
+ax2.set_xlabel(param_name)
+ax2.set_ylabel(output_var)
+ax2.text(0.05, .9, 'b)', transform=ax2.transAxes, size=20, weight='bold')
+# Third subplot
+ax3 = fig.add_subplot(gs[1, 0])
+cmap = plt.get_cmap('viridis')
+norm = plt.Normalize(output_df_no_effect['value'].min(), output_df_no_effect['value'].max())
+sc3 = ax3.scatter(output_df_no_effect.index, output_df_no_effect[output_var], c=output_df_no_effect['value'], s = 1, cmap=cmap, norm=norm)
+# fig.colorbar(sc, ax=ax1)
+ax3.set_xlabel('DAP')
+ax3.set_ylabel(output_var)
+
+
+plt.tight_layout()
+# plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries_ss_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
+# plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries_ss_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
+plt.show()
 # %%
