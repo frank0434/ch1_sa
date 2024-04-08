@@ -9,9 +9,9 @@ p = pathlib.Path().resolve().parent
 # If run_NL_conditions is True, the script will run the NL conditions
 # If run_NL_conditions is False, the script will run the Indian conditions
 # To switch between the two, simply change the value of run_NL_conditions
-run_NL_conditions = False
-local = True
-GSA_sample_size = 32
+run_NL_conditions = True
+local = False
+GSA_sample_size = 32 # this will only take affect if run the scripts in python 
 LSA_sample_size = 100
 
 calc_second_order = True
@@ -69,13 +69,13 @@ problem = {
 
 # run NL conditions
 if run_NL_conditions:
-    SIMULATION_START_DATE = "2021-06-08"
-    SIMULATION_CROP_START = '2021-06-08'
-    SIMULATION_END_DATE = "2021-09-24"
-    SIMULATION_END_DATE_real = "2021-09-24"  # Real weather station data ends at 24th
+    SIMULATION_START_DATE = "2021-04-22"
+    SIMULATION_CROP_START = '2021-04-22'
+    SIMULATION_END_DATE = "2021-09-30"
+    SIMULATION_END_DATE_real = "2021-09-30"  # Real weather station data ends at 24th
     variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
-    planting = "2021-06-08"
-    harvest = ['2021-07-17', '2021-08-14', '2021-09-12']
+    planting = "2021-04-22"
+    harvest = ['2021-06-17', '2021-07-14', '2021-08-12']
     # run the NL conditions
     Weather_real = p_dat_raw / "350_weatherfile_2021.xlsx"
     p_out_LSA = p / 'output/LSA_NL'
