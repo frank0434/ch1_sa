@@ -65,13 +65,13 @@ def create_figure(large_df, output_var, param_names):
             axs[i].set_ylabel(output_var)
         axs[i].set_title(f'{param_name}')
         if output_var == 'LAI':
-            axs[i].set_ylim(0, 5)
+            axs[i].set_ylim(0, 5.5)
         elif output_var == 'TWSO':
             axs[i].set_ylim(0, 12500)
 
     plt.tight_layout()
-    plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries.svg', bbox_inches='tight', pad_inches=0.1)
-    plt.savefig(f'{config.p_out_LSAsims}/{output_var}__timeseries.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
+    plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries_ss_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
+    plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries_ss_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
     plt.show()
 # %%
 

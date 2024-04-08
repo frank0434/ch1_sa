@@ -9,7 +9,7 @@ p = pathlib.Path().resolve().parent
 # If run_NL_conditions is True, the script will run the NL conditions
 # If run_NL_conditions is False, the script will run the Indian conditions
 # To switch between the two, simply change the value of run_NL_conditions
-run_NL_conditions = True
+run_NL_conditions = False
 local = True
 GSA_sample_size = 32
 LSA_sample_size = 100
@@ -91,8 +91,8 @@ else:
     planting = "2022-11-10"
     harvest = ['2022-12-19', '2023-01-16', '2023-02-14']
     Weather_real = p_dat_raw / "India2022_23.xlsx"
-    p_out_LSA = p / 'output/LSA_India'
-    p_out_LSAsims = p_out_LSA / f'sims_NL_{LSA_sample_size}' 
+    p_out_LSA = p / 'output/LSA'
+    p_out_LSAsims = p_out_LSA / f'sims_{LSA_sample_size}' 
 
 p_out_LSA.mkdir(parents=True, exist_ok=True)
 p_out_LSAsims.mkdir(parents=True, exist_ok=True)
