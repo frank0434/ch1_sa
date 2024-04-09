@@ -10,8 +10,8 @@ p = pathlib.Path().resolve().parent
 # If run_NL_conditions is False, the script will run the Indian conditions
 # To switch between the two, simply change the value of run_NL_conditions
 run_NL_conditions = False
-local = False
-GSA_sample_size = 32 # this will only take affect if run the scripts in python 
+local = True
+GSA_sample_size = 32768 # this will only take affect if run the scripts in python 
 LSA_sample_size = 100
 
 calc_second_order = True
@@ -97,7 +97,7 @@ else:
 p_out_LSA.mkdir(parents=True, exist_ok=True)
 p_out_LSAsims.mkdir(parents=True, exist_ok=True)
 def set_variables(GSA_sample_size, local = local, run_NL_conditions = run_NL_conditions):
-    global p_out, p_out_sims, p_out_sims_hash, p_out_daysims, p_out_daySi, Total_sims
+    global p_out, p_out_sims, p_out_sims_hash, p_out_daysims, p_out_daySi, Total_sims, arbitrary_start
 
     # output directories 
     if local:
@@ -109,7 +109,7 @@ def set_variables(GSA_sample_size, local = local, run_NL_conditions = run_NL_con
     p_out_sims_hash = p_out_sims / f'hash_dict_{GSA_sample_size}'
     p_out_daysims = p_out / f'daysims_{GSA_sample_size}'
     p_out_daySi = p_out / f'daySi_{GSA_sample_size}'
-
+    arbitrary_start = 23 if run_NL_conditions else 10
     # Create directories if they don't exist
     
 

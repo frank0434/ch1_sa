@@ -151,6 +151,10 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, col)
     df1 = normalize_sensitivity(df_sensitivity_S1)
     df2 = normalize_sensitivity(df_sensitivity_ST)
     df3 = normalize_sensitivity(df_pawn)
+    if col == 'TWSO' or col == 'LAI':
+        df1 = df1.iloc[config.arbitrary_start:]
+        df2 = df2.iloc[config.arbitrary_start:]
+        df3 = df3.iloc[config.arbitrary_start:] 
     # Combine the column names from both dataframes
     # combined_columns = list(df1.columns) + [col for col in df2.columns if col not in df1.columns]
 
@@ -341,3 +345,27 @@ if __name__ == "__main__":
     print(f"Maximum memory usage: {max_memory_usage} MB")
     # plot_colorized_time_course(GSA_simulations, config.cols_of_interests, indices)
     # plot_colorized_time_course(GSA_simulations, config.cols_of_interests, indices)
+
+
+# %% # test the code to plot the sensitivity indices after an arbitrary emergence date
+# this is because the parameter values will affect the emergence date
+# col = 'LAI'
+# df_sensitivity_S1, df_sensitivity_ST = process_files(col)
+# df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
+# df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
+# df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
+# df_pawn_median.drop('DAP', axis=1,inplace=True)
+# plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, col)
+
+
+# %% 
+# df_sensitivity_S1.head(20)
+# normalize_sensitivity(df_sensitivity_S1).head(20)
+# # df_pawn_long.head(20)
+# # %%
+# import json
+# with open(f'{config.p_out_sims}/10.json', 'r') as f:
+#     data = json.load(f)
+#     data = pd.DataFrame(data)
+
+# data[data['DVS'] == 0].day.unique()
