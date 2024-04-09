@@ -156,7 +156,6 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, col)
         df3 = df3.iloc[config.arbitrary_start:] 
     # Combine the column names from both dataframes
     # combined_columns = list(df1.columns) + [col for col in df2.columns if col not in df1.columns]
-    xlim_upper = round(len(df1), -1)
 
     # Map the combined column names to colors
     colors1 = [config.name_color_map.get(col, 'black') for col in df1.columns]
@@ -166,7 +165,7 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, col)
     df2.plot.area(ax=axes[1],stacked=True, color=colors2, legend=False)
     df3.plot.area(ax=axes[2],stacked=True, color=colors3, legend=False)
     plt.ylim(0, 1)
-    plt.xlim(0, xlim_upper)
+    plt.xlim(0, config.sim_period)
     axes[0].set_xlabel('')
     axes[1].set_xlabel('')
 
