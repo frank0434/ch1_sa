@@ -2,7 +2,6 @@
 
 import pandas as pd
 import numpy as np
-
 import config
 import pickle
 import matplotlib.pyplot as plt
@@ -157,7 +156,7 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, col)
         df3 = df3.iloc[config.arbitrary_start:] 
     # Combine the column names from both dataframes
     # combined_columns = list(df1.columns) + [col for col in df2.columns if col not in df1.columns]
-    xlim_upper = len(df1)
+    xlim_upper = round(len(df1), -1)
 
     # Map the combined column names to colors
     colors1 = [config.name_color_map.get(col, 'black') for col in df1.columns]
