@@ -151,12 +151,13 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, col)
     df1 = normalize_sensitivity(df_sensitivity_S1)
     df2 = normalize_sensitivity(df_sensitivity_ST)
     df3 = normalize_sensitivity(df_pawn)
-    if col == 'TWSO' or col == 'LAI':
+    if col == 'LAI':
         df1 = df1.iloc[config.arbitrary_start:]
         df2 = df2.iloc[config.arbitrary_start:]
         df3 = df3.iloc[config.arbitrary_start:] 
     # Combine the column names from both dataframes
     # combined_columns = list(df1.columns) + [col for col in df2.columns if col not in df1.columns]
+    xlim_upper = len(df1)
 
     # Map the combined column names to colors
     colors1 = [config.name_color_map.get(col, 'black') for col in df1.columns]
@@ -166,7 +167,7 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, col)
     df2.plot.area(ax=axes[1],stacked=True, color=colors2, legend=False)
     df3.plot.area(ax=axes[2],stacked=True, color=colors3, legend=False)
     plt.ylim(0, 1)
-    plt.xlim(0, 110)
+    plt.xlim(0, xlim_upper)
     axes[0].set_xlabel('')
     axes[1].set_xlabel('')
 
@@ -321,7 +322,8 @@ def worker_Saltelli(col):
     df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
     df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
     df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
-    df_pawn_median.drop('DAP', axis=1,inplace=True)
+    df_pawn_median.set_index('DAP', inplace=True)
+    df_pawn_median.index.name = 'index'
     plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, col)
     plot_heatmaps(config.days_s2, col)
 
@@ -349,12 +351,14 @@ if __name__ == "__main__":
 
 # %% # test the code to plot the sensitivity indices after an arbitrary emergence date
 # this is because the parameter values will affect the emergence date
-# col = 'LAI'
+# col = 'TWSO'
 # df_sensitivity_S1, df_sensitivity_ST = process_files(col)
 # df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
 # df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
 # df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
-# df_pawn_median.drop('DAP', axis=1,inplace=True)
+# # df_pawn_median.drop('names', axis=1,inplace=True)
+# df_pawn_median.set_index('DAP', inplace=True)
+# df_pawn_median.index.name = 'index'
 # plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, col)
 
 
