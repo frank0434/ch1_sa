@@ -75,8 +75,8 @@ def create_figure(large_df, output_var, param_names):
     plt.show()
 # %%
 
-# for var in ['LAI', 'TWSO', 'DVS']:
-    # create_figure(large_df, var, config.params_of_interests)
+for var in ['LAI', 'TWSO', 'DVS']:
+    create_figure(large_df, var, config.params_of_interests)
 
 # %%
 # create_figure(large_df, 'LAI', config.params_of_interests)
