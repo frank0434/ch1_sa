@@ -52,7 +52,10 @@ def process_crossing_points(crossing_points):
 # I want to know all the crossing points
 col = 'DVS'
 # key parameters are manually selected from the area graphs
-key_paras = ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TEFFMX']
+if config.run_NL_conditions == True:
+    key_paras =  ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TBASEM'] 
+else:
+    key_paras = ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TEFFMX']
 
 df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
 df_sensitivity_S1_normal = vis.normalize_sensitivity(df_sensitivity_S1)
@@ -120,9 +123,9 @@ areas_ST = df_sensitivity_ST_normal.fillna(0).apply(integrate.trapz).sort_values
 
 combined_areas = pd.concat([areas_pawn, areas_ST], axis=1, join='outer', keys=['PAWN', 'ST'])
 
-combined_areas.round().to_csv(f'areas_{col}.csv')
+combined_areas.round().to_csv(f'{config.p_out}_AUC_{col}.csv')
 # combined_areas
-# %% 
+
 
 # %%
 # bring back the crossing points clustering
@@ -150,7 +153,10 @@ plt.show()
 # %%
 col = 'LAI'
 # key parameters are manually selected from the area graphs
-key_paras = ['SPAN', 'te',  'TDWI']
+if config.run_NL_conditions == True:
+    key_paras = ['t1_pheno', 'SPAN', 'TSUM1','TSUM2', 'TDWI', 'TSUMEM', 'TBASEM']
+else:
+    key_paras = ['SPAN', 'te',  'TDWI']
 
 df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
 df_sensitivity_S1_normal = vis.normalize_sensitivity(df_sensitivity_S1)
@@ -216,7 +222,7 @@ areas_pawn = df_pawn_median_normal.fillna(0).apply(integrate.trapz).sort_values(
 areas_ST = df_sensitivity_ST_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
 combined_areas = pd.concat([areas_pawn, areas_ST], axis=1, join='outer', keys=['PAWN', 'ST'])
 
-combined_areas.round().to_csv(f'areas_{col}.csv')
+combined_areas.round().to_csv(f'{config.p_out}_AUC_{col}.csv')
 print("Areas under the curve for each column in df_sensitivity_S1_normal:", areas_pawn)
 print("Areas under the curve for each column in df_sensitivity_ST_normal:", areas_ST)
 # %%
@@ -246,7 +252,10 @@ plt.savefig(f'{config.p_out}/{col}_Si_crossing_points_afterClustering.png', dpi 
 # %%
 col = 'TWSO'
 # key parameters are manually selected from the area graphs
-key_paras = ['SPAN', 'te', 't1_pheno', 'TSUM1', 'TDWI', 'TSUMEM', 't2']
+if config.run_NL_conditions == True:
+    key_paras = ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TBASEM', 'Q10']
+else:
+    key_paras = ['SPAN', 'te', 't1_pheno', 'TSUM1', 'TDWI', 'TSUMEM', 't2']
 
 df_sensitivity_S1, df_sensitivity_ST = vis.process_files(col)
 df_sensitivity_S1_normal = vis.normalize_sensitivity(df_sensitivity_S1)
@@ -309,7 +318,7 @@ areas_pawn = df_pawn_median_normal.fillna(0).apply(integrate.trapz).sort_values(
 areas_ST = df_sensitivity_ST_normal.fillna(0).apply(integrate.trapz).sort_values(ascending=False)
 combined_areas = pd.concat([areas_pawn, areas_ST], axis=1, join='outer', keys=['PAWN', 'ST'])
 
-combined_areas.round().to_csv(f'areas_{col}.csv')
+combined_areas.round().to_csv(f'{config.p_out}_AUC_{col}.csv')
 print("Areas under the curve for each column in df_sensitivity_pawn_normal:", areas_pawn.round(0))
 print("Areas under the curve for each column in df_sensitivity_ST_normal:", areas_ST.round(0))
 #
