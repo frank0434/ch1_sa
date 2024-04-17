@@ -140,3 +140,23 @@ plt.ylabel('FYSAGE')
 plt.title('Span of the development stage')
 plt.grid(True)
 plt.show()
+# q10
+# %%
+def calculate_teff(Q10, temp):
+    # Replace this with your actual function
+    return Q10**((temp-25.)/10.)
+# Define the temperature range
+temp = np.linspace(0, 50, 500)
+
+# Define the Q10 values to try
+q10_values = [1.5, 2.0, 2.5, 3.0]
+
+# Calculate and plot TEFF for each Q10 value
+for Q10 in q10_values:
+    teff = calculate_teff(Q10, temp)
+    plt.plot(temp, teff, label=f'Q10={Q10}')
+
+# Add a legend and show the plot
+plt.legend()
+plt.show()
+# %%
