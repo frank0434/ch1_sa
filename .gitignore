@@ -15,3 +15,4 @@ scripts/__pycache__/*
 *.tex
 logs/*
 output/areas_*.csv
+*.csv
