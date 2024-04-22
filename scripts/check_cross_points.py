@@ -5,7 +5,7 @@ import config
 import pickle
 import matplotlib.pyplot as plt
 import config
-import run_vis_Si as vis
+import run_vis_GSA as vis
 import pickle
 from sklearn.cluster import DBSCAN
 with open('DummySi_results.pkl', 'rb') as f:
