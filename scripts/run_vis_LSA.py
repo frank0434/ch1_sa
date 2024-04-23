@@ -134,7 +134,7 @@ sc3 = ax3.scatter(output_df_wirdo.index, output_df_wirdo[output_var], c=output_d
 # fig.colorbar(sc, ax=ax1)
 ax3.set_xlabel('')
 ax3.set_ylabel(output_var)
-xlimt_upper = (no_ofdays - 1)/2 if config.run_NL_conditions else no_ofdays - 1
+xlimt_upper = (no_ofdays - 1)/2 #if config.run_NL_conditions else no_ofdays - 1
 ax3.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
 ax3.annotate('Illustration on the right', xy=(xlimt_upper, ylimt_upper),
               xytext=(xlimt_upper, ylimt_upper + 1), 
@@ -147,7 +147,7 @@ ax3.text(subplotlab_x, subplotlab_y, 'c)', transform=ax3.transAxes, size=20, wei
 # Fourth subplot
 ax4 = fig.add_subplot(gs[1, 1])
 # Get the day of output_df for x and y scatter plot
-selected_day = round((no_ofdays - 1)/2) if config.run_NL_conditions else no_ofdays - 1
+selected_day = round((no_ofdays - 1)/2) # if config.run_NL_conditions else no_ofdays - 1
 final_day_df_wirdo = output_df_wirdo[output_df_wirdo.index == selected_day]
 
 # Plot LAI against parameter values
