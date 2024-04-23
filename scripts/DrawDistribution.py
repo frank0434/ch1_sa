@@ -9,7 +9,7 @@ import json
 
 # %%
 
-with open('../output/daysims_65536/day_105.json', 'r') as f:
+with open('../output/daysims_32768/day_105.json', 'r') as f:
     data = json.load(f)
 # %%
 day105 = pd.DataFrame(data).T
@@ -44,5 +44,7 @@ fig.savefig('Distribution_105_TWSO.svg')
 
 plt.show()
 # %%
-
+# x and y scatter plot
+fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+sns.scatterplot(data=day105, x='DVS', ax=ax)
 # %%
