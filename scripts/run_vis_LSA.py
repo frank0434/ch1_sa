@@ -108,7 +108,7 @@ cmap = plt.get_cmap('viridis')
 norm = plt.Normalize(output_df['value'].min(), output_df['value'].max())
 sc = ax1.scatter(output_df.index, output_df[output_var], c=output_df['value'], s = pointsize, cmap=cmap, norm=norm)
 # fig.colorbar(sc, ax=ax1)
-ax1.set_xlabel('DAP')
+ax1.set_xlabel('')
 ax1.set_ylabel(output_var)
 ax1.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
 ax1.annotate('Illustration on the right', xy=(xlimt_upper, ylimt_upper),
@@ -132,8 +132,9 @@ cmap = plt.get_cmap('viridis')
 norm = plt.Normalize(output_df_wirdo['value'].min(), output_df_wirdo['value'].max())
 sc3 = ax3.scatter(output_df_wirdo.index, output_df_wirdo[output_var], c=output_df_wirdo['value'], s = pointsize + 4, cmap=cmap, norm=norm)
 # fig.colorbar(sc, ax=ax1)
-ax3.set_xlabel('DAP')
+ax3.set_xlabel('')
 ax3.set_ylabel(output_var)
+xlimt_upper = (no_ofdays - 1)/2 if config.run_NL_conditions else no_ofdays - 1
 ax3.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
 ax3.annotate('Illustration on the right', xy=(xlimt_upper, ylimt_upper),
               xytext=(xlimt_upper, ylimt_upper + 1), 
@@ -145,13 +146,14 @@ ax3.text(subplotlab_x, subplotlab_y, 'c)', transform=ax3.transAxes, size=20, wei
 
 # Fourth subplot
 ax4 = fig.add_subplot(gs[1, 1])
-# Get the final day of output_df
-final_day_df_wirdo = output_df_wirdo[output_df_wirdo.index == output_df_wirdo.index.max()]
+# Get the day of output_df for x and y scatter plot
+selected_day = round((no_ofdays - 1)/2) if config.run_NL_conditions else no_ofdays - 1
+final_day_df_wirdo = output_df_wirdo[output_df_wirdo.index == selected_day]
 
 # Plot LAI against parameter values
 sc4 = ax4.scatter(final_day_df_wirdo['value'], final_day_df_wirdo[output_var], c=final_day_df_wirdo['value'], s = pointsize + 4, cmap=cmap, norm=norm)
 fig.colorbar(sc4, ax=ax4)
-ax4.set_xlabel(param_name_no_effect)
+ax4.set_xlabel(param_name_wirdo)
 ax4.set_ylabel(output_var)
 ax4.text(subplotlab_x, subplotlab_y, 'd)', transform=ax4.transAxes, size=20, weight='bold')
 
@@ -164,7 +166,7 @@ sc5 = ax5.scatter(output_df_no_effect.index, output_df_no_effect[output_var], c=
 ax5.set_xlabel('DAP')
 ax5.set_ylabel(output_var)
 ax5.text(subplotlab_x, subplotlab_y, 'e)', transform=ax5.transAxes, size=20, weight='bold')
-# ylimt_upper_wirdo = output_df_no_effect.LAI.max() + 0.5
+xlimt_upper = (no_ofdays - 1)/2 if config.run_NL_conditions else no_ofdays - 1
 ax5.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
 ax5.annotate('Illustration on the right', xy=(xlimt_upper, ylimt_upper ),
               xytext=(xlimt_upper, ylimt_upper + 1), 
@@ -172,12 +174,12 @@ ax5.annotate('Illustration on the right', xy=(xlimt_upper, ylimt_upper ),
 # Sixth subplot
 ax6 = fig.add_subplot(gs[2, 1])
 # Get the final day of output_df
-final_day_df_no_effect = output_df_no_effect[output_df_no_effect.index == output_df_no_effect.index.max()]
+final_day_df_no_effect = output_df_no_effect[output_df_no_effect.index == selected_day]
 
 # Plot LAI against parameter values
 sc6 = ax6.scatter(final_day_df_no_effect['value'], final_day_df_no_effect[output_var], c=final_day_df_no_effect['value'], s = pointsize + 4, cmap=cmap, norm=norm)
 fig.colorbar(sc6, ax=ax6)
-ax6.set_xlabel(param_name_wirdo)
+ax6.set_xlabel(param_name_no_effect)
 ax6.set_ylabel(output_var)
 ax6.text(subplotlab_x, subplotlab_y, 'f)', transform=ax6.transAxes, size=20, weight='bold')
 
