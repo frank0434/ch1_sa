@@ -181,8 +181,8 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, col)
     fig.legend(lines, labels, loc='center left', bbox_to_anchor=(1.0, 0.5))
         # Add labels to the subplots
     for i, ax in enumerate(axes.flatten(), start=1):
-        ax.text(0.0,0.9, chr(64+i), transform=ax.transAxes, 
-                size=20, weight='bold')
+        ax.text(config.subplotlab_x, config.subplotlab_y, chr(96+i) + ")", transform=ax.transAxes, 
+                size=config.subplot_fs, weight='bold')
 
     plt.tight_layout()
     

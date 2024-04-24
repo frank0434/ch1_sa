@@ -167,3 +167,5 @@ days_s2 = calculate_days_difference(planting, harvest)
 
 # visualisation parameters
 subplot_fs = 16 # font size for subplots label letters
+subplotlab_x = 0.05
+subplotlab_y = 0.85

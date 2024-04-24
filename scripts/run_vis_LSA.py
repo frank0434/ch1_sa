@@ -93,8 +93,8 @@ output_df_wirdo = large_df[large_df['key'] == param_name_wirdo].sort_values('day
 ylimt_upper = 6 # output_df.LAI.max() + 0.5
 xlimt_upper = no_ofdays - 1
 pointsize = 1
-subplotlab_x = 0.05
-subplotlab_y = 0.85
+subplotlab_x = config.subplotlab_x
+subplotlab_y = config.subplotlab_y
 
 # DVS values 
 emergence_date = output_df[output_df['DVS'] == 0]['DVS'].drop_duplicates()
