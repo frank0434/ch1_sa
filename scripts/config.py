@@ -164,3 +164,6 @@ def calculate_days_difference(planting, harvest):
     differences.append(105)
     return differences
 days_s2 = calculate_days_difference(planting, harvest)
+
+# visualisation parameters
+subplot_fs = 16 # font size for subplots label letters
