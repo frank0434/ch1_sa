@@ -12,8 +12,8 @@
 # --------- Required resources ------------
 #SBATCH --time=0-1:00:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=12G
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=16G
 #---------- --nodelist=node274
 # --------- Environment , Operations and Job step -------
 
@@ -23,5 +23,6 @@ conda activate py3_pcse
 
 GSA_sample_sizes=(32768)
 for GSA_sample_size in ${GSA_sample_sizes[@]}; do
-    python /home/WUR/liu283/GitRepos/ch1_sa/scripts/run_vis_Si.py --GSA_sample_size $GSA_sample_size  --CPUs $SLURM_CPUS_PER_TASK
+    python /home/WUR/liu283/GitRepos/ch1_sa/scripts/plot_xy.py --GSA_sample_size $GSA_sample_size
+    python /home/WUR/liu283/GitRepos/ch1_sa/scripts/run_vis_GSA.py --GSA_sample_size $GSA_sample_size  --CPUs $SLURM_CPUS_PER_TASK
 done
