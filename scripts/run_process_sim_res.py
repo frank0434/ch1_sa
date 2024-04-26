@@ -3,9 +3,11 @@ import json
 import os
 import config
 import psutil
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 from tqdm import tqdm
+import numpy as np
 import argparse
+import pandas as pd
 # %%
 try:
     # Create the parser
@@ -71,17 +73,63 @@ def process_all_days():
     with Pool(psutil.cpu_count()) as pool:
         list(tqdm(pool.imap(process_day, range(config.sim_period)), total=config.sim_period))
 
+# %%  # extracting days when DVS = 0 or 1 
+# Create the generator
+
+# Create the generator
+gen = total_sims_generator()
+
+# Get the first item
+first_item = next(gen)
+data = json.load(open(f'{config.p_out_sims}/{first_item}.json'))
+# Assuming 'DVS' is the key in the JSON data
+dvs_data = [item for item in data if item['DVS'] in [0, 1]]
+dvs_data
+daydvs = {}
+daydvs.update({first_item: dvs_data})
+# %%
+def process_file(simulations):
+    df = pd.DataFrame()
+    for i in simulations:
+        with open(f'{config.p_out_sims}/{i}.json', 'r') as file:
+            data = json.load(file)
+        temp_df = pd.DataFrame([item for item in data if item['DVS'] in [0, 1]])
+        temp_df['simulation'] = i
+        df = pd.concat([df, temp_df])
+
+    # Drop duplicates
+    df = df.drop_duplicates(subset=[col for col in df.columns if col != 'simulation'])
+    # print(df)
+
+    # Convert DataFrame to dictionary and save as JSON
+    with open(f'{config.p_out_daysims}/day_dvs_{simulations[0]}_{simulations[-1]}.json', 'w') as outfile:
+        json.dump(df.to_dict(), outfile)
+# process_file(range(10))
+#%%
+
+def process_files_daydvs():
+    # Get a list of all simulations
+    total_sims =  range(config.Total_sims)
+    # Divide the simulations into chunks
+    chunks = np.array_split(total_sims, cpu_count())
+
+    # Convert the list of numpy arrays into a list of lists
+    chunks = [chunk.tolist() for chunk in chunks]
+    with Pool(psutil.cpu_count()) as pool:
+        list(tqdm(pool.imap(process_file, chunks), total = len(chunks)))
+
 if __name__ == "__main__":
     # Get the initial memory usage
     initial_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
 
     # Process all days in parallel
-    process_all_days()
+    process_files_daydvs()
+    # process_all_days()
 
     final_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
 
     # Calculate the maximum memory usage
     max_memory_usage = max(initial_memory, final_memory)
     print(f"Total simulation processed: {config.Total_sims}.")
-
     print(f"Maximum memory usage: {max_memory_usage} MB.")
+# %%
