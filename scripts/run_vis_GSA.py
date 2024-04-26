@@ -197,8 +197,10 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, col)
                 size=config.subplot_fs, weight='bold')
 
     plt.tight_layout()
-    
-    plt.savefig(f'{config.p_out}/Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
+    if config.run_NL_conditions:
+        plt.savefig(f'{config.p_out}/NL_Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
+    else:
+        plt.savefig(f'{config.p_out}/Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
     plt.show()
     plt.close()
 
