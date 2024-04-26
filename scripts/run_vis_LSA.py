@@ -189,8 +189,11 @@ ax6.set_xlabel(param_name_no_effect)
 ax6.set_ylabel(output_var)
 ax6.text(subplotlab_x, subplotlab_y, 'f)', transform=ax6.transAxes, size=config.subplot_fs, weight='bold')
 
-
-plt.savefig(f'{config.p_out_LSA}/{output_var}_mainText_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-plt.savefig(f'{config.p_out_LSA}/{output_var}_mainText_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
+if config.run_NL_conditions:
+    plt.savefig(f'{config.p_out_LSA}/NL_{output_var}_mainText_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
+    plt.savefig(f'{config.p_out_LSA}/NL_{output_var}_mainText_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
+else:
+    plt.savefig(f'{config.p_out_LSA}/{output_var}_mainText_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
+    plt.savefig(f'{config.p_out_LSA}/{output_var}_mainText_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
 plt.show()
 # %%
