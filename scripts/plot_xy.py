@@ -43,10 +43,11 @@ for output in ['DVS', 'LAI', 'TWSO']:
     fig, ax = plt.subplots(3, 5, figsize=(9, 10), sharey=True)
     ax = ax.flatten()
     for i, col in enumerate(para):
-        ax[i].scatter(df[col], df_y[output])
+        ax[i].scatter(df[col], df_y[output], alpha=0.5, s=2)
         ax[i].set_title(col)
     fig.text(0.5, 0.06, 'Parameter value', ha='center', va='center')
     fig.text(0.08, 0.5, f'{output}', ha='center', va='center', rotation='vertical')
-    plt.savefig(f'{config.p_out}/xy_pair_{col}_samplesize{GSA_sample_size}.png', dpi = 300, bbox_inches='tight')
+    plt.savefig(f'{config.p_out}/xy_pair_{output}_samplesize{GSA_sample_size}.png', dpi = 300, bbox_inches='tight')
 
     plt.show()
+# %%
