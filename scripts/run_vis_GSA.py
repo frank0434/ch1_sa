@@ -181,7 +181,7 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, col)
     fig.legend(lines, labels, loc='center left', bbox_to_anchor=(1.0, 0.5))
         # Add labels to the subplots
     for i, ax in enumerate(axes.flatten(), start=1):
-        ax.text(config.subplotlab_x, config.subplotlab_y, chr(96+i) + ")", transform=ax.transAxes, 
+        ax.text(0.025, config.subplotlab_y, chr(96+i) + ")", transform=ax.transAxes, 
                 size=config.subplot_fs, weight='bold')
 
     plt.tight_layout()
@@ -324,6 +324,7 @@ def worker_Saltelli(col):
     plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, col)
     plot_heatmaps(config.days_s2, col)
 
+
 # %%
 
 if __name__ == "__main__":
@@ -345,6 +346,7 @@ if __name__ == "__main__":
     # plot_colorized_time_course(GSA_simulations, config.cols_of_interests, indices)
     # plot_colorized_time_course(GSA_simulations, config.cols_of_interests, indices)
 
+# %%
 
 # %% # test the code to plot the sensitivity indices after an arbitrary emergence date
 # this is because the parameter values will affect the emergence date
