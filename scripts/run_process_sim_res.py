@@ -111,7 +111,7 @@ def process_files_daydvs():
     # Get a list of all simulations
     total_sims =  range(config.Total_sims)
     # Divide the simulations into chunks
-    chunks = np.array_split(total_sims, cpu_count())
+    chunks = np.array_split(total_sims, CPUs)
 
     # Convert the list of numpy arrays into a list of lists
     chunks = [chunk.tolist() for chunk in chunks]
