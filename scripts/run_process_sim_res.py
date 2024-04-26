@@ -3,7 +3,7 @@ import json
 import os
 import config
 import psutil
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool
 from tqdm import tqdm
 import numpy as np
 import argparse
@@ -70,7 +70,7 @@ def process_all_days():
     Returns:
         None
     """
-    with Pool(psutil.cpu_count()) as pool:
+    with Pool(CPUs) as pool:
         list(tqdm(pool.imap(process_day, range(config.sim_period)), total=config.sim_period))
 
 # %%  # extracting days when DVS = 0 or 1 
@@ -115,7 +115,7 @@ def process_files_daydvs():
 
     # Convert the list of numpy arrays into a list of lists
     chunks = [chunk.tolist() for chunk in chunks]
-    with Pool(psutil.cpu_count()) as pool:
+    with Pool(CPUs) as pool:
         list(tqdm(pool.imap(process_file, chunks), total = len(chunks)))
 
 if __name__ == "__main__":
