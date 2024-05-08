@@ -166,16 +166,16 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn,
     # df1.plot.area(ax=axes[0],stacked=True, color=colors1, legend=False)
     df2.plot.area(ax=axes[0],stacked=True, color=colors2, legend=False)
     df3.plot.area(ax=axes[1],stacked=True, color=colors3, legend=False)
-    plt.ylim(0, 1.1)
+    plt.ylim(0, 1.05)
     plt.xlim(0, config.sim_period)
     axes[0].set_xlabel('')
     axes[1].set_xlabel('')
 
-    plt.xlabel('Day After Planting')
+    plt.xlabel('Day After Planting', fontsize = config.subplot_fs)
     # plt.ylabel('Parameter sensitivity')
     # Set the title in the middle of the figure
     # fig.suptitle(f'First order and total Sobol Si for {col}')
-    fig.text(0, 0.5, 'Propostion of Sensitivity indices', va='center', rotation='vertical')
+    fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs)
 
     plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
 
@@ -193,15 +193,16 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn,
 
     # Use a single list comprehension to apply replacements only for labels in label_map
     labels = [label_map.get(label, label) for label in labels]
+    lines, labels = lines[::-1], labels[::-1]  # Reverse the order of the legend
     fig.legend(lines, labels, loc='center left', bbox_to_anchor=(1.0, 0.5))
         # Add labels to the subplots
     for i, ax in enumerate(axes.flatten(), start=1):
-        ax.text(0.025, config.subplotlab_y, chr(96+i) + ")", transform=ax.transAxes, 
+        ax.text(0.01, config.subplotlab_y, chr(96+i) + ")", transform=ax.transAxes, 
                 size=config.subplot_fs, weight='bold')
     for ax in axes.flatten():
         # ax.hlines(1, 0, config.sim_period, color='grey', linestyle='--')
-        ax.fill_betweenx([1, 1.1], emergence_date[0], emergence_date[1], color='lightblue')
-        ax.fill_betweenx([1, 1.1], tuber_initiation[0], tuber_initiation[1], color='lightblue')
+        ax.fill_betweenx([1, 1.05], emergence_date[0], emergence_date[1], color='dimgray')
+        ax.fill_betweenx([1, 1.05], tuber_initiation[0], tuber_initiation[1], color='dimgray')
 
     plt.tight_layout()
     if config.run_NL_conditions:
