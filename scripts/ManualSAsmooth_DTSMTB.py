@@ -51,11 +51,14 @@ x_smooth = np.linspace(min(x), max(x), 100)
 y_smooth = combined_equation(x_smooth, *popt)
 
 # Plot the original data and the fitted curve
-plt.plot(x, y, 'o', label='Original data')
-plt.plot(x_smooth, y_smooth, label='Fitted curve')
+plt.plot(x, y, 'o', label='Data points sampled from AGFUN')
+plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
+plt.xlabel('Mean Air Temperature (°C)')
+plt.ylabel('Effective Thermal Time (°C day)')
 plt.legend()
 
+
+plt.savefig('../output/DTSMTB_curving_fitting.svg')
 plt.show()
-plt.savefig('../output/DTSMTB_curving_fitting.svg', bbox_inches='tight')
 plt.close()
 # %%
