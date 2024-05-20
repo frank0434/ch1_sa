@@ -398,19 +398,19 @@ if __name__ == "__main__":
     # plot_colorized_time_course(GSA_simulations, config.cols_of_interests, indices)
 
 # %%  # extract the dvs
-emergence_date, tuber_initiation = process_dvs_files()
+# emergence_date, tuber_initiation = process_dvs_files()
 
-# # %% # test the code to fix the legend
-col = 'LAI'
-df_sensitivity_S1, df_sensitivity_ST = process_files(col)
-df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
-df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
-df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
-# df_pawn_median.drop('names', axis=1,inplace=True)
-df_pawn_median.set_index('DAP', inplace=True)
-df_pawn_median.index.name = 'index'
-plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, 
-                         emergence_date, tuber_initiation, col)
+# # # %% # test the code to fix the legend
+# col = 'LAI'
+# df_sensitivity_S1, df_sensitivity_ST = process_files(col)
+# df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
+# df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
+# df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
+# # df_pawn_median.drop('names', axis=1,inplace=True)
+# df_pawn_median.set_index('DAP', inplace=True)
+# df_pawn_median.index.name = 'index'
+# plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, 
+#                          emergence_date, tuber_initiation, col)
 # %% # legend to rename and italicise
 # import re
 
