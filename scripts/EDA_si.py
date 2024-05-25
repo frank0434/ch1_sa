@@ -8,23 +8,28 @@ import matplotlib.patches as mpatches
 from sklearn import dummy
 import config
 import pickle
+import argparse
+import psutil
 with open('DummySi_results.pkl', 'rb') as f:
     Dummy_si = pickle.load(f)
 # %%
-planting = "2022-11-10"
-harvest = ['2022-12-19', '2023-01-16']
-
-
-def calculate_days_difference(planting, harvest):
-    # Convert planting date to datetime
-    planting_date = datetime.strptime(planting, "%Y-%m-%d")
-    # Convert harvest dates to datetime and calculate differences
-    harvest_dates = [datetime.strptime(date, "%Y-%m-%d") for date in harvest]
-    differences = [(date - planting_date).days for date in harvest_dates]
-    # Subtract 1 from each value in differences
-    differences = [difference - 1 for difference in differences]
-    differences.append(105)
-    return differences
+try:
+    # Create the parser
+    parser = argparse.ArgumentParser(description='Run GSA simulations.')
+    # Add the arguments
+    parser.add_argument('--GSA_sample_size', type=int, help='The GSA sample size')
+    parser.add_argument('--CPUs', type=int, help='The number of CPUs')
+    # Parse the arguments
+    args = parser.parse_args()
+    # Get the GSA_sample_size
+    GSA_sample_size = args.GSA_sample_size
+    # Get the number of CPUs
+    CPUs = args.CPUs
+except:
+    # Set default values if parsing command line arguments fails
+    GSA_sample_size = config.GSA_sample_size
+    CPUs = psutil.cpu_count(logical=False)
+config.set_variables(GSA_sample_size)
 
 def load_data(day, output_var='TWSO', method='Saltelli'):
     # Load data
@@ -40,7 +45,7 @@ def to_df(self):
     )
 
 # %%
-differences = calculate_days_difference(planting, harvest)
+differences = config.days_s2
 samplesize = 32768
 config.set_variables(samplesize, local=True)
 cols = len(differences)
@@ -48,10 +53,11 @@ cols = len(differences)
 width = cols * 2.5
 scale_factor = 10
 saltelli_thres = 0.05 # threshold for saltelli from Wang et al. 2013 or 0.15 from Vanuytrecht et al. 2014
-fig, axs = plt.subplots(3, cols, figsize=(width, 9), sharex=True)
+fig, axs = plt.subplots(2, cols, figsize=(width, 9), sharex=True)
+colors = [ 'red', 'blue']  # Replace with your actual colors
 
 plt.subplots_adjust(wspace=0.2, hspace=0.05)
-for j, var in enumerate(['DVS','LAI','TWSO']):
+for j, var in enumerate(['LAI','TWSO']):
     for i, d in enumerate(differences):
         # Load data
         Si = load_data(d, var, 'Saltelli')
@@ -69,7 +75,8 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
             axs[j, i].axvline(x=saltelli_thres, color='r', linestyle='-')
 
             # Plot sorted DataFrame
-            barplot = Sis.plot(kind='barh', yerr=confs * scale_factor, ax=axs[j, i], width = 0.9,legend=False)
+            barplot = Sis.plot(kind='barh', yerr=confs * scale_factor, ax=axs[j, i], width = 0.9,
+                               legend=False, color = colors)
         if i > 0:
             df_sorted_new = df.reindex(order)
             conf_cols = df_sorted_new.columns.str.contains('_conf')
@@ -80,28 +87,31 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
 
             # Plot sorted DataFrame
             barplot = Sis.plot(kind='barh', yerr=confs * scale_factor, ax=axs[j, i], 
-                               width = 0.9,legend=False)
+                               width = 0.9,legend=False, color = colors)
 
         column_sums = df.loc[:, ~conf_cols].sum().round(2)
         if i > 0:
             axs[j, i].set_yticklabels([])
             axs[j, i].set_yticks([])
         # Get handles and labels of original legend
+        
         handles, labels = barplot.get_legend_handles_labels()
-
+  
         # Create custom legend elements and add them to handles and labels
-        # for col, sum in column_sums.items():
-            # line = plt.Line2D([0], [0], color='b', lw=4, label=f'{col}: {sum:.2f}')
-            # handles.append(line)
-            # labels.append(f'{col} Sum: {sum:.2f}')
+        for col, sum, color in zip(column_sums.keys(), column_sums.values, colors):
+
+            line = plt.Line2D([0], [0], color = color, lw=4, label=f'{col}: {sum:.2f}')
+            handles.append(line)
+            labels.append(f'{col} Sum: {sum:.2f}')
         # Add combined legend to plot
-        # axs[j, i].legend(handles=handles[2:], labels=labels[2:])
+        # Reverse handles and labels
+        axs[j, i].legend(handles=handles[2:][::-1], labels=labels[2:][::-1])
         if i == 0:
             axs[j, i].set_ylabel(var, size=16, weight='bold')
         if j == 0:
             axs[j, i].text(-0, 1.01, str(d) + " DAP", transform=axs[j, i].transAxes, size=16, weight='bold')
 plt.xlim(0, 1)
-fig.legend(handles=handles[:2], labels=labels[:2], loc='center right')
+# fig.legend(handles=handles[:2], labels=labels[:2], loc='center right')
 fig.text(0.5, .05, 'Sensitivity index', ha='center', size = 16, weight='bold')
 plt.savefig(f'{config.p_out}/ParameterRank_Saltelli_days_{differences}.svg', bbox_inches='tight')
 plt.show()
@@ -114,10 +124,10 @@ dummy = Dummy_si[1][1] # select the upper bound of the dummy si
 cols = len(differences)
 width = cols * 2.5
 # Create a figure with multiple subplots
-fig, axs = plt.subplots(3, cols, figsize=(width, 9), sharex=True)
+fig, axs = plt.subplots(2, cols, figsize=(width, 9), sharex=True)
 plt.subplots_adjust(wspace=0.15)
 # Loop over the output variables
-for j, var in enumerate(['DVS','LAI','TWSO']):
+for j, var in enumerate(['LAI','TWSO']):
     # Loop over the days and axes
     for i, d in enumerate(differences):
         # Load data
@@ -463,44 +473,43 @@ def plot_samplesize_effect(start=5, end=16, index='te', day = 38, output_var='TW
     combined_pawn.set_index('SampleSize', inplace=True)
     combined_pawn.drop(columns=['index','CV'], inplace=True)
     # Create a figure with two subplots (one row, two columns)
-    fig, axs = plt.subplots(3, 1, figsize=(10, 7), sharex=True, sharey=True)
+    fig, axs = plt.subplots(2, 1, figsize=(10, 7), sharex=True, sharey=True)
 
     # Plot 'S1' on the first subplot
-    axs[0].errorbar(combined.index, combined['S1'], yerr=combined['S1_conf'], fmt='o-', capsize=5)
-    # axs[0].set_title('Si values with confidence intervals')
-    # axs[0].set_xlabel('SampleSize')
-    axs[0].set_ylabel('Main effect (S1)')
+    # axs[0].errorbar(combined.index, combined['S1'], yerr=combined['S1_conf'], fmt='o-', capsize=5)
+    # # axs[0].set_title('Si values with confidence intervals')
+    # # axs[0].set_xlabel('SampleSize')
+    # axs[0].set_ylabel('Main effect (S1)')
+    # axs[0].set_xscale('log')
+    # axs[0].set_xticks(combined.index)
+    # axs[0].set_xticklabels(totalNo_ofsims)
+
+    # Plot 'ST' on the second subplot
+    axs[0].errorbar(combined.index, combined['ST'], yerr=combined['ST_conf'], fmt='o-', capsize=5)
+    axs[0].set_ylabel('Total effect (ST)')
     axs[0].set_xscale('log')
     axs[0].set_xticks(combined.index)
     axs[0].set_xticklabels(totalNo_ofsims)
-
-    # Plot 'ST' on the second subplot
-    axs[1].errorbar(combined.index, combined['ST'], yerr=combined['ST_conf'], fmt='o-', capsize=5)
-    # axs[1].set_title('ST values with confidence intervals')
-    # axs[1].set_xlabel('SampleSize')
-    axs[1].set_ylabel('Total effect (ST)')
-    axs[1].set_xscale('log')
-    axs[1].set_xticks(combined.index)
-    axs[1].set_xticklabels(totalNo_ofsims)
     # Plot pawn on the 3rd subplot
-    axs[2].plot(combined_pawn.index, combined_pawn['median'])
-    axs[2].plot(combined_pawn.index, combined_pawn['mean'], color='black', linestyle='dashed')    
-    axs[2].set_xlabel('SampleSize')
-    axs[2].set_ylabel('PAWN median and mean')
-    axs[2].set_xscale('log')
-    axs[2].set_xticks(combined_pawn.index)
-    axs[2].set_xticklabels(totalNo_ofsims)
+    axs[1].plot(combined_pawn.index, combined_pawn['mean'], color='black', linestyle='dashed', label = "mean")    
+    
+    axs[1].plot(combined_pawn.index, combined_pawn['median'], label = "median")
+    axs[1].set_xlabel('Simulations runs')
+    axs[1].set_ylabel('PAWN median and mean')
+    axs[1].set_xscale('log')
+    axs[1].set_xticks(combined_pawn.index)
+    axs[1].set_xticklabels(totalNo_ofsims)
+    axs[1].legend()
     plt.ylim(0, 1.4)
-    plt.savefig(f'{config.p_out}/SampleSizeEffect/Saltelli_{output_var}_day_{day}_{index}.png', 
+    plt.savefig(f'{config.p_out}/SampleSizeEffect_{output_var}_day_{day}_{index}.png', 
                 dpi=300, bbox_inches='tight')
-    plt.savefig(f'{config.p_out}/SampleSizeEffect/Saltelli_{output_var}_day_{day}_{index}.svg',bbox_inches='tight')    
+    plt.savefig(f'{config.p_out}/SampleSizeEffect_{output_var}_day_{day}_{index}.svg',bbox_inches='tight')    
 
     plt.show()
     plt.close()
 
 #%% 
-differences = calculate_days_difference(planting, harvest)
-
+plot_samplesize_effect(day=105)
 # %%
 
 def plot_pawn_effect(start=5, end=16, index='te', day=38, output_var='TWSO'):
