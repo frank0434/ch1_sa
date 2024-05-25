@@ -39,7 +39,9 @@ no_ofdays = len(large_df.day.unique())
 DAPs = np.tile(np.arange(no_ofdays), config.LSA_sample_size * len(para))
 large_df['DAP'] = DAPs[:len(large_df)]
 large_df.set_index('DAP', inplace=True)
-
+# %%
+# Replace the values in the 'key' column with the corresponding values from 'label_map'
+# large_df['key'] = large_df['key'].replace(config.label_map)
 # %%
 def create_subplot(ax, output_df, output_var, param_name):
     cmap = plt.get_cmap('viridis')
@@ -50,7 +52,7 @@ def create_subplot(ax, output_df, output_var, param_name):
 
 def create_figure(large_df, output_var, param_names):
     fig, axs = plt.subplots(5, 3, figsize=(9, 12), sharex=True, sharey=True)    
-    fig.subplots_adjust(wspace=-.5, hspace= -0.5)
+    # fig.subplots_adjust(wspace=-.5, hspace= -0.5)
     axs = axs.flatten()
 
     for i, param_name in enumerate(param_names):
@@ -62,27 +64,25 @@ def create_figure(large_df, output_var, param_names):
         if i >= 12:
             axs[i].set_xlabel('DAP')
         if i % 3 == 0:
-            axs[i].set_ylabel(output_var)
+            axs[i].set_ylabel(output_var)    
+        # Replace param_name with the corresponding value from label_map if it exists
+        param_name = config.label_map.get(param_name, param_name)
+
         axs[i].set_title(f'{param_name}')
         if output_var == 'LAI':
             axs[i].set_ylim(0, 6)
         elif output_var == 'TWSO':
             axs[i].set_ylim(0, output_df.TWSO.max() + 5000)
-
-    plt.tight_layout()
-    plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries_ss_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-    plt.savefig(f'{config.p_out_LSA}/{output_var}_timeseries_ss_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
+    scenario = "NL_" if config.run_NL_conditions else ""
+    plt.savefig(f'{config.p_out_LSA}/{scenario}{output_var}_timeseries_ss_{config.LSA_sample_size}.png', dpi = 300, pad_inches=0.1)
+    plt.savefig(f'{config.p_out_LSA}/{scenario}{output_var}_timeseries_ss_{config.LSA_sample_size}.svg', pad_inches=0.1)
     plt.show()
 # %%
 
 for var in ['LAI', 'TWSO', 'DVS']:
     create_figure(large_df, var, config.params_of_interests)
 
-# %%
-# create_figure(large_df, 'LAI', config.params_of_interests)
-# recreate the TWSO figure
-create_figure(large_df, 'TWSO', config.params_of_interests)
-# %% single plot for the main text
+# %% single plot for the main text --------------------------------
 param_name = 't1_pheno'
 output_var = 'LAI'
 output_df = large_df[large_df['key'] == param_name].sort_values('day')
