@@ -52,12 +52,12 @@ cols = len(differences)
 #%%
 width = cols * 2.5
 scale_factor = 10
-saltelli_thres = 0.05 # threshold for saltelli from Wang et al. 2013 or 0.15 from Vanuytrecht et al. 2014
-fig, axs = plt.subplots(2, cols, figsize=(width, 9), sharex=True)
+saltelli_thres = 0.1 # threshold for saltelli from Wang et al. 2013 or 0.15 from Vanuytrecht et al. 2014
+fig, axs = plt.subplots(3, cols, figsize=(width, 9), sharex=True)
 colors = [ 'red', 'blue']  # Replace with your actual colors
 
 plt.subplots_adjust(wspace=0.2, hspace=0.05)
-for j, var in enumerate(['LAI','TWSO']):
+for j, var in enumerate(['DVS','LAI','TWSO']):
     for i, d in enumerate(differences):
         # Load data
         Si = load_data(d, var, 'Saltelli')
@@ -113,7 +113,9 @@ for j, var in enumerate(['LAI','TWSO']):
 plt.xlim(0, 1)
 # fig.legend(handles=handles[:2], labels=labels[:2], loc='center right')
 fig.text(0.5, .05, 'Sensitivity index', ha='center', size = 16, weight='bold')
-plt.savefig(f'{config.p_out}/ParameterRank_Saltelli_days_{differences}.svg', bbox_inches='tight')
+scenario = "NL_" if config.run_NL_conditions else ""
+filenm = f'{config.p_out}/{scenario}ParameterRank_Saltelli_days_{differences}.svg' 
+plt.savefig(filenm, bbox_inches='tight')
 plt.show()
 
 # %% # pAWN
@@ -124,10 +126,10 @@ dummy = Dummy_si[1][1] # select the upper bound of the dummy si
 cols = len(differences)
 width = cols * 2.5
 # Create a figure with multiple subplots
-fig, axs = plt.subplots(2, cols, figsize=(width, 9), sharex=True)
+fig, axs = plt.subplots(3, cols, figsize=(width, 9), sharex=True)
 plt.subplots_adjust(wspace=0.15)
 # Loop over the output variables
-for j, var in enumerate(['LAI','TWSO']):
+for j, var in enumerate(['DVS','LAI','TWSO']):
     # Loop over the days and axes
     for i, d in enumerate(differences):
         # Load data
@@ -170,8 +172,9 @@ for j, var in enumerate(['LAI','TWSO']):
 plt.tight_layout()
 plt.xlim(0, 1)
 fig.text(0.5, -.01, 'Sensitivity index', ha='center', size = 16, weight='bold')
-
-plt.savefig(f'{config.p_out}/ParameterRank_{method}_days_{differences}.svg', bbox_inches='tight')
+scenario = "NL_" if config.run_NL_conditions else ""
+filenm = f'{config.p_out}/{scenario}ParameterRank_PAWN_days_{differences}.svg' 
+plt.savefig(filenm, bbox_inches='tight')
 plt.show()
 # %%
 
