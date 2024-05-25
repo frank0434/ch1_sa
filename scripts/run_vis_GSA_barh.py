@@ -96,7 +96,13 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
         # Get handles and labels of original legend
         
         handles, labels = barplot.get_legend_handles_labels()
-  
+        # Get current y-tick labels
+        yticklabels = [item.get_text() for item in axs[j, i].get_yticklabels()]
+        
+        # Map y-tick labels to new labels in label_map
+        new_yticklabels = [config.label_map.get(label, label) for label in yticklabels]
+
+
         # Create custom legend elements and add them to handles and labels
         for col, sum, color in zip(column_sums.keys(), column_sums.values, colors):
 
@@ -108,6 +114,7 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
         axs[j, i].legend(handles=handles[2:][::-1], labels=labels[2:][::-1])
         if i == 0:
             axs[j, i].set_ylabel(var, size=16, weight='bold')
+            axs[j, i].set_yticklabels(new_yticklabels)
         if j == 0:
             axs[j, i].text(-0, 1.01, str(d) + " DAP", transform=axs[j, i].transAxes, size=16, weight='bold')
 plt.xlim(0, 1)
@@ -115,7 +122,7 @@ plt.xlim(0, 1)
 fig.text(0.5, .05, 'Sensitivity index', ha='center', size = 16, weight='bold')
 scenario = "NL_" if config.run_NL_conditions else ""
 filenm = f'{config.p_out}/{scenario}ParameterRank_Saltelli_days_{differences}.svg' 
-plt.savefig(filenm, bbox_inches='tight')
+plt.savefig(filenm)
 plt.show()
 
 # %% # pAWN
@@ -127,7 +134,7 @@ cols = len(differences)
 width = cols * 2.5
 # Create a figure with multiple subplots
 fig, axs = plt.subplots(3, cols, figsize=(width, 9), sharex=True)
-plt.subplots_adjust(wspace=0.15)
+plt.subplots_adjust(wspace=0.2, hspace=0.05)
 # Loop over the output variables
 for j, var in enumerate(['DVS','LAI','TWSO']):
     # Loop over the days and axes
@@ -141,45 +148,58 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
             order = df_sorted.index
             column_sums = df.sum().round(2).drop(['minimum', "maximum",'CV'])
             # Plot sorted DataFrame
-            barplot = df_sorted[sortby].plot(kind='barh', ax=axs[j, i], width=0.5)
+            barplot = df_sorted[sortby].plot(kind='barh', ax=axs[j, i], width=0.5,
+                                             color='blue')
             axs[j, i].axvline(x=dummy, color='r', linestyle='-')
         if i > 0:
             df_sorted_new = df.reindex(order)
             column_sums = df_sorted_new.sum().round(2).drop(['minimum', "maximum",'CV'])
             # Plot sorted DataFrame
-            barplot = df_sorted_new[sortby].plot(kind='barh', ax=axs[j, i], width=0.5)
+            barplot = df_sorted_new[sortby].plot(kind='barh', ax=axs[j, i], width=0.5, 
+                                                 color='blue')
             axs[j, i].axvline(x=dummy, color='r', linestyle='-')
         handles, labels = barplot.get_legend_handles_labels()
+        # Get current y-tick labels
+        yticklabels = [item.get_text() for item in axs[j, i].get_yticklabels()]
         
-        for col, sum in column_sums.items():
-            line = plt.Line2D([0], [0], color='b', lw=4, label=f'{col}: {sum:.2f}')
-            handles.append(line)
-            labels.append(f'{col} Sum: {sum:.2f}')
-        # Add combined legend to plot
-        axs[j, i].legend(handles=handles[1:], labels=labels[1:])
+        # Map y-tick labels to new labels in label_map
+        new_yticklabels = [config.label_map.get(label, label) for label in yticklabels]
+
+        # Concatenate column sums into a single string
+        column_sums_str = '\n'.join([f'{col} Sum: {sum:.2f}' for col, sum in column_sums.items()])
+        
+        # Display column sums as text in the subplot with a box around it
+        axs[j, i].text(min(df_sorted[sortby]) + 0.1, 5, column_sums_str, va='center',
+                       bbox=dict(facecolor='none', edgecolor='black', boxstyle='round,pad=0.5'))
+        # for col, sum in column_sums.items():
+        #     line = plt.Line2D([0], [0], color='blue', lw=0, label=f'{col}: {sum:.2f}')
+        #     handles.append(line)
+        #     labels.append(f'{col} Sum: {sum:.2f}')
+        # # Add combined legend to plot
+        # axs[j, i].legend(handles=handles[1:], labels=labels[1:])
         # Remove y-axis for 2nd, 3rd, 4th, etc. column subplots
         if i > 0:
             axs[j, i].set_yticklabels([])
             axs[j, i].set_yticks([])
         # Add label to top row only
         if j == 0:
-            axs[j, i].text(-0, 1.01, chr(65 + i )+ ') ' +str(d) + " DAP", transform=axs[j, i].transAxes, size=20, weight='bold')
+            axs[j, i].text(-0, 1.01, str(d) + " DAP", transform=axs[j, i].transAxes, size=16, weight='bold')
         # Add y-label for each row
         if i == 0:
-            axs[j, i].set_ylabel(var, fontsize=20)
-# Add x-label to the entire figure
-# Add y-label to the entire figure
-plt.tight_layout()
+            axs[j, i].set_ylabel(var, size=16, weight='bold')
+            # Set new x-tick labels
+            axs[j, i].set_yticklabels(new_yticklabels)  
+
 plt.xlim(0, 1)
-fig.text(0.5, -.01, 'Sensitivity index', ha='center', size = 16, weight='bold')
+fig.text(0.5, 0.05, 'Sensitivity index', ha='center', size = 16, weight='bold')
 scenario = "NL_" if config.run_NL_conditions else ""
 filenm = f'{config.p_out}/{scenario}ParameterRank_PAWN_days_{differences}.svg' 
-plt.savefig(filenm, bbox_inches='tight')
+plt.savefig(filenm)
 plt.show()
 # %%
 
 width = cols * 2.5
-fig, axs = plt.subplots(3, cols, figsize=(width, 10), sharex=True)
+fig, axs = plt.subplots(3, cols, figsize=(width, 9), sharex=True)
 plt.subplots_adjust(wspace=0.4, hspace=0.1)
 for j, var in enumerate(['DVS','LAI','TWSO']):
     for i, d in enumerate(differences):
@@ -218,7 +238,7 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
         if j == 0:
             axs[j, i].text(-0, 1.01, str(d) + " DAP", transform=axs[j, i].transAxes, size=16, weight='bold')
 plt.xlim(0, 1)
-plt.savefig(f'{config.p_out}/ParameterRank_Saltelli_days_{differences}.svg', bbox_inches='tight')
+plt.savefig(f'{config.p_out}/ParameterRank_Saltelli_days_{differences}.svg')
 plt.show()
 
 # %%
