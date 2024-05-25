@@ -182,15 +182,8 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn,
     # Create a shared legend
     lines, labels = fig.axes[-1].get_legend_handles_labels()
     # Define a dictionary mapping old labels to new labels
-    label_map = {
-        't1_pheno': r'$t_{b\_pheno}$',
-        'te': r'$t_{phot-max}$',
-        'te_pheno': r'$t_{e\_pheno}$',
-        't1': r'$t_1$',
-        't2': r'$t_2$',
-        'tm1': r'$t_{m1}$'
-    }
 
+    label_map = config.label_map
     # Use a single list comprehension to apply replacements only for labels in label_map
     labels = [label_map.get(label, label) for label in labels]
     lines, labels = lines[::-1], labels[::-1]  # Reverse the order of the legend
