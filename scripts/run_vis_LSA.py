@@ -95,13 +95,15 @@ xlimt_upper = no_ofdays - 1
 pointsize = 1
 subplotlab_x = config.subplotlab_x
 subplotlab_y = config.subplotlab_y
-
+# relabel parameter names
+param_name = config.label_map.get(param_name, param_name)
+param_name_wirdo = config.label_map.get(param_name_wirdo, param_name_wirdo)
 # DVS values 
 emergence_date = output_df[output_df['DVS'] == 0]['DVS'].drop_duplicates()
 tuberintiation_date = output_df[output_df['DVS'] == 1]['DVS'].drop_duplicates()
 import matplotlib.gridspec as gridspec
 
-fig = plt.figure(figsize=(8, 9))
+fig = plt.figure(figsize=(7, 9))
 
 # Create a GridSpec for the whole figure
 gs = gridspec.GridSpec(3, 2, figure=fig, hspace=0.3, wspace=0.3)
@@ -189,11 +191,8 @@ ax6.set_xlabel(param_name_no_effect)
 ax6.set_ylabel(output_var)
 ax6.text(subplotlab_x, subplotlab_y, 'f)', transform=ax6.transAxes, size=config.subplot_fs, weight='bold')
 
-if config.run_NL_conditions:
-    plt.savefig(f'{config.p_out_LSA}/NL_{output_var}_mainText_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-    plt.savefig(f'{config.p_out_LSA}/NL_{output_var}_mainText_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
-else:
-    plt.savefig(f'{config.p_out_LSA}/{output_var}_mainText_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
-    plt.savefig(f'{config.p_out_LSA}/{output_var}_mainText_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
+scenario = "NL_" if config.run_NL_conditions else ""
+plt.savefig(f'{config.p_out_LSA}/{scenario}{output_var}_mainText_{config.LSA_sample_size}.png', dpi = 300, bbox_inches='tight', pad_inches=0.1)
+plt.savefig(f'{config.p_out_LSA}/{scenario}{output_var}_mainText_{config.LSA_sample_size}.svg', bbox_inches='tight', pad_inches=0.1)
 plt.show()
 # %%

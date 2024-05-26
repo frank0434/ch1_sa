@@ -65,6 +65,16 @@ problem = {
        ]
 }
 
+# the legend key for the variables. since it was not provided in the data, 
+# we have to create it
+label_map = {
+    't1_pheno': r'$t_{b\_pheno}$',
+    'te': r'$t_{phot-max}$',
+    'te_pheno': r'$t_{e\_pheno}$',
+    't1': r'$t_1$',
+    't2': r'$t_2$',
+    'tm1': r'$t_{m1}$'
+}
 
 
 # run NL conditions
@@ -75,7 +85,7 @@ if run_NL_conditions:
     SIMULATION_END_DATE_real = "2021-09-30"  # Real weather station data ends at 24th
     variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
     planting = "2021-04-22"
-    harvest = ['2021-06-17', '2021-07-14', '2021-08-12']
+    harvest = ['2021-06-17', '2021-07-14', '2021-08-12', "2021-09-30"]
     # run the NL conditions
     Weather_real = p_dat_raw / "350_weatherfile_2021.xlsx"
     p_out_LSA = p / 'output/LSA_NL'
@@ -89,7 +99,7 @@ else:
     SIMULATION_END_DATE_real = "2023-02-24"  # Real weather station data ends at 24th
     variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
     planting = "2022-11-10"
-    harvest = ['2022-12-19', '2023-01-16', '2023-02-14']
+    harvest = ['2022-12-19', '2023-01-16', '2023-02-14', "2023-02-24"]
     Weather_real = p_dat_raw / "India2022_23.xlsx"
     p_out_LSA = p / 'output/LSA'
     p_out_LSAsims = p_out_LSA / f'sims_{LSA_sample_size}' 
@@ -161,11 +171,11 @@ def calculate_days_difference(planting, harvest):
     differences = [(date - planting_date).days for date in harvest_dates]
     # Subtract 1 from each value in differences
     differences = [difference - 1 for difference in differences]
-    differences.append(105)
+    # differences.append(105)
     return differences
 days_s2 = calculate_days_difference(planting, harvest)
 
 # visualisation parameters
 subplot_fs = 16 # font size for subplots label letters
 subplotlab_x = 0.05
-subplotlab_y = 0.95
+subplotlab_y = 0.90
