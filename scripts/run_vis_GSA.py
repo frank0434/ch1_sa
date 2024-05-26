@@ -63,18 +63,21 @@ def plot_heatmaps(days, col):
 
     # Create subplots
     fig, axs = plt.subplots(2, 2, figsize=(8, 6))
+    # plt.subplots_adjust(hspace=0.5, wspace=0.5)
     axs = axs.ravel()  # Flatten the array to make indexing easier
     print(f"Print heatmap for Second order Sobol indices {col}.")
     # Remove unnecessary subplots
     # for i in range(2, 2*3):
     #     fig.delaxes(axs[i])
     parameters = config.params_of_interests
+    parameters = [config.label_map.get(param, param) for param in parameters]
     for i, day in enumerate(days):
         # Check if dfs[f'si_day_{day}_{col}'] is a dictionary
         if isinstance(dfs.get(f'si_day_{day}_{col}', {}), dict):
             S2_values = dfs.get(f'si_day_{day}_{col}', {}).get('S2', np.nan)
         else:
             S2_values = np.nan
+
 
         if not np.isnan(S2_values).all():
             im = axs[i].imshow(dfs[f'si_day_{day}_{col}']['S2'], cmap='viridis', interpolation='nearest')
@@ -87,9 +90,11 @@ def plot_heatmaps(days, col):
             axs[i].set_yticklabels(parameters)
         else:
             axs[i].axis('off')  # Hide empty subplots
-    plt.tight_layout()
+
     fig.suptitle(f'S2 Heatmaps for {col} in Different Days')  # Adjust the vertical position of the title
-    plt.savefig(f'{config.p_out}/Sobol_Salteli_S2_{col}_samplesize{GSA_sample_size}.png', dpi  = 300)
+    scenario = 'NL_' if config.run_NL_conditions else ''
+    plt.tight_layout()
+    plt.savefig(f'{config.p_out}/{scenario}Sobol_Salteli_S2_{col}_samplesize{GSA_sample_size}.png', dpi  = 300, pad_inches=0.3)
     plt.close()
 # Call the function
 
