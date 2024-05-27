@@ -153,16 +153,17 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn,
     None
     """
     print(f"Print 1st and total order Sobol indices for {col}.")
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 8), sharex=True, sharey=True)
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(4, 7), sharex=True, sharey=True)
+    if col == 'LAI':
+        # df1 = df1.iloc[config.arbitrary_start:]
+        df_sensitivity_ST = df_sensitivity_ST.iloc[emergence_date[0]:]
+        df_pawn = df_pawn.iloc[emergence_date[0]:] 
+    if col == 'TWSO':
+        df_sensitivity_ST = df_sensitivity_ST.iloc[tuber_initiation[0]:]
+        df_pawn = df_pawn.iloc[tuber_initiation[0]:]    
     # df1 = normalize_sensitivity(df_sensitivity_S1)
     df2 = normalize_sensitivity(df_sensitivity_ST)
     df3 = normalize_sensitivity(df_pawn)
-    if col == 'LAI':
-        # df1 = df1.iloc[config.arbitrary_start:]
-        df2 = df2.iloc[config.arbitrary_start:]
-        df3 = df3.iloc[config.arbitrary_start:] 
-    # Combine the column names from both dataframes
-    # combined_columns = list(df1.columns) + [col for col in df2.columns if col not in df1.columns]
 
     # Map the combined column names to colors
     # colors1 = [config.name_color_map.get(col, 'black') for col in df1.columns]
@@ -195,8 +196,8 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn,
     fig.legend(lines, labels, loc='center left', bbox_to_anchor=(1.0, 0.5))
         # Add labels to the subplots
     for i, ax in enumerate(axes.flatten(), start=1):
-        ax.text(0.01, config.subplotlab_y, chr(96+i) + ")", transform=ax.transAxes, 
-                size=config.subplot_fs, weight='bold')
+        ax.text(0.01, config.subplotlab_y+0.05, chr(96+i) + ")", transform=ax.transAxes, 
+                size=config.subplot_fs - 2, weight='bold')
     for ax in axes.flatten():
         # ax.hlines(1, 0, config.sim_period, color='grey', linestyle='--')
         ax.fill_betweenx([1, 1.05], emergence_date[0], emergence_date[1], color='dimgray')
@@ -211,7 +212,7 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn,
     plt.close()
 
 
-def normalize_sensitivity(df, threshold=0.1):
+def normalize_sensitivity(df, threshold=0):
     # df.reset_index(inplace=True)
     melted_df = df.reset_index().melt(id_vars='index', var_name='variable', value_name='Percentage')
 
@@ -240,10 +241,12 @@ def plot_sobol_Si_multiprocessing():
         None
     """
     # Create a multiprocessing Pool
-    with mp.Pool(len(config.cols_of_interests)) as pool:
+    # cols = config.cols_of_interests
+    cols = ['DVS', 'LAI', 'TWSO']
+    with mp.Pool(len(cols)) as pool:
         # Create a progress bar
-        with tqdm(total=len(config.cols_of_interests)) as pbar:
-            for i in pool.imap_unordered(worker_Saltelli, config.cols_of_interests):
+        with tqdm(total=len(cols)) as pbar:
+            for i in pool.imap_unordered(worker_plot, cols):
                 # Update the progress bar
                 pbar.update()
 
@@ -329,19 +332,19 @@ def process_and_plot_PAWN(col):
 
 # %%
 
-def worker_Saltelli(col):
+def worker_plot(col):
     """
     This function runs the process_files and plot_sensitivity_indices functions for the specified column.
     Parameters:
     col (str): The column name.
     """
+    emergence_date, tuber_initiation = process_dvs_files()
     df_sensitivity_S1, df_sensitivity_ST = process_files(col)
     df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
-    df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
     df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
     df_pawn_median.set_index('DAP', inplace=True)
     df_pawn_median.index.name = 'index'
-    emergence_date, tuber_initiation = process_dvs_files()
+    df_sensitivity_ST, df_pawn_median = df_sensitivity_ST.align(df_pawn_median, axis=0, join='left')
     plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median,
                              emergence_date, tuber_initiation, col)
     plot_heatmaps(config.days_s2, col)
@@ -382,12 +385,7 @@ if __name__ == "__main__":
     initial_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
     plot_sobol_Si_multiprocessing()
 
-    # Create a pool of processes
-    with mp.Pool() as pool:
-        for _ in pool.imap_unordered(process_and_plot_PAWN, ['DVS', 'LAI', 'TWSO']):
-            pass
-        final_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
-
+    final_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
     # Calculate the maximum memory usage
     max_memory_usage = max(initial_memory, final_memory)
    
@@ -396,19 +394,21 @@ if __name__ == "__main__":
     # plot_colorized_time_course(GSA_simulations, config.cols_of_interests, indices)
 
 # %%  # extract the dvs
-# emergence_date, tuber_initiation = process_dvs_files()
+emergence_date, tuber_initiation = process_dvs_files()
 
 # # # %% # test the code to fix the legend
-# col = 'LAI'
-# df_sensitivity_S1, df_sensitivity_ST = process_files(col)
-# df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
-# df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
-# df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
-# # df_pawn_median.drop('names', axis=1,inplace=True)
-# df_pawn_median.set_index('DAP', inplace=True)
+col = 'TWSO'
+df_sensitivity_S1, df_sensitivity_ST = process_files(col)
+df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
+df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
+df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
+
+df_pawn_median.set_index('DAP', inplace=True)
 # df_pawn_median.index.name = 'index'
-# plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, 
-#                          emergence_date, tuber_initiation, col)
+df_sensitivity_ST, df_pawn_median = df_sensitivity_ST.align(df_pawn_median, axis=0, join='left')
+
+plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, 
+                         emergence_date, tuber_initiation, col)
 # %% # legend to rename and italicise
 # import re
 
