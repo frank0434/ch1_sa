@@ -137,80 +137,58 @@ def process_files(col):
             df_sensitivity_ST.loc[day, :] = [np.nan for _ in range(len(df_sensitivity_ST.columns))]
 
     return df_sensitivity_S1, df_sensitivity_ST
-
-# #%%
 def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, 
                              emergence_date, tuber_initiation, col):
-  
     """
     This function plots the S1 and ST sensitivity indices.
     Parameters:
     df_sensitivity_S1 (pd.DataFrame): DataFrame storing the S1 sensitivity indices.
     df_sensitivity_ST (pd.DataFrame): DataFrame storing the ST sensitivity indices.
     col (str): The column name to be plotted.
-    colors (list): The list of colors for the plot.
     Returns:
     None
     """
     print(f"Print 1st and total order Sobol indices for {col}.")
     fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(4, 7), sharex=True, sharey=True)
-    if col == 'LAI':
-        # df1 = df1.iloc[config.arbitrary_start:]
-        df_sensitivity_ST = df_sensitivity_ST.iloc[emergence_date[0]:]
-        df_pawn = df_pawn.iloc[emergence_date[0]:] 
-    if col == 'TWSO':
-        df_sensitivity_ST = df_sensitivity_ST.iloc[tuber_initiation[0]:]
-        df_pawn = df_pawn.iloc[tuber_initiation[0]:]    
-    # df1 = normalize_sensitivity(df_sensitivity_S1)
+
+    if col in ['LAI', 'TWSO']:
+        start_date = emergence_date[0] if col == 'LAI' else tuber_initiation[0]
+        df_sensitivity_ST = df_sensitivity_ST.iloc[start_date:]
+        df_pawn = df_pawn.iloc[start_date:]
+
     df2 = normalize_sensitivity(df_sensitivity_ST)
     df3 = normalize_sensitivity(df_pawn)
 
-    # Map the combined column names to colors
-    # colors1 = [config.name_color_map.get(col, 'black') for col in df1.columns]
-    colors2 = [config.name_color_map.get(col, 'black') for col in df2.columns]
-    colors3 = [config.name_color_map.get(col, 'black') for col in df3.columns]
-    # df1.plot.area(ax=axes[0],stacked=True, color=colors1, legend=False)
-    df2.plot.area(ax=axes[0],stacked=True, color=colors2, legend=False)
-    df3.plot.area(ax=axes[1],stacked=True, color=colors3, legend=False)
+    colors = [config.name_color_map.get(col, 'black') for col in df2.columns]
+
+    for idx, df in enumerate([df2, df3], start=0):
+        df.plot.area(ax=axes[idx], stacked=True, color=colors, legend=False)
+
     plt.ylim(0, 1.05)
     plt.xlim(0, config.sim_period)
-    axes[0].set_xlabel('')
-    axes[1].set_xlabel('')
 
     plt.xlabel('Day After Planting', fontsize = config.subplot_fs)
-    # plt.ylabel('Parameter sensitivity')
-    # Set the title in the middle of the figure
-    # fig.suptitle(f'First order and total Sobol Si for {col}')
     fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs)
 
     plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
+    plt.gca().invert_yaxis()
 
-    # Create a shared legend
     lines, labels = fig.axes[-1].get_legend_handles_labels()
-    # Define a dictionary mapping old labels to new labels
-
-    label_map = config.label_map
-    # Use a single list comprehension to apply replacements only for labels in label_map
-    labels = [label_map.get(label, label) for label in labels]
-    lines, labels = lines[::-1], labels[::-1]  # Reverse the order of the legend
+    labels = [config.label_map.get(label, label) for label in labels]
     fig.legend(lines, labels, loc='center left', bbox_to_anchor=(1.0, 0.5))
-        # Add labels to the subplots
+
     for i, ax in enumerate(axes.flatten(), start=1):
         ax.text(0.01, config.subplotlab_y+0.05, chr(96+i) + ")", transform=ax.transAxes, 
                 size=config.subplot_fs - 2, weight='bold')
-    for ax in axes.flatten():
-        # ax.hlines(1, 0, config.sim_period, color='grey', linestyle='--')
         ax.fill_betweenx([1, 1.05], emergence_date[0], emergence_date[1], color='dimgray')
         ax.fill_betweenx([1, 1.05], tuber_initiation[0], tuber_initiation[1], color='dimgray')
+        ax.set_yticks([0, 0.25, 0.5, 0.75, 1])
+        ax.set_yticklabels(['100%', '75%', '50%', '25%', '0%'])
 
     plt.tight_layout()
-    if config.run_NL_conditions:
-        plt.savefig(f'{config.p_out}/NL_Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
-    else:
-        plt.savefig(f'{config.p_out}/Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
+    plt.savefig(f'{config.p_out}/{"" if config.run_NL_conditions else "NL_"}Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
     plt.show()
     plt.close()
-
 
 def normalize_sensitivity(df, threshold=0):
     # df.reset_index(inplace=True)
@@ -394,21 +372,21 @@ if __name__ == "__main__":
     # plot_colorized_time_course(GSA_simulations, config.cols_of_interests, indices)
 
 # %%  # extract the dvs
-emergence_date, tuber_initiation = process_dvs_files()
+# emergence_date, tuber_initiation = process_dvs_files()
 
-# # # %% # test the code to fix the legend
-col = 'TWSO'
-df_sensitivity_S1, df_sensitivity_ST = process_files(col)
-df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
-df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
-df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
+# # # # %% # test the code to fix the legend
+# col = 'TWSO'
+# df_sensitivity_S1, df_sensitivity_ST = process_files(col)
+# df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
+# df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
+# df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
 
-df_pawn_median.set_index('DAP', inplace=True)
-# df_pawn_median.index.name = 'index'
-df_sensitivity_ST, df_pawn_median = df_sensitivity_ST.align(df_pawn_median, axis=0, join='left')
+# df_pawn_median.set_index('DAP', inplace=True)
+# # df_pawn_median.index.name = 'index'
+# df_sensitivity_ST, df_pawn_median = df_sensitivity_ST.align(df_pawn_median, axis=0, join='left')
 
-plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, 
-                         emergence_date, tuber_initiation, col)
+# plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, 
+#                          emergence_date, tuber_initiation, col)
 # %% # legend to rename and italicise
 # import re
 
