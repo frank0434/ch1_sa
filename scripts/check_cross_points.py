@@ -10,7 +10,8 @@ import pickle
 from sklearn.cluster import DBSCAN
 with open('DummySi_results.pkl', 'rb') as f:
     Dummy_si = pickle.load(f)
-
+# %%
+emergence, tuberinitiation = vis.process_dvs_files()
 # %%
     # , cols = ['t1_pheno', 'TSUM1', 'TSUM2','TSUMEM','TEFFMX']
 def process_dataframe(df):
@@ -168,7 +169,10 @@ df_pawn_median.set_index('DAP',inplace =True)
 df_pawn_median.rename_axis("index", axis='index', inplace=True)
 
 df_pawn_median_normal = vis.normalize_sensitivity(df_pawn_median)
+# filtered out the emergence period 
 
+df_sensitivity_ST_normal = df_sensitivity_ST_normal.iloc[emergence[0]:]
+df_pawn_median_normal = df_pawn_median_normal.iloc[emergence[0]:]
 # %%
 _, _ , crossing_s1 = process_dataframe(df_sensitivity_S1_normal.loc[:, key_paras])
 _, _ , crossing_st = process_dataframe(df_sensitivity_ST_normal.loc[:, key_paras])
@@ -265,8 +269,10 @@ df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
 df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
 df_pawn_median.set_index('DAP',inplace =True)
 df_pawn_median.rename_axis("index", axis='index', inplace=True)
-
 df_pawn_median_normal = vis.normalize_sensitivity(df_pawn_median)
+# filtered out the tuber initiation period
+df_sensitivity_ST_normal = df_sensitivity_ST_normal.iloc[tuberinitiation[0]:]
+df_pawn_median_normal = df_pawn_median_normal.iloc[tuberinitiation[0]:]
 
 # %%
 _, _ , crossing_s1 = process_dataframe(df_sensitivity_S1_normal.loc[:, key_paras])
