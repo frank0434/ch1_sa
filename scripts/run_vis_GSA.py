@@ -137,58 +137,6 @@ def process_files(col):
             df_sensitivity_ST.loc[day, :] = [np.nan for _ in range(len(df_sensitivity_ST.columns))]
 
     return df_sensitivity_S1, df_sensitivity_ST
-def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, 
-                             emergence_date, tuber_initiation, col):
-    """
-    This function plots the S1 and ST sensitivity indices.
-    Parameters:
-    df_sensitivity_S1 (pd.DataFrame): DataFrame storing the S1 sensitivity indices.
-    df_sensitivity_ST (pd.DataFrame): DataFrame storing the ST sensitivity indices.
-    col (str): The column name to be plotted.
-    Returns:
-    None
-    """
-    print(f"Print 1st and total order Sobol indices for {col}.")
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(4, 7), sharex=True, sharey=True)
-
-    if col in ['LAI', 'TWSO']:
-        start_date = emergence_date[0] if col == 'LAI' else tuber_initiation[0]
-        df_sensitivity_ST = df_sensitivity_ST.iloc[start_date:]
-        df_pawn = df_pawn.iloc[start_date:]
-
-    df2 = normalize_sensitivity(df_sensitivity_ST)
-    df3 = normalize_sensitivity(df_pawn)
-
-    colors = [config.name_color_map.get(col, 'black') for col in df2.columns]
-
-    for idx, df in enumerate([df2, df3], start=0):
-        df.plot.area(ax=axes[idx], stacked=True, color=colors, legend=False)
-
-    plt.ylim(0, 1.05)
-    plt.xlim(0, config.sim_period)
-
-    plt.xlabel('Day After Planting', fontsize = config.subplot_fs)
-    fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs)
-
-    plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
-    plt.gca().invert_yaxis()
-
-    lines, labels = fig.axes[-1].get_legend_handles_labels()
-    labels = [config.label_map.get(label, label) for label in labels]
-    fig.legend(lines, labels, loc='center left', bbox_to_anchor=(1.0, 0.5))
-
-    for i, ax in enumerate(axes.flatten(), start=1):
-        ax.text(0.01, config.subplotlab_y+0.05, chr(96+i) + ")", transform=ax.transAxes, 
-                size=config.subplot_fs - 2, weight='bold')
-        ax.fill_betweenx([1, 1.05], emergence_date[0], emergence_date[1], color='dimgray')
-        ax.fill_betweenx([1, 1.05], tuber_initiation[0], tuber_initiation[1], color='dimgray')
-        ax.set_yticks([0, 0.25, 0.5, 0.75, 1])
-        ax.set_yticklabels(['100%', '75%', '50%', '25%', '0%'])
-
-    plt.tight_layout()
-    plt.savefig(f'{config.p_out}/{"" if config.run_NL_conditions else "NL_"}Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
-    plt.show()
-    plt.close()
 
 def normalize_sensitivity(df, threshold=0):
     # df.reset_index(inplace=True)
@@ -355,6 +303,66 @@ def process_dvs_files():
     tuber_initiation = [tuber_initiation['DAP'].min(), tuber_initiation['DAP'].max()]
 
     return emergence_date, tuber_initiation
+def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, 
+                             emergence_date, tuber_initiation, col):
+    """
+    This function plots the S1 and ST sensitivity indices.
+    Parameters:
+    df_sensitivity_S1 (pd.DataFrame): DataFrame storing the S1 sensitivity indices.
+    df_sensitivity_ST (pd.DataFrame): DataFrame storing the ST sensitivity indices.
+    col (str): The column name to be plotted.
+    Returns:
+    None
+    """
+    print(f"Print 1st and total order Sobol indices for {col}.")
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(4, 6), sharex=True, sharey=True)
+
+    if col in ['LAI', 'TWSO']:
+        start_date = emergence_date[0] if col == 'LAI' else tuber_initiation[0]
+        df_sensitivity_ST = df_sensitivity_ST.iloc[start_date:]
+        df_pawn = df_pawn.iloc[start_date:]
+
+    df2 = normalize_sensitivity(df_sensitivity_ST)
+    df3 = normalize_sensitivity(df_pawn)
+
+    colors_final = [config.name_color_map.get(col, 'black') for col in df2.columns]
+
+    for idx, df in enumerate([df2, df3], start=0):
+        df.plot.area(ax=axes[idx], stacked=True, color=colors_final, legend=False)
+    lines, labels = fig.axes[0].get_legend_handles_labels()
+    plt.ylim(0, 1.05)
+    plt.xlim(0, config.sim_period)
+
+    plt.xlabel('Day After Planting', fontsize = config.subplot_fs)
+    fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs)
+
+    plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
+    plt.gca().invert_yaxis()
+
+
+    labels_final = [config.label_map.get(label, label) for label in labels]
+    fig.legend(lines, labels_final, loc='center left', bbox_to_anchor=(1.0, 0.5), handlelength=1, borderpad=1)
+    labels_AUC = ['te', 'TDWI', 'TSUM1', 't1_pheno', 'TSUMEM', 'TEFFMX', 'SPAN', 't2', 'TSUM2', 'TBASEM']
+
+    colors_AUC = [config.name_color_map.get(col, 'black') for col in labels_AUC]
+    labels_AUC = [config.label_map.get(label, label) for label in labels_AUC]
+    labels_AUC = [f"{i+1}. {label}" for i, label in enumerate(labels_AUC)]
+
+    lines_AUC = [plt.Line2D([0], [0], color=c, linewidth=8, linestyle='-') for c in colors_AUC]
+    fig.legend(lines_AUC, labels_AUC, loc='upper center',  bbox_to_anchor=(0.7, 1.1), handlelength=0.3,ncol=len(labels_AUC)/2)
+    for i, ax in enumerate(axes.flatten(), start=1):
+        i = i if config.run_NL_conditions else i+2
+        ax.text(0.01, config.subplotlab_y, chr(96+i) + ")", transform=ax.transAxes, 
+                size=config.subplot_fs - 2, weight='bold')
+        ax.fill_betweenx([1, 1.05], emergence_date[0], emergence_date[1], color='dimgray')
+        ax.fill_betweenx([1, 1.05], tuber_initiation[0], tuber_initiation[1], color='dimgray')
+        ax.set_yticks([0, 0.25, 0.5, 0.75, 1])
+        ax.set_yticklabels(['100%', '75%', '50%', '25%', '0%'])
+
+    plt.tight_layout()
+    plt.savefig(f'{config.p_out}/{"" if config.run_NL_conditions else "NL_"}Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
+    plt.show()
+    plt.close()
 
 # %%
 
@@ -372,21 +380,21 @@ if __name__ == "__main__":
     # plot_colorized_time_course(GSA_simulations, config.cols_of_interests, indices)
 
 # %%  # extract the dvs
-# emergence_date, tuber_initiation = process_dvs_files()
+emergence_date, tuber_initiation = process_dvs_files()
 
-# # # # %% # test the code to fix the legend
-# col = 'TWSO'
-# df_sensitivity_S1, df_sensitivity_ST = process_files(col)
-# df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
-# df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
-# df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
+# # # %% # test the code to fix the legend
+col = 'TWSO'
+df_sensitivity_S1, df_sensitivity_ST = process_files(col)
+df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
+df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
+df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
 
-# df_pawn_median.set_index('DAP', inplace=True)
-# # df_pawn_median.index.name = 'index'
-# df_sensitivity_ST, df_pawn_median = df_sensitivity_ST.align(df_pawn_median, axis=0, join='left')
+df_pawn_median.set_index('DAP', inplace=True)
+# df_pawn_median.index.name = 'index'
+df_sensitivity_ST, df_pawn_median = df_sensitivity_ST.align(df_pawn_median, axis=0, join='left')
 
-# plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, 
-#                          emergence_date, tuber_initiation, col)
+plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST,df_pawn_median, 
+                         emergence_date, tuber_initiation, col)
 # %% # legend to rename and italicise
 # import re
 
