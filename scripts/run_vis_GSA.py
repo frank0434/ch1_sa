@@ -315,7 +315,7 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn,
     None
     """
     print(f"Print 1st and total order Sobol indices for {col}.")
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(4, 6), sharex=True, sharey=True)
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(3, 4), sharex=True, sharey=True)
 
     if col in ['LAI', 'TWSO']:
         start_date = emergence_date[0] if col == 'LAI' else tuber_initiation[0]
@@ -334,33 +334,32 @@ def plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn,
     plt.xlim(0, config.sim_period)
 
     plt.xlabel('Day After Planting', fontsize = config.subplot_fs)
-    fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs)
+    fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs-4)
 
     plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
     plt.gca().invert_yaxis()
 
 
     labels_final = [config.label_map.get(label, label) for label in labels]
-    fig.legend(lines, labels_final, loc='center left', bbox_to_anchor=(1.0, 0.5), handlelength=1, borderpad=1)
-    labels_AUC = ['te', 'TDWI', 'TSUM1', 't1_pheno', 'TSUMEM', 'TEFFMX', 'SPAN', 't2', 'TSUM2', 'TBASEM']
+    fig.legend(lines, labels_final, loc='center left', bbox_to_anchor=(1.0, 0.5), handlelength=1, borderpad=1, fontsize = 8)
+    # labels_AUC = ['te', 'TDWI', 'TSUM1', 't1_pheno', 'TSUMEM', 'TEFFMX', 'SPAN', 't2', 'TSUM2', 'TBASEM']
+    # colors_AUC = [config.name_color_map.get(col, 'black') for col in labels_AUC]
+    # labels_AUC = [config.label_map.get(label, label) for label in labels_AUC]
+    # labels_AUC = [f"{i+1}. {label}" for i, label in enumerate(labels_AUC)]
 
-    colors_AUC = [config.name_color_map.get(col, 'black') for col in labels_AUC]
-    labels_AUC = [config.label_map.get(label, label) for label in labels_AUC]
-    labels_AUC = [f"{i+1}. {label}" for i, label in enumerate(labels_AUC)]
-
-    lines_AUC = [plt.Line2D([0], [0], color=c, linewidth=8, linestyle='-') for c in colors_AUC]
-    fig.legend(lines_AUC, labels_AUC, loc='upper center',  bbox_to_anchor=(0.7, 1.1), handlelength=0.3,ncol=len(labels_AUC)/2)
+    # lines_AUC = [plt.Line2D([0], [0], color=c, linewidth=8, linestyle='-') for c in colors_AUC]
+    # fig.legend(lines_AUC, labels_AUC, loc='upper center',  bbox_to_anchor=(0.7, 1.1), handlelength=0.3,ncol=len(labels_AUC)/2)
     for i, ax in enumerate(axes.flatten(), start=1):
         i = i if config.run_NL_conditions else i+2
         ax.text(0.01, config.subplotlab_y, chr(96+i) + ")", transform=ax.transAxes, 
-                size=config.subplot_fs - 2, weight='bold')
+                size=config.subplot_fs - 4, weight='bold')
         ax.fill_betweenx([1, 1.05], emergence_date[0], emergence_date[1], color='dimgray')
         ax.fill_betweenx([1, 1.05], tuber_initiation[0], tuber_initiation[1], color='dimgray')
         ax.set_yticks([0, 0.25, 0.5, 0.75, 1])
         ax.set_yticklabels(['100%', '75%', '50%', '25%', '0%'])
-
+    scenario = 'NL_' if config.run_NL_conditions else ''
     plt.tight_layout()
-    plt.savefig(f'{config.p_out}/{"" if config.run_NL_conditions else "NL_"}Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
+    plt.savefig(f'{config.p_out}/{scenario}Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
     plt.show()
     plt.close()
 
