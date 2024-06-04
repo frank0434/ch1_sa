@@ -271,8 +271,8 @@ df_pawn_median.set_index('DAP',inplace =True)
 df_pawn_median.rename_axis("index", axis='index', inplace=True)
 df_pawn_median_normal = vis.normalize_sensitivity(df_pawn_median)
 # filtered out the tuber initiation period
-df_sensitivity_ST_normal = df_sensitivity_ST_normal.iloc[tuberinitiation[0]:]
-df_pawn_median_normal = df_pawn_median_normal.iloc[tuberinitiation[0]:]
+# df_sensitivity_ST_normal = df_sensitivity_ST_normal.iloc[tuberinitiation[0]:]
+# df_pawn_median_normal = df_pawn_median_normal.iloc[tuberinitiation[0]:]
 
 # %%
 _, _ , crossing_s1 = process_dataframe(df_sensitivity_S1_normal.loc[:, key_paras])
@@ -351,3 +351,5 @@ fig.suptitle('Crossing points after clustering - could be used as a supplementar
 plt.show()
 plt.savefig(f'{config.p_out}/{col}_Si_crossing_points_afterClustering.png', dpi = 300, bbox_inches = 'tight')
 
+
+# %%
