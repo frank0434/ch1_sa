@@ -197,50 +197,74 @@ filenm = f'{config.p_out}/{scenario}ParameterRank_PAWN_days_{differences}.svg'
 plt.savefig(filenm)
 plt.show()
 # %%
+# %% make graph for slides
+# Save the original default font size
+original_font_size = plt.rcParams['font.size']
 
+# Set the new default font size
+plt.rcParams['font.size'] = 22
+var = 'LAI'
+threedays = differences[:2]+differences[3:]
 width = cols * 2.5
-fig, axs = plt.subplots(3, cols, figsize=(width, 9), sharex=True)
-plt.subplots_adjust(wspace=0.4, hspace=0.1)
-for j, var in enumerate(['DVS','LAI','TWSO']):
-    for i, d in enumerate(differences):
-        # Load data
-        Si = load_data(d, var, 'Saltelli')
-        df = to_df(Si[f'si_day_{d}_{var}'])
+scale_factor = 10
+saltelli_thres = 0.1 # threshold for saltelli from Wang et al. 2013 or 0.15 from Vanuytrecht et al. 2014
+fig, axs = plt.subplots(1,3, figsize=(6, 6), sharex=True)
+colors = [ 'red', 'blue']  # Replace with your actual colors
 
-        # Sort DataFrame by 'S1' column in descending order
+plt.subplots_adjust(wspace=0.2, hspace=0.05)
+
+for i, d in enumerate(threedays):
+    # Load data
+    Si = load_data(d, var, 'Saltelli')
+    df = to_df(Si[f'si_day_{d}_{var}'])
+    if i == 0:
+    # Sort DataFrame by 'S1' column in descending order
         df_sorted = df.sort_values(by='S1', ascending=True)
+        order = df_sorted.index 
         conf_cols = df_sorted.columns.str.contains('_conf')
         confs = df_sorted.loc[:, conf_cols]
         confs.columns = [c.replace('_conf', "") for c in confs.columns]
         Sis = df_sorted.loc[:, ~conf_cols]
-
+        axs[i].axvline(x=saltelli_thres, color='r', linestyle='-')
         # Plot sorted DataFrame
-        barplot = Sis.plot(kind='barh', yerr=confs, ax=axs[j, i])
-        # if i > 0:
-        #     axs[j, i].set_yticklabels([])
-        #     axs[j, i].set_yticks([])
-        # Create custom legend
-        column_sums = df.loc[:, ~conf_cols].sum().round(2)
+        barplot = Sis.plot(kind='barh', yerr=confs * scale_factor, ax=axs[i], width = 0.9,
+                           legend=False, color = colors)
+    if i > 0:
+        df_sorted_new = df.reindex(order)
+        conf_cols = df_sorted_new.columns.str.contains('_conf')
+        confs = df_sorted_new.loc[:, conf_cols]
+        confs.columns = [c.replace('_conf', "") for c in confs.columns]
+        Sis = df_sorted_new.loc[:, ~conf_cols]
+        axs[i].axvline(x=saltelli_thres, color='r', linestyle='-')
+        # Plot sorted DataFrame
+        barplot = Sis.plot(kind='barh', yerr=confs * scale_factor, ax=axs[i], 
+                           width = 0.9,legend=False, color = colors)
+    column_sums = df.loc[:, ~conf_cols].sum().round(2)
+    if i > 0:
+        axs[i].set_yticklabels([])
+        axs[i].set_yticks([])
+    # Get handles and labels of original legend
+    
+    handles, labels = barplot.get_legend_handles_labels()
+    # Get current y-tick labels
+    yticklabels = [item.get_text() for item in axs[i].get_yticklabels()]
+    
+    # Map y-tick labels to new labels in label_map
+    new_yticklabels = [config.label_map.get(label, label) for label in yticklabels]
 
-        # Get handles and labels of original legend
-        handles, labels = barplot.get_legend_handles_labels()
-
-        # Create custom legend elements and add them to handles and labels
-        for col, sum in column_sums.items():
-            line = plt.Line2D([0], [0], color='b', lw=4, label=f'{col}: {sum:.2f}')
-            handles.append(line)
-            labels.append(f'{col} Sum: {sum:.2f}')
-
-        # Add combined legend to plot
-        axs[j, i].legend(handles=handles, labels=labels, loc='lower right')
-        if i == 0:
-            axs[j, i].set_ylabel(var, size=16, weight='bold')
-        if j == 0:
-            axs[j, i].text(-0, 1.01, str(d) + " DAP", transform=axs[j, i].transAxes, size=16, weight='bold')
+    if i == 0:
+        # axs[i].set_ylabel(var, size=16, weight='bold')
+        axs[i].set_yticklabels(new_yticklabels)
+    axs[i].text(-0, 1.01, str(d) + " DAP", transform=axs[i].transAxes, size=16, weight='bold')
 plt.xlim(0, 1)
-plt.savefig(f'{config.p_out}/ParameterRank_Saltelli_days_{differences}.svg')
+# fig.legend(handles=handles[:2], labels=labels[:2], loc='center right')
+fig.text(0.5, 0, 'Sensitivity index', ha='center', size = 16, weight='bold')
+scenario = "NL_" if config.run_NL_conditions else ""
+filenm = f'{config.p_out}/{scenario}Slide_Saltelli_days_{differences}.svg' 
+plt.savefig(filenm)
 plt.show()
-
+# Reset the default font size to its original value
+plt.rcParams['font.size'] = original_font_size
 # %%
 def plot_sorted_df(day, output_var=['TWSO'], method='Saltelli', samplesize=32768, sortby='S1'):
     # Check if day is a list
