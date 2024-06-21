@@ -16,3 +16,5 @@ scripts/__pycache__/*
 logs/*
 output/areas_*.csv
 *.csv
+*.docx
+*.html
