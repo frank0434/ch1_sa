@@ -265,6 +265,23 @@ plt.savefig(filenm)
 plt.show()
 # Reset the default font size to its original value
 plt.rcParams['font.size'] = original_font_size
+
+
+
+
+# %%
+GSA_sample_size = 65536
+config.set_variables(GSA_sample_size, local=True)
+# samplesize = [2 ** x for x in range(5, 16)]
+# %%
+plot_samplesize_effect()
+plot_pawn_effect()
+# %%
+# 20240213 output for writing
+plot_samplesize_effect(start=5, end=17, index='te', day = 105, output_var='TWSO')
+
+
+
 # %%
 def plot_sorted_df(day, output_var=['TWSO'], method='Saltelli', samplesize=32768, sortby='S1'):
     # Check if day is a list
@@ -357,7 +374,6 @@ def plot_sorted_df(day, output_var=['TWSO'], method='Saltelli', samplesize=32768
         plt.clf()  # Clear figure to avoid overlapping plots
 # %%
 
-plot_sorted_df(day = differences, output_var='DVS', method='Saltelli')
 # %%
 
 def plot_sorted_df_pawn(day, output_var='TWSO', method='PAWN', sortby='median', dummy = Dummy_si):
@@ -608,16 +624,7 @@ def plot_pawn_effect(start=5, end=16, index='te', day=38, output_var='TWSO'):
 # %%
 # config.cols_of_interests
 cols_of_interests = ['DVS', 'LAI', 'TWSO']
-# %%
-GSA_sample_size = 65536
-config.set_variables(GSA_sample_size, local=True)
-# samplesize = [2 ** x for x in range(5, 16)]
-# %%
-plot_samplesize_effect()
-plot_pawn_effect()
-# %%
-# 20240213 output for writing
-plot_samplesize_effect(start=5, end=17, index='te', day = 105, output_var='TWSO')
+
 
 # %%
 
@@ -639,7 +646,7 @@ for day in [105]:
 
 
 # %%  # all the ranking graphs 
-differences = calculate_days_difference(planting, harvest)
+differences = config.days_s2
 samplesize = GSA_sample_size
 plot_sorted_df(differences, 'DVS', 'Saltelli')
 # %%
@@ -672,23 +679,3 @@ samplesize = 32768
 for var in ['DVS', 'LAI', 'TWSO']:
     print(f'day {differences}; output of interest:{var}')
     plot_sorted_df(differences, var, 'Saltelli')
-
-
-
-#%%
-d = 105
-output_var = 'TWSO'
-method = 'PAWN'
-sortby = 'median'
-dummy = Dummy_si
-data = load_data(d, output_var, method)   
-df = data[f'si_day_{d}_{output_var}'].to_df()
-df
-# %%
-df.loc['Dummy', ['median']] = [round(dummy[0], 3)]
-df['median'] = df['median'].astype(float)
-df
-# %%
-# Sort DataFrame by 'median' column in descending order
-df_sorted = df.sort_values(by=sortby, ascending=True)
-column_sums = df.sum().round(2).drop(['minimum', "maximum",'CV'])
