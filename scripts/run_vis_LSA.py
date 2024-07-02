@@ -119,8 +119,8 @@ ax1.set_ylabel(output_var)
 ax1.axvline(emergence_date.index, color='green', linestyle='-')
 ax1.axvline(tuberintiation_date.index, color='green', linestyle='-')
 ax1.set_ylim(0, ylimt_upper)
-ax1.set_xlim(0, xlimt_upper)
-# ax1.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
+# ax1.set_xlim(0, xlimt_upper)
+ax1.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
 # ax1.annotate('Illustration on the right', xy=(xlimt_upper, ylimt_upper),
 #               xytext=(xlimt_upper, ylimt_upper + 1), 
 #              arrowprops=dict(facecolor='black', shrink=0.0), ha = 'center')
@@ -145,9 +145,9 @@ sc3 = ax3.scatter(output_df_wirdo.index, output_df_wirdo[output_var], c=output_d
 ax3.set_xlabel('')
 ax3.set_ylabel(output_var)
 ax3.set_ylim(0, ylimt_upper)
-ax3.set_xlim(0, xlimt_upper)
-# xlimt_upper = (no_ofdays - 1)/2 #if config.run_NL_conditions else no_ofdays - 1
-# ax3.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
+# ax3.set_xlim(0, xlimt_upper)
+xlimt_upper = (no_ofdays - 1)/2 #if config.run_NL_conditions else no_ofdays - 1
+ax3.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
 # ax3.annotate('Illustration on the right', xy=(xlimt_upper, ylimt_upper),
 #               xytext=(xlimt_upper, ylimt_upper + 1), 
 #              arrowprops=dict(facecolor='black', shrink=0.0), ha = 'center')
@@ -178,13 +178,13 @@ sc5 = ax5.scatter(output_df_no_effect.index, output_df_no_effect[output_var], c=
 ax5.set_xlabel('DAP')
 ax5.set_ylabel(output_var)
 ax5.text(subplotlab_x, subplotlab_y, 'e)', transform=ax5.transAxes, size=config.subplot_fs, weight='bold')
-# xlimt_upper = (no_ofdays - 1)/2 if config.run_NL_conditions else no_ofdays - 1
-# ax5.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
+xlimt_upper = (no_ofdays - 1)/2 if config.run_NL_conditions else no_ofdays - 1
+ax5.vlines(xlimt_upper, 0, ylimt_upper, color='red', linestyle='--')
 # ax5.annotate('Illustration on the right', xy=(xlimt_upper, ylimt_upper ),
             #   xytext=(xlimt_upper, ylimt_upper + 1), 
             #  arrowprops=dict(facecolor='black', shrink=0.0), ha = 'center')
 ax5.set_ylim(0, ylimt_upper)
-ax5.set_xlim(0, xlimt_upper)
+# ax5.set_xlim(0, xlimt_upper)
 # Sixth subplot
 ax6 = fig.add_subplot(gs[2, 1])
 # Get the final day of output_df
