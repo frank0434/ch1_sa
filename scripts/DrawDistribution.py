@@ -24,7 +24,7 @@ fig, ax = plt.subplots(3, 1, figsize=(6, 8))
 
 # Define the column names and their corresponding titles
 columns = ['DVS', 'LAI', 'TWSO']
-titles = ['DVS Title', 'LAI Title', 'TWSO Title']
+titles = ['DVS', 'LAI', 'TWSO']
 
 for i, (col, title) in enumerate(zip(columns, titles)):
     # Use seaborn for a nicer histogram
@@ -39,8 +39,8 @@ for i, (col, title) in enumerate(zip(columns, titles)):
 fig.tight_layout()
 
 # Save the figure
-fig.savefig('Distribution_105_TWSO.png', dpi=300)
-fig.savefig('Distribution_105_TWSO.svg')
+fig.savefig('../output/Distribution_105_TWSO.png', dpi=300)
+fig.savefig('../output/Distribution_105_TWSO.svg')
 
 plt.show()
 # %%
