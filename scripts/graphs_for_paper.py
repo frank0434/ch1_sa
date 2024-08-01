@@ -1,4 +1,114 @@
 # %%
+# Figure one 
+#%%
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+
+
+
+AGFUN_DTSMTB = [0.0,  0.0,
+                2.0,  0.0,
+               13.0, 11.0,
+               30.0, 28.0]
+x = AGFUN_DTSMTB[::2]  # Values in odd positions
+y = AGFUN_DTSMTB[1::2]  # Values in even positions
+
+# %%
+def combined_equation(Temp_mean, t1, te):
+    """
+    This is a smooth function for DTSMTB based on the value of Temp_mean.
+
+    Parameters:
+    Temp_mean (float): The mean air temperature.
+    t1, te (float): Parameters of the piecewise function.
+
+    Returns:
+    float: The result of the piecewise function.
+    """
+    condition1 = Temp_mean <= t1
+    condition2 = (Temp_mean > t1)  & (Temp_mean <= te)
+
+    # Define the equations 
+    equation1 = 0
+    equation2 = Temp_mean - t1
+    # Calculate the result of the piecewise function
+    result = np.where(condition1, equation1, equation2)
+
+    return result
+
+
+# %%
+# Initial guess: [t1, te]
+p0 = [4, 30]
+
+# Fit the curve
+popt, pcov = curve_fit(combined_equation, x, y, p0, method='dogbox', maxfev=5000)
+
+# Generate y data from the combined_equation function with the optimized parameters
+x_smooth = np.linspace(min(x), max(x), 100)
+y_smooth = combined_equation(x_smooth, *popt)
+
+# Plot the original data and the fitted curve
+plt.plot(x, y, 'o', label='Data points sampled from AFGEN')
+plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
+plt.xlabel('Mean Air Temperature (°C)')
+plt.ylabel('Effective Thermal Time (°C day)')
+plt.legend()
+
+
+plt.savefig('../output/DTSMTB_curving_fitting.svg')
+plt.show()
+plt.close()
+
+#%%
+
+import numpy as np
+import matplotlib.pyplot as plt
+def combined_equation(Temp_daytime, tm1, t1, t2, te):
+    return np.where(Temp_daytime < t1, 
+                    1 * (1 + (t1 - Temp_daytime) / (t1 - tm1)) * (Temp_daytime / t1) ** (t1 / (t1 - tm1)),
+                    np.where((Temp_daytime >= t1) & (Temp_daytime <= t2), 1, 
+                             1 * ((te - Temp_daytime)/(te - t2))*((Temp_daytime + t1 - t2)/t1)**(t1/(te - t2))))
+from scipy.optimize import curve_fit
+
+
+AGFUN_TMPFTB = [0.0,0.01,3.0,0.01,10.0,0.75, 11, 0.8,  12, 0.85, 13, 0.9, 
+                14, 0.95, 15.0,1.0,24.0,1.0,29.0,0.75,36.0,0.01]
+x = AGFUN_TMPFTB[::2]  # Values in odd positions
+y = AGFUN_TMPFTB[1::2]  # Values in even positions
+plt.plot(x, y)
+plt.xlabel('Temperature (°C)')
+plt.ylabel('Reduction factor of \nMaximum leaf CO2 assimilation rate')
+
+# Initial guess: [tm1, t1, t2, te, 1]
+p0 = [0, 10, 20, 30]
+
+# Fit the curve
+popt, pcov = curve_fit(combined_equation, x, y, p0, method='dogbox', maxfev=5000)
+
+# Generate y data from the combined_equation function with the optimized parameters
+x_smooth = np.linspace(min(x), max(x), 100)
+y_smooth = combined_equation(x_smooth, *popt)
+
+# Plot the original data and the fitted curve
+plt.plot(x, y, 'o', label='Data points sampled from AFGEN_TMPFTB', c = 'blue')
+plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
+plt.xlabel('Mean Daytime Temperature (°C)')
+plt.ylabel('Reduction factor of \nMaximum leaf CO2 assimilation rate')
+plt.legend()
+
+plt.savefig('../output/TMPFTB_curving_fitting.svg')
+plt.show()
+plt.close()
+
+
+# %%
+
+
+
+
+#%%
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import os
