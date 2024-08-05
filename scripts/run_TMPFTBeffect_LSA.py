@@ -205,21 +205,22 @@ weather_nl['TMPFTB'] = f(weather_nl['Temperature...C.'])
 weather['DAP'] = np.arange(1, len(weather) + 1)
 weather_nl['DAP'] = np.arange(1, len(weather_nl) + 1)
 # %%
-def plot_data(df):
+def plot_data(df, scenario):
     # Plot the data
     fig, ax1 = plt.subplots()
 
     color = 'tab:blue'
-    ax1.set_xlabel('DAP')
-    ax1.set_ylabel('TMPFTB', color=color)
+    ax1.set_xlabel('DAP', fontsize=config.subplot_fs)
+    ax1.set_ylabel('TMPFTB', color=color, fontsize=config.subplot_fs)
     ax1.plot(df['DAP'], df['TMPFTB'], color=color, linewidth=1)
     ax1.tick_params(axis='y', labelcolor=color)
+
 
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
     color = 'tab:red'
     # we already handled the x-label with ax1
-    ax2.set_ylabel('Temperature', color=color)  
+    ax2.set_ylabel('Temperature', color=color, fontsize=config.subplot_fs)  
     ax2.plot(df['DAP'], df['Temperature...C.'], color=color, linewidth=1)
     ax2.tick_params(axis='y', labelcolor=color)
 
@@ -230,11 +231,14 @@ def plot_data(df):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     ax1.set_ylim([0, 1.1])  # Set limits for first y-axis
     ax2.set_ylim(0, 35)  # Set limits for second y-axis
+    plt.savefig(f'../output/{scenario}tmpftb.svg', dpi = 600, bbox_inches='tight')
+    plt.savefig(f'../output/{scenario}tmpftb.png', dpi = 300, bbox_inches='tight')
+    # plt.savefig(f'../output/weather_data.svg', dpi = 600, bbox_inches='tight')
     plt.show()
 
 # Call the function with the dataframes
-plot_data(weather)
-plot_data(weather_nl)
+plot_data(weather, 'India')
+plot_data(weather_nl, 'Netherlands')
 
 # %%
 # Calculate the number of days with temperature below 15 or above 24 in weather DataFrame
