@@ -34,8 +34,11 @@ order = df_sorted_NLD.index
 conf_cols = df_sorted_NLD.columns.str.contains('_conf')
 confs = df_sorted_NLD.loc[:, conf_cols]
 confs.columns = [c.replace('_conf', "") for c in confs.columns]
-Sis_NLD = df_sorted_NLD.loc[:, ~conf_cols]
 
+display = ['t2', 'te', 'TDWI','Q10', 'TSUM1', 't1_pheno', 'SPAN']
+Sis_NLD = df_sorted_NLD.loc[display, ['ST']]
+
+# %%
 # load indian 
 Si_IND = load_data(105, 'TWSO', 'Saltelli')
 # %%
@@ -45,26 +48,40 @@ df_sorted_new = Si_df_IND.reindex(order)
 conf_cols = df_sorted_new.columns.str.contains('_conf')
 confs = df_sorted_new.loc[:, conf_cols]
 confs.columns = [c.replace('_conf', "") for c in confs.columns]
-Sis_IND = df_sorted_new.loc[:, ~conf_cols]
+Sis_IND = df_sorted_new.loc[display, ['ST']]
 # Save the original default font size
 original_font_size = plt.rcParams['font.size']
 # Set the new default font size
 plt.rcParams['font.size'] = 18
 color = ['red', 'blue']
-fig, axs = plt.subplots(1, 2, figsize=(7, 5), sharex=True)
+fig, axs = plt.subplots(1, 2, figsize=(7, 6), sharex=True)
+
 plt.subplots_adjust(wspace=0.15, hspace=0.05)
 # NLD
-barplot = Sis_NLD.plot(kind='barh', yerr=confs , width = 0.9, ax=axs[0],
+barplot = Sis_NLD.plot(kind='barh' , width = 0.9, ax=axs[0],
                    legend=False, color = color)
 # indian
-barplot = Sis_IND.plot(kind='barh', yerr=confs , width = 0.9, ax=axs[1],
-                   legend=True, color = color)
+barplot = Sis_IND.plot(kind='barh' , width = 0.9, ax=axs[1],
+                   legend=False, color = color)
                    
+# Define the label mapping
+label_map = {
+    't2': '$T_{opt}$ for $A_{max}$',
+    'te': '$T_{max}$ for $A_{max}$',
+    'TDWI': 'Seed DW',
+    'Q10': 'Q10',
+    'TSUM1': 'TSUM1',
+    't1_pheno': '$T_b$',
+    'SPAN': 'Leaf Lifespan'
+}
+
 yticklabels =  [item.get_text() for item in axs[0].get_yticklabels()]
-new_yticklabels = [config.label_map.get(label, label) for label in yticklabels]
+new_yticklabels = [label_map.get(label, label) for label in yticklabels]
 axs[0].set_yticklabels(new_yticklabels)
 axs[1].set_yticklabels([])
 # barplot
 plt.xlim(0, 1)
 plt.show()
 plt.rcParams['font.size'] = original_font_size
+
+# %%
