@@ -367,13 +367,13 @@ import itertools
 import math
 # %%
 para = config.params_of_interests
-config.p_out_LSAsims
 with open(f'{config.p_out_LSAsims}/hash_dict_final.json', 'r') as f:
     para_vals = json.load(f)
-len(para_vals)
-para_vals.values()
 para.extend([] * config.LSA_sample_size)
+
 keys = list(itertools.chain.from_iterable(itertools.repeat(x, config.LSA_sample_size) for x in para))
+with open(f'{config.p_out}/LSA_NL/sims_NL_100/hash_dict_final.json', 'r') as f:
+    para_vals_nl = json.load(f)
 
 # %%
 
@@ -386,152 +386,114 @@ for i, key, value in zip(para_vals.keys(), keys, para_vals.values()):
     df = pd.DataFrame(results)
     df['key'] = key
     df['value'] = value
+    df['value'] = df['value'].astype(float)
     dfs.append(df)
-
+df_NL = []
+for i, key, value in zip(para_vals_nl.keys(), keys, para_vals_nl.values()):
+    # print(i, value)
+    with open(f'{config.p_out}/LSA_NL/sims_NL_100/{i}_{key}.json', 'r') as f:
+        results = json.load(f)
+    df = pd.DataFrame(results)
+    df['key'] = key
+    df['value'] = value
+    df['value'] = df['value'].astype(float)
+    df_NL.append(df)
 # Concatenate all DataFrames
 large_df = pd.concat(dfs)
-large_df['value'] = large_df['value'].astype(float)
 colors = config.name_color_map
 no_ofdays = len(large_df.day.unique())
-
-# dfs_IND = []  # List to store DataFrames
-# for i, key, value in zip(para_vals.keys(), keys, para_vals.values()):
-#     # print(i, value)
-#     with open(f'C:/Users/liu283/GitRepos/ch1_SA/output/LSA/sims_100/{i}_{key}.json', 'r') as f:
-#         results = json.load(f)
-#     df = pd.DataFrame(results)
-#     df['key'] = key
-#     df['value'] = value
-#     dfs_IND.append(df)
-# large_df_IND = pd.concat(dfs_IND)
-# large_df_IND['value'] = large_df_IND['value'].astype(float)
-
+large_df_NL = pd.concat(df_NL)
+no_ofdays_NL = len(large_df_NL.day.unique())
 # %%
-# $t_{b\_pheno}$, TSUM1, TDWI, SPAN and $t_{phot-max}$.
-DAPs = np.tile(np.arange(no_ofdays), config.LSA_sample_size * len(para))
-large_df['DAP'] = DAPs[:len(large_df)]
-large_df.set_index('DAP', inplace=True)
-
-param_name = 't1_pheno'
-output_var = 'LAI'
-output_df = large_df[large_df['key'] == param_name].sort_values('day')
-param_name_no_effect = 'TSUM1'
-TSUM1 = large_df[large_df['key'] == 'TSUM1'].sort_values('day')
-param_name_wirdo = 'te'
-output_df_wirdo = large_df[large_df['key'] == param_name_wirdo].sort_values('day')
-SPAN = large_df[large_df['key'] == 'SPAN'].sort_values('day')
-TDWI = large_df[large_df['key'] == 'TDWI'].sort_values('day')
-ylimt_upper = 6 # output_df.LAI.max() + 0.5
-xlimt_upper = no_ofdays - 1
-pointsize = 1
-subplotlab_x = config.subplotlab_x
-subplotlab_y = config.subplotlab_y
-# relabel parameter names
-param_name = config.label_map.get(param_name, param_name)
-param_name_wirdo = config.label_map.get(param_name_wirdo, param_name_wirdo)
-# DVS values 
-emergence_date = output_df[output_df['DVS'] == 0]['DVS'].drop_duplicates()
-tuberintiation_date = output_df[output_df['DVS'] == 1]['DVS'].drop_duplicates()
+import string
+key_fig6 = ['t1_pheno', 'TSUM1', 'SPAN', 'TDWI', 'te']
+df_fig6_IND = large_df[large_df['key'].isin(key_fig6)].loc[:,['day','LAI','DVS','key','value']]
+df_fig6_IND['DAP'] = np.tile(np.arange(no_ofdays), config.LSA_sample_size * len(key_fig6))
+df_fig6_NL = large_df_NL[large_df_NL['key'].isin(key_fig6)].loc[:,['day','LAI','DVS','key','value']]
+df_fig6_NL['DAP'] = np.tile(np.arange(no_ofdays_NL), config.LSA_sample_size * len(key_fig6))
+df_fig6_IND['country'] = 'IND'
+df_fig6_NL['country'] = 'NL'
+df_fig6 = pd.concat([df_fig6_IND, df_fig6_NL])
+df_fig6.set_index('DAP', inplace=True)
+countries = ['NL', 'IND']
+df_fig6['key'] = pd.Categorical(df_fig6['key'], key_fig6)
+df_fig6['country'] = pd.Categorical(df_fig6['country'], categories=countries, ordered=True)
 
 # %%
 
+# Import necessary libraries
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
-
-def create_plots(config, output_df, output_df_wirdo, TSUM1, SPAN, TDWI, param_name, param_name_wirdo, param_name_no_effect, output_var, pointsize, emergence_date, tuberintiation_date, subplotlab_x, subplotlab_y, ylimt_upper, no_ofdays):
-    plt.rcParams.update({'font.size': config.subplot_fs})  # Adjust the font size as needed
-
-    fig = plt.figure(figsize=(4, 12))
-
-    # Create a GridSpec for the whole figure
-    gs = gridspec.GridSpec(5, 1, figure=fig, hspace=0.2, wspace=0.3)
-
-    def create_subplot(ax, data, output_var, param_name, label, index_label, pointsize, ylimt_upper, subplot_label):
-        cmap = plt.get_cmap('viridis')
-        norm = plt.Normalize(data['value'].min(), data['value'].max())
-        sc = ax.scatter(data.index, data[output_var], c=data['value'], s=pointsize, cmap=cmap, norm=norm)
-        # if not config.run_NL_conditions:
-        # fig.colorbar(sc, ax=ax, label=param_name)
-        
-        ax.set_xlabel('')
-        # ax.set_ylabel(label)
-        ax.set_ylim(0, ylimt_upper)
-        if config.run_NL_conditions:
-            ax.text(subplotlab_x, subplotlab_y - 0.1, subplot_label, transform=ax.transAxes, size=config.subplot_fs, weight='bold')
-   # Create a sequence of labels
-    labels = ['a)', 'b)', 'c)', 'd)', 'e)', 'f)', 'g)', 'h)', 'i)', 'j)']
-
-    if config.run_NL_conditions:
-        subplot_labels = labels[:5]  # Use the first 5 labels for the subplots
-    else:
-        subplot_labels = labels[5:]  # Use the last 5 labels for the subplots
-    # First subplot
-    ax1 = fig.add_subplot(gs[0, 0])
-    create_subplot(ax1, output_df, output_var, param_name, output_var, '', pointsize, ylimt_upper, subplot_labels[0])
-    ax1.axvline(emergence_date.index, color='green', linestyle='-')
-    ax1.axvline(tuberintiation_date.index, color='green', linestyle='-')
-    ax1.set_xticklabels('')
-    # Second subplot
-    ax2 = fig.add_subplot(gs[1, 0])
-    create_subplot(ax2, TSUM1, output_var, param_name_no_effect, output_var, '', pointsize + 4, ylimt_upper, subplot_labels[1])
-    ax2.set_xticklabels('')
-    # Third subplot
-    ax3 = fig.add_subplot(gs[2, 0])
-    create_subplot(ax3, SPAN, output_var, 'SPAN', output_var, 'DAP', pointsize + 4, ylimt_upper, subplot_labels[2])
-    ax3.set_xticklabels('')
-    # Fourth subplot
-    ax4 = fig.add_subplot(gs[3, 0])
-    create_subplot(ax4, TDWI, output_var, 'TDWI', '', '', pointsize + 4, ylimt_upper, subplot_labels[3])
-    ax4.set_xticklabels('')
-    # Fifth subplot
-    ax5 = fig.add_subplot(gs[4, 0])
-    create_subplot(ax5, output_df_wirdo, output_var, param_name_wirdo, '', 'DAP', pointsize + 4, ylimt_upper, subplot_labels[4])
-    ax5.set_xlabel('DAP')
-    if config.run_NL_conditions:
-        fig.text(0, 0.5, 'Leaf Area Index', va='center', rotation='vertical', fontsize=config.subplot_fs)
-
-    # Save the figure
-    scenario = "NL_" if config.run_NL_conditions else ""
-    output_path = f'{config.p_out_LSA}/{scenario}{output_var}_mainText_{config.LSA_sample_size}'
-    plt.savefig(f'{output_path}.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
-    # plt.savefig(f'{output_path}.svg', bbox_inches='tight', pad_inches=0.1)
-    plt.show()
-
-create_plots(config, output_df, output_df_wirdo, TSUM1, SPAN, TDWI, param_name, param_name_wirdo, param_name_no_effect, output_var, pointsize, emergence_date, tuberintiation_date, subplotlab_x, subplotlab_y, ylimt_upper, no_ofdays)
-
-# %%
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
 from matplotlib.ticker import MaxNLocator
+import string  # Ensure string is imported for subplot labels
 
-def create_colorbar_figure(data_list, param_names, filename):
-    fig_colorbar = plt.figure(figsize=(0.5, 12))
-    gs_colorbar = gridspec.GridSpec(5, 1, figure=fig_colorbar, hspace=0.2, wspace=0.3)
-    plt.rcParams.update({'font.size': config.subplot_fs})  # Adjust the font size as needed
+# Assuming `key_fig6`, `countries`, `df_fig6`, and `config` are defined in the user's context.
 
-    for i, (data, param_name) in enumerate(zip(data_list, param_names)):
-        ax = fig_colorbar.add_subplot(gs_colorbar[i, 0])
+# Create a figure with subplots on the left and colorbars on the right
+fig = plt.figure(figsize=(8, 12))
+gs = gridspec.GridSpec(5, 3, width_ratios=[4, 4, 0.5], wspace=0.2, hspace=0.2)  # Adjust the width ratio for colorbars
+labels = string.ascii_lowercase[:len(key_fig6) * len(countries)]
+pointsize = 1
+subplotlab_x = config.subplotlab_x
+subplotlab_y = config.subplotlab_y
+
+# Flatten the array of axes for easy iteration
+axes = [fig.add_subplot(gs[i, j]) for i in range(5) for j in range(2)]
+colorbar_axes = [fig.add_subplot(gs[i, 2]) for i in range(5)]  # For colorbars
+
+# Iterate over parameters and countries to create subplots
+for i, param in enumerate(key_fig6):
+    for j, country in enumerate(countries):
+        ax = axes[i * len(countries) + j]
+        data = df_fig6[(df_fig6['key'] == param) & (df_fig6['country'] == country)]
         cmap = plt.get_cmap('viridis')
-        min_val = data['value'].min()
-        max_val = data['value'].max()
-        norm = Normalize(min_val, max_val)
-        sm = ScalarMappable(cmap=cmap, norm=norm)
-        sm.set_array([])  # Only needed for older versions of Matplotlib
-        cbar = fig_colorbar.colorbar(sm, cax=ax, label=param_name)
-        cbar.ax.yaxis.set_major_locator(MaxNLocator(nbins = 5, integer=True))  # Ensure integer ticks
-        cbar.ax.yaxis.set_major_formatter('{x:.0f}')  # Format ticks without decimals
+        norm = plt.Normalize(data['value'].min(), data['value'].max())
+        sc = ax.scatter(x=data.index, y=data['LAI'], c=data['value'], cmap=cmap, norm=norm, s=pointsize)
+        
+        emergence_date = df_fig6[(df_fig6['DVS'] == 0) & (df_fig6['country'] == country)]['DVS'].drop_duplicates()
+        tuberinitiation_date = df_fig6[(df_fig6['DVS'] == 1) & (df_fig6['country'] == country)]['DVS'].drop_duplicates()
+        
+        # Only set x-axis label for the last row
+        if i == len(key_fig6) - 1:
+            ax.set_xlabel('DAP')
+        else:
+            ax.set_xticklabels([])
+        if i == 0:
+            ax.axvline(emergence_date.index, color='green', linestyle='-')
+            ax.axvline(tuberinitiation_date.index, color='green', linestyle='-')
+        
+        # Add subplot label
+        subplot_label = labels[j * len(key_fig6) + i]
+        ax.text(subplotlab_x, subplotlab_y - 0.1, subplot_label + ")", transform=ax.transAxes, size=config.subplot_fs, weight='bold')
+        ax.set_ylim(0, 6)
 
-    fig_colorbar.savefig(filename, dpi=300, bbox_inches='tight', pad_inches=0.1)
-    plt.show()
+# Add shared y-axis label
+fig.text(0.05, 0.5, 'Leaf Area Index', va='center', rotation='vertical', fontsize=config.subplot_fs)
 
-# Example usage
-data_list = [output_df, TSUM1, SPAN, TDWI, output_df_wirdo]
-param_names = [param_name, param_name_no_effect, 'SPAN', 'TDWI', param_name_wirdo]
-create_colorbar_figure(data_list, param_names, 'colorbar_legend_combined.png')
+# Create colorbars on the right for each parameter
+for i, param in enumerate(key_fig6):
+    ax_cbar = colorbar_axes[i]
+    data = df_fig6[df_fig6['key'] == param]
+    cmap = plt.get_cmap('viridis')
+    min_val = data['value'].min()
+    max_val = data['value'].max()
+    norm = Normalize(min_val, max_val)
+    sm = ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])  # Only needed for older versions of Matplotlib
+ 
+    cbar = fig.colorbar(sm, cax=ax_cbar, label=config.label_map.get(param, param))
+    cbar.ax.yaxis.set_major_locator(MaxNLocator(nbins=5, integer=True))  # Ensure integer ticks
+    cbar.ax.yaxis.set_major_formatter('{x:.0f}')  # Format ticks without decimals
+
+# Save and show the plot
+output_path = f'{config.p_out}/mainTextFigLSA'
+plt.savefig(f'{output_path}.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
+plt.show()
 plt.rcParams['font.size'] = original_font_size
+
 
 #  BACK TO GSA VISUALISATION
 # %% # legend to rename and italicise
