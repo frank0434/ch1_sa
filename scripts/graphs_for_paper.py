@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-
+original_font_size = plt.rcParams['font.size']
 
 
 AGFUN_DTSMTB = [0.0,  0.0,
@@ -58,6 +58,65 @@ plt.legend()
 
 
 plt.savefig('../output/DTSMTB_curving_fitting.svg')
+plt.show()
+plt.close()
+plt.rcParams['font.size'] = original_font_size
+
+#%% # alternative for DTSMTB
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+
+# Original data
+AGFUN_DTSMTB = [0.0,  0.0,
+                2.0,  0.0,
+               13.0, 11.0,
+               30.0, 28.0]
+
+x = AGFUN_DTSMTB[::2]  # Values in odd positions (Temperature)
+y = AGFUN_DTSMTB[1::2]  # Values in even positions (Effective Thermal Time)
+
+# Sigmoid function definition
+def sigmoid_equation(Temp_mean, L, x0, k, t1):
+    """
+    Sigmoid function for smooth transition between two states.
+
+    Parameters:
+    Temp_mean (float): The mean air temperature.
+    L (float): The upper limit of the sigmoid function (max effective thermal time).
+    x0 (float): The temperature at which the sigmoid transitions.
+    k (float): The steepness of the sigmoid curve.
+    t1 (float): The threshold temperature below which the thermal time is zero.
+
+    Returns:
+    float: The calculated effective thermal time.
+    """
+    # Sigmoid component
+    sigmoid_component = L / (1 + np.exp(-k * (Temp_mean - x0)))
+    
+    # Piecewise linear with sigmoid for smooth transition
+    result = np.where(Temp_mean <= t1, 0, sigmoid_component - sigmoid_component[Temp_mean <= t1].min())
+    
+    return result
+
+# Initial guess for the parameters [L, x0, k, t1]
+p0 = [30, 2, 1, 2]
+
+# Fit the sigmoid function to the data
+popt, pcov = curve_fit(sigmoid_equation, x, y, p0, method='dogbox', maxfev=5000)
+
+# Generate smooth data from the fitted function
+x_smooth = np.linspace(min(x), max(x), 100)
+y_smooth = sigmoid_equation(x_smooth, *popt)
+
+# Plot the original data and the fitted curve
+plt.plot(x, y, 'o', label='Data points sampled from AFGEN')
+plt.plot(x_smooth, y_smooth, label='Fitted sigmoid curve', c='red')
+plt.xlabel('Mean Air Temperature (°C)')
+plt.ylabel('Effective Thermal Time (°C day)')
+plt.legend(loc = "upper left")
+
+plt.savefig('DTSMTB_sigmoid_fitting.svg')
 plt.show()
 plt.close()
 
@@ -393,37 +452,44 @@ def create_plots(config, output_df, output_df_wirdo, TSUM1, SPAN, TDWI, param_na
         norm = plt.Normalize(data['value'].min(), data['value'].max())
         sc = ax.scatter(data.index, data[output_var], c=data['value'], s=pointsize, cmap=cmap, norm=norm)
         # if not config.run_NL_conditions:
-        fig.colorbar(sc, ax=ax, label=param_name)
+        # fig.colorbar(sc, ax=ax, label=param_name)
         
         ax.set_xlabel('')
         # ax.set_ylabel(label)
         ax.set_ylim(0, ylimt_upper)
-        ax.text(subplotlab_x, subplotlab_y - 0.1, subplot_label, transform=ax.transAxes, size=config.subplot_fs, weight='bold')
+        if config.run_NL_conditions:
+            ax.text(subplotlab_x, subplotlab_y - 0.1, subplot_label, transform=ax.transAxes, size=config.subplot_fs, weight='bold')
+   # Create a sequence of labels
+    labels = ['a)', 'b)', 'c)', 'd)', 'e)', 'f)', 'g)', 'h)', 'i)', 'j)']
 
+    if config.run_NL_conditions:
+        subplot_labels = labels[:5]  # Use the first 5 labels for the subplots
+    else:
+        subplot_labels = labels[5:]  # Use the last 5 labels for the subplots
     # First subplot
     ax1 = fig.add_subplot(gs[0, 0])
-    create_subplot(ax1, output_df, output_var, param_name, output_var, '', pointsize, ylimt_upper, 'f)')
+    create_subplot(ax1, output_df, output_var, param_name, output_var, '', pointsize, ylimt_upper, subplot_labels[0])
     ax1.axvline(emergence_date.index, color='green', linestyle='-')
     ax1.axvline(tuberintiation_date.index, color='green', linestyle='-')
     ax1.set_xticklabels('')
     # Second subplot
     ax2 = fig.add_subplot(gs[1, 0])
-    create_subplot(ax2, TSUM1, output_var, param_name_no_effect, output_var, '', pointsize + 4, ylimt_upper, 'g)')
+    create_subplot(ax2, TSUM1, output_var, param_name_no_effect, output_var, '', pointsize + 4, ylimt_upper, subplot_labels[1])
     ax2.set_xticklabels('')
     # Third subplot
     ax3 = fig.add_subplot(gs[2, 0])
-    create_subplot(ax3, SPAN, output_var, 'SPAN', output_var, 'DAP', pointsize + 4, ylimt_upper, 'h)')
+    create_subplot(ax3, SPAN, output_var, 'SPAN', output_var, 'DAP', pointsize + 4, ylimt_upper, subplot_labels[2])
     ax3.set_xticklabels('')
     # Fourth subplot
     ax4 = fig.add_subplot(gs[3, 0])
-    create_subplot(ax4, TDWI, output_var, 'TDWI', '', '', pointsize + 4, ylimt_upper, 'i)')
+    create_subplot(ax4, TDWI, output_var, 'TDWI', '', '', pointsize + 4, ylimt_upper, subplot_labels[3])
     ax4.set_xticklabels('')
     # Fifth subplot
     ax5 = fig.add_subplot(gs[4, 0])
-    create_subplot(ax5, output_df_wirdo, output_var, param_name_wirdo, '', 'DAP', pointsize + 4, ylimt_upper, 'j)')
+    create_subplot(ax5, output_df_wirdo, output_var, param_name_wirdo, '', 'DAP', pointsize + 4, ylimt_upper, subplot_labels[4])
     ax5.set_xlabel('DAP')
-    # if config.run_NL_conditions:
-    fig.text(0, 0.5, 'Leaf Area Index', va='center', rotation='vertical', fontsize=config.subplot_fs)
+    if config.run_NL_conditions:
+        fig.text(0, 0.5, 'Leaf Area Index', va='center', rotation='vertical', fontsize=config.subplot_fs)
 
     # Save the figure
     scenario = "NL_" if config.run_NL_conditions else ""
@@ -434,6 +500,37 @@ def create_plots(config, output_df, output_df_wirdo, TSUM1, SPAN, TDWI, param_na
 
 create_plots(config, output_df, output_df_wirdo, TSUM1, SPAN, TDWI, param_name, param_name_wirdo, param_name_no_effect, output_var, pointsize, emergence_date, tuberintiation_date, subplotlab_x, subplotlab_y, ylimt_upper, no_ofdays)
 
+# %%
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import Normalize
+from matplotlib.ticker import MaxNLocator
+
+def create_colorbar_figure(data_list, param_names, filename):
+    fig_colorbar = plt.figure(figsize=(0.5, 12))
+    gs_colorbar = gridspec.GridSpec(5, 1, figure=fig_colorbar, hspace=0.2, wspace=0.3)
+    plt.rcParams.update({'font.size': config.subplot_fs})  # Adjust the font size as needed
+
+    for i, (data, param_name) in enumerate(zip(data_list, param_names)):
+        ax = fig_colorbar.add_subplot(gs_colorbar[i, 0])
+        cmap = plt.get_cmap('viridis')
+        min_val = data['value'].min()
+        max_val = data['value'].max()
+        norm = Normalize(min_val, max_val)
+        sm = ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])  # Only needed for older versions of Matplotlib
+        cbar = fig_colorbar.colorbar(sm, cax=ax, label=param_name)
+        cbar.ax.yaxis.set_major_locator(MaxNLocator(nbins = 5, integer=True))  # Ensure integer ticks
+        cbar.ax.yaxis.set_major_formatter('{x:.0f}')  # Format ticks without decimals
+
+    fig_colorbar.savefig(filename, dpi=300, bbox_inches='tight', pad_inches=0.1)
+    plt.show()
+
+# Example usage
+data_list = [output_df, TSUM1, SPAN, TDWI, output_df_wirdo]
+param_names = [param_name, param_name_no_effect, 'SPAN', 'TDWI', param_name_wirdo]
+create_colorbar_figure(data_list, param_names, 'colorbar_legend_combined.png')
 plt.rcParams['font.size'] = original_font_size
 
 #  BACK TO GSA VISUALISATION
