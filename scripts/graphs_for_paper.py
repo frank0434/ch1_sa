@@ -199,7 +199,7 @@ base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
 col = "DVS" 
 col = "LAI"
 col = "TWSO"
-file = os.path.join(base_path, f"output_NL_AUC_{col}.csv") if config.run_NL_conditions else os.path.join(base_path, f"output_AUC_{col_variable}.csv")
+file = os.path.join(base_path, f"output_NL_AUC_{col}.csv") if config.run_NL_conditions else os.path.join(base_path, f"output_AUC_{col}.csv")
 df_pawn_ros, df_st_ros = ros.process_AUC_file(file)
 df_ros = pd.merge(df_st_ros, df_pawn_ros, how='inner', on=['variable','label','country'])
 df_sensitivity_S1, df_sensitivity_ST = process_files(col)
@@ -259,18 +259,35 @@ plt.show()
 plt.close()
 
 # %% figures legends
-fig, ax = plt.subplots(figsize=(12.5, 1), frameon=False)
-ax.axis('off')  # Hide the axes
-DVS_params = ['t1_pheno', 'TSUM1', 'TSUM2', 'TSUMEM', 'TBASEM', 'TEFFMX'] 
+import matplotlib.pyplot as plt
+
+def create_legend_figure(params, colors, labels, output_path, ncol):
+    fig, ax = plt.subplots(figsize=(12.5, 1), frameon=False)
+    ax.axis('off')  # Hide the axes
+    lines = [plt.Line2D([0], [0], color=c, linewidth=15, linestyle='-') for c in colors]
+    fig.legend(lines, labels, loc='center', ncol=ncol, handlelength=1, handleheight=2, borderpad=1,
+               markerscale=3, handletextpad=1, columnspacing=1.5, fontsize=config.subplot_fs, frameon=False)
+    plt.savefig(output_path, format='png', transparent=True)
+    plt.show()
+    plt.close()
+
+# DVS legend
+DVS_params = ['t1_pheno', 'TSUM1', 'TSUM2', 'TSUMEM', 'TBASEM', 'TEFFMX']
 colors_DVS = [config.name_color_map.get(col, 'black') for col in DVS_params]
 labels_DVS = [config.label_map.get(label, label) for label in DVS_params]
-lines_DVS = [plt.Line2D([0], [0], color=c, linewidth=15, linestyle='-') for c in colors_DVS]
-fig.legend(lines_DVS, labels_DVS, loc='center', ncol=6, handlelength = 1, handleheight = 2, borderpad=1,
-              markerscale = 3, handletextpad=1, columnspacing = 1.5, fontsize=config.subplot_fs, frameon=False)
-# plt.savefig('../output/legend_DVS.svg', format='svg')
-plt.savefig('../output/legend_DVS.png', format='png')
-plt.show()
+create_legend_figure(DVS_params, colors_DVS, labels_DVS, '../output/legend_DVS.png', ncol=6)
 
+# LAI legend
+LAI_params = config.params_of_interests
+colors_LAI = [config.name_color_map.get(col, 'black') for col in LAI_params]
+labels_LAI = [config.label_map.get(label, label) for label in LAI_params]
+create_legend_figure(LAI_params, colors_LAI, labels_LAI, '../output/legend_LAI.png', ncol=8)
+
+# TWSO legend
+TWSO_params = config.params_of_interests
+colors_TWSO = [config.name_color_map.get(col, 'black') for col in TWSO_params]
+labels_TWSO = [config.label_map.get(label, label) for label in TWSO_params]
+create_legend_figure(TWSO_params, colors_TWSO, labels_TWSO, '../output/legend_TWSO.png', ncol=8)
 
 
 ##  LSA figure 6 ------------------------------
@@ -298,7 +315,7 @@ dfs = []  # List to store DataFrames
 
 for i, key, value in zip(para_vals.keys(), keys, para_vals.values()):
     # print(i, value)
-    with open(f'{config.p_out_LSAsims}/{i}_{key}.json', 'r') as f:
+    with open(f'{config.p}/output/LSA/sims_100/{i}_{key}.json', 'r') as f:
         results = json.load(f)
     df = pd.DataFrame(results)
     df['key'] = key
@@ -308,7 +325,7 @@ for i, key, value in zip(para_vals.keys(), keys, para_vals.values()):
 df_NL = []
 for i, key, value in zip(para_vals_nl.keys(), keys, para_vals_nl.values()):
     # print(i, value)
-    with open(f'{config.p_out}/LSA_NL/sims_NL_100/{i}_{key}.json', 'r') as f:
+    with open(f'{config.p}/output/LSA_NL/sims_NL_100/{i}_{key}.json', 'r') as f:
         results = json.load(f)
     df = pd.DataFrame(results)
     df['key'] = key
