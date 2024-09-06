@@ -127,6 +127,7 @@ fig.text(0.5, .05, 'Sensitivity index', ha='center', size = 16, weight='bold')
 scenario = "NL_" if config.run_NL_conditions else ""
 filenm = f'{config.p_out}/{scenario}ParameterRank_Saltelli_days_{differences}.svg' 
 plt.savefig(filenm)
+plt.savefig(f'{config.p_out}/{scenario}ParameterRank_Saltelli_days_{differences}.png', dpi=300)
 plt.show()
 
 # %% # pAWN
@@ -199,6 +200,7 @@ fig.text(0.5, 0.05, 'Sensitivity index', ha='center', size = 16, weight='bold')
 scenario = "NL_" if config.run_NL_conditions else ""
 filenm = f'{config.p_out}/{scenario}ParameterRank_PAWN_days_{differences}.svg' 
 plt.savefig(filenm)
+plt.savefig(f'{config.p_out}/{scenario}ParameterRank_PAWN_days_{differences}.png', dpi=300)
 plt.show()
 # %%
 # %% make graph for slides
