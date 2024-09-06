@@ -63,65 +63,6 @@ plt.show()
 plt.close()
 plt.rcParams['font.size'] = original_font_size
 
-#%% # alternative for DTSMTB
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-
-# Original data
-AGFUN_DTSMTB = [0.0,  0.0,
-                2.0,  0.0,
-               13.0, 11.0,
-               30.0, 28.0]
-
-x = AGFUN_DTSMTB[::2]  # Values in odd positions (Temperature)
-y = AGFUN_DTSMTB[1::2]  # Values in even positions (Effective Thermal Time)
-
-# Sigmoid function definition
-def sigmoid_equation(Temp_mean, L, x0, k, t1):
-    """
-    Sigmoid function for smooth transition between two states.
-
-    Parameters:
-    Temp_mean (float): The mean air temperature.
-    L (float): The upper limit of the sigmoid function (max effective thermal time).
-    x0 (float): The temperature at which the sigmoid transitions.
-    k (float): The steepness of the sigmoid curve.
-    t1 (float): The threshold temperature below which the thermal time is zero.
-
-    Returns:
-    float: The calculated effective thermal time.
-    """
-    # Sigmoid component
-    sigmoid_component = L / (1 + np.exp(-k * (Temp_mean - x0)))
-    
-    # Piecewise linear with sigmoid for smooth transition
-    result = np.where(Temp_mean <= t1, 0, sigmoid_component - sigmoid_component[Temp_mean <= t1].min())
-    
-    return result
-
-# Initial guess for the parameters [L, x0, k, t1]
-p0 = [30, 2, 1, 2]
-
-# Fit the sigmoid function to the data
-popt, pcov = curve_fit(sigmoid_equation, x, y, p0, method='dogbox', maxfev=5000)
-
-# Generate smooth data from the fitted function
-x_smooth = np.linspace(min(x), max(x), 100)
-y_smooth = sigmoid_equation(x_smooth, *popt)
-
-# Plot the original data and the fitted curve
-plt.plot(x, y, 'o', label='Data points sampled from AFGEN')
-plt.plot(x_smooth, y_smooth, label='Fitted sigmoid curve', c='red')
-plt.xlabel('Mean Air Temperature (°C)')
-plt.ylabel('Effective Thermal Time (°C day)')
-plt.legend(loc = "upper left")
-
-plt.savefig('DTSMTB_sigmoid_fitting.svg')
-plt.savefig('DTSMTB_sigmoid_fitting.png', dpi = 300)
-plt.show()
-plt.close()
-
 #%%
 
 import numpy as np
@@ -264,12 +205,10 @@ emergence_date, tuber_initiation = process_dvs_files()
 import RankingOverSeason as ros
 
 base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
-col_variable = "DVS" 
-file = os.path.join(base_path, f"output_NL_AUC_{col_variable}.csv") if config.run_NL_conditions else os.path.join(base_path, f"output_AUC_{col_variable}.csv")
+col = "DVS" 
+file = os.path.join(base_path, f"output_NL_AUC_{col}.csv") if config.run_NL_conditions else os.path.join(base_path, f"output_AUC_{col_variable}.csv")
 df_pawn_ros, df_st_ros = ros.process_AUC_file(file)
 df_ros = pd.merge(df_st_ros, df_pawn_ros, how='inner', on=['variable','label','country'])
-
-col = 'DVS'
 df_sensitivity_S1, df_sensitivity_ST = process_files(col)
 df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
 df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
@@ -426,7 +365,7 @@ df_fig6['key'] = pd.Categorical(df_fig6['key'], key_fig6)
 df_fig6['country'] = pd.Categorical(df_fig6['country'], categories=countries, ordered=True)
 
 # %%
-
+# Figure 6
 # Import necessary libraries
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
