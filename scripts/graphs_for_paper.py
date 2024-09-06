@@ -37,8 +37,7 @@ def combined_equation(Temp_mean, t1, te):
 
     return result
 
-
-# %%
+# %% # Figure 1 - DTSMTB
 # Initial guess: [t1, te]
 p0 = [4, 30]
 
@@ -55,16 +54,13 @@ plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
 plt.xlabel('Mean Air Temperature (°C)')
 plt.ylabel('Effective Thermal Time (°C day)')
 plt.legend()
-
-
 plt.savefig('../output/DTSMTB_curving_fitting.svg')
 plt.savefig('../output/DTSMTB_curving_fitting.png', dpi = 300)
 plt.show()
 plt.close()
 plt.rcParams['font.size'] = original_font_size
 
-#%%
-
+#%% # Figure 1 - TMPFTB
 import numpy as np
 import matplotlib.pyplot as plt
 def combined_equation(Temp_daytime, tm1, t1, t2, te):
@@ -133,8 +129,6 @@ df_IND = df_IND[(df_IND.index >= datetime.strptime("2022-11-10", '%Y-%m-%d').dat
 
 df_NL = df_NL[(df_NL.index >= datetime.strptime("2021-04-20", '%Y-%m-%d').date()) & (df_NL.index <= datetime.strptime("2021-09-30",'%Y-%m-%d').date())]
 
-# %%
-
 df_IND['Tmean'] = (df_IND['TMAX'] + df_IND['TMIN']) / 2
 df_NL['Tmean'] = (df_NL['TMAX'] + df_NL['TMIN']) / 2
 df_IND['daytimeTemp'] = ((df_IND['TMAX'] + df_IND['TMIN']) / 2 + df_IND['TMAX'])/2
@@ -180,9 +174,6 @@ ax2.text(indicatation_text_x, indicatation_text_y, 'a)', transform=ax2.transAxes
 plt.savefig(f'../output/weather_data.png', dpi = 300, bbox_inches='tight')
 plt.savefig(f'../output/weather_data.svg', dpi = 600, bbox_inches='tight')
 plt.show()
-# %%
-
-
 
 
 #%%
@@ -201,11 +192,13 @@ original_font_size = plt.rcParams['font.size']
 # plt.rcParams['font.size'] = 22
 
 emergence_date, tuber_initiation = process_dvs_files()
-# %% 
+# %%  Figure 3 DVS, LAI, TWSO in both NL and IND - manual run with modifing config.py
 import RankingOverSeason as ros
 
 base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
 col = "DVS" 
+col = "LAI"
+col = "TWSO"
 file = os.path.join(base_path, f"output_NL_AUC_{col}.csv") if config.run_NL_conditions else os.path.join(base_path, f"output_AUC_{col_variable}.csv")
 df_pawn_ros, df_st_ros = ros.process_AUC_file(file)
 df_ros = pd.merge(df_st_ros, df_pawn_ros, how='inner', on=['variable','label','country'])
@@ -265,28 +258,7 @@ plt.savefig(f'{config.p_out}/{scenario}Sobol_Salteli_PAWN_{col}_samplesize{GSA_s
 plt.show()
 plt.close()
 
-# %%
-
-# Assuming lines and labels_final are already defined as per your code
-fig, ax = plt.subplots(figsize=(12.5, 1), frameon=False)
-ax.axis('off')  # Hide the axes
-
-colors = [config.name_color_map.get(col, 'black') for col in config.params_of_interests]
-labels = [config.label_map.get(label, label) for label in config.params_of_interests]
-lines = [plt.Line2D([0], [0], color=c, linewidth=15, linestyle='-') for c in colors]
-fig.legend(lines, labels, loc='center', ncol=8, handlelength = 1, handleheight = 2, borderpad=1,
-           markerscale = 3, handletextpad=1, columnspacing = 1.5, fontsize=config.subplot_fs, frameon=False)
-
-# plt.tight_layout(pad=0)  # Attempt to minimize padding, might not affect legends outside axes
-
-# Save the figure as an SVG file with minimal padding around the legend
-# plt.savefig('../output/legend_graph.svg', format='svg')
-plt.savefig('../output/legend_graph.png', format='png')
-
-# Show the plot
-plt.show()
-
-# %% Legend for DVS
+# %% figures legends
 fig, ax = plt.subplots(figsize=(12.5, 1), frameon=False)
 ax.axis('off')  # Hide the axes
 DVS_params = ['t1_pheno', 'TSUM1', 'TSUM2', 'TSUMEM', 'TBASEM', 'TEFFMX'] 
@@ -301,7 +273,7 @@ plt.show()
 
 
 
-##  LSA ------------------------------
+##  LSA figure 6 ------------------------------
 #%%
 import json
 import config
@@ -312,12 +284,12 @@ import itertools
 import math
 # %%
 para = config.params_of_interests
-with open(f'{config.p_out_LSAsims}/hash_dict_final.json', 'r') as f:
+with open(f'{config.p}/output/LSA/sims_100/hash_dict_final.json', 'r') as f:
     para_vals = json.load(f)
 para.extend([] * config.LSA_sample_size)
 
 keys = list(itertools.chain.from_iterable(itertools.repeat(x, config.LSA_sample_size) for x in para))
-with open(f'{config.p_out}/LSA_NL/sims_NL_100/hash_dict_final.json', 'r') as f:
+with open(f'{config.p}/output/LSA_NL/sims_NL_100/hash_dict_final.json', 'r') as f:
     para_vals_nl = json.load(f)
 
 # %%
@@ -438,175 +410,3 @@ output_path = f'{config.p_out}/mainTextFigLSA'
 plt.savefig(f'{output_path}.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
 plt.show()
 plt.rcParams['font.size'] = original_font_size
-
-
-#  BACK TO GSA VISUALISATION
-# %% # legend to rename and italicise
-# import re
-
-# # %%
-print(f"Print 1st and total order Sobol indices for {col}.")
-fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(6, 8), sharex=True, sharey=True)
-df1 = normalize_sensitivity(df_sensitivity_S1)
-df2 = normalize_sensitivity(df_sensitivity_ST)
-df3 = normalize_sensitivity(df_pawn_median)
-if col == 'LAI':
-    df1 = df1.iloc[config.arbitrary_start:]
-    df2 = df2.iloc[config.arbitrary_start:]
-    df3 = df3.iloc[config.arbitrary_start:] 
-# Combine the column names from both dataframes
-# combined_columns = list(df1.columns) + [col for col in df2.columns if col not in df1.columns]
-# Map the combined column names to colors
-colors1 = [config.name_color_map.get(col, 'black') for col in df1.columns]
-colors2 = [config.name_color_map.get(col, 'black') for col in df2.columns]
-colors3 = [config.name_color_map.get(col, 'black') for col in df3.columns]
-df1.plot.area(ax=axes[0],stacked=True, color=colors1, legend=False)
-df2.plot.area(ax=axes[1],stacked=True, color=colors2, legend=False)
-df3.plot.area(ax=axes[2],stacked=True, color=colors3, legend=False)
-plt.ylim(0, 1)
-plt.xlim(0, config.sim_period)
-axes[0].set_xlabel('')
-axes[1].set_xlabel('')
-plt.xlabel('Day After Planting')
-# plt.ylabel('Parameter sensitivity')
-# Set the title in the middle of the figure
-# fig.suptitle(f'First order and total Sobol Si for {col}')
-fig.text(0, 0.5, 'Propostion of Sensitivity indices', va='center', rotation='vertical')
-plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
-# Create a shared legend
-lines, labels = fig.axes[-1].get_legend_handles_labels()
-
-# Define a dictionary mapping old labels to new labels
-label_map = {
-    't1_pheno': r'$t_{b\_pheno}$',
-    'te$': r'$t_{phot-max}$',
-    'te_pheno': r'$t_{e\_pheno}$',
-    't1': r'$t_1$',
-    't2': r'$t_2$',
-    'tm1': r'$t_{m1}$'
-}
-
-# Use a single list comprehension to apply replacements only for labels in label_map
-labels = [label_map.get(label, label) for label in labels]
-# fig.legend(lines, labels, loc='center left', bbox_to_anchor=(1.0, 0.5))
-    # Add labels to the subplots
-for i, ax in enumerate(axes.flatten(), start=1):
-    ax.text(0.025, config.subplotlab_y, chr(96+i) + ")", transform=ax.transAxes, 
-            size=config.subplot_fs, weight='bold')
-plt.tight_layout()
-
-# plt.savefig(f'{config.p_out}/Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
-plt.show()
-plt.close()
-# %% # test the code to plot the sensitivity indices after an arbitrary emergence date
-# this is because the parameter values will affect the emergence date
-
-df_sensitivity_ST, df_sensitivity_S1 = process_files('LAI')
-df_pawn = create_dataframe_from_dict(load_PAWN('LAI'))
-
-col = 'TWSO'
-df_sensitivity_S1, df_sensitivity_ST = process_files(col)
-df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
-df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
-df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
-
-df_pawn_median.set_index('DAP', inplace=True)
-df_pawn_median.index.name = 'index'
-df_sensitivity_ST, df_pawn_median = df_sensitivity_ST.align(df_pawn_median, axis=0, join='left')
-
-# %%
-fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(6, 7), sharex=True, sharey=True)
-if col in ['LAI', 'TWSO']:
-    start_date = emergence_date[0] if col == 'LAI' else tuber_initiation[0]
-    df_sensitivity_ST = df_sensitivity_ST.iloc[start_date:]
-    df_pawn = df_pawn_median.iloc[start_date:]
-df2 = normalize_sensitivity(df_sensitivity_ST)
-df3 = normalize_sensitivity(df_pawn)
-colors_final = [config.name_color_map.get(col, 'black') for col in df3.columns]
-df2.plot.area(ax=axes, stacked=True, color=colors_final, legend=False)
-
-lines, labels = axes.get_legend_handles_labels()
-axes.set_ylim(0, 1)
-axes.set_xlim(0, config.sim_period)
-axes.set_xlabel('Day After Planting', fontsize=config.subplot_fs)
-axes.yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
-axes.invert_yaxis()
-labels_final = [config.label_map.get(label, label) for label in labels]
-# fig.legend(lines, labels_final, loc='center left', bbox_to_anchor=(1.0, 0.5), handlelength=1, borderpad=1, fontsize=18)
-axes.set_yticks([0, 0.25, 0.5, 0.75, 1])
-axes.set_yticklabels(['100%', '75%', '50%', '25%', '0%'])
-scenario = 'NL_' if config.run_NL_conditions else ''
-plt.tight_layout()
-# plt.savefig(os.path.join(config.p_out, f'{scenario}Sobol_Slide{col}_samplesize{GSA_sample_size}.svg'), bbox_inches='tight')
-plt.savefig(os.path.join(config.p_out, f'{scenario}Sobol_Slide{col}_samplesize{GSA_sample_size}.png'), dpi=300, bbox_inches='tight', pad_inches=0.1)
-plt.show()
-plt.close()
-plt.rcParams['font.size'] = original_font_size
-
-
-
-
-# %%
-
-original_font_size = plt.rcParams['font.size']
-
-# Set the new default font size
-plt.rcParams['font.size'] = 22
-emergence_date, tuber_initiation = process_dvs_files()
-df_sensitivity_ST, df_sensitivity_S1 = process_files('LAI')
-df_pawn = create_dataframe_from_dict(load_PAWN('LAI'))
-
-# # # %% # test the code to fix the legend
-col = 'TWSO'
-df_sensitivity_S1, df_sensitivity_ST = process_files(col)
-df_pawn_long = create_dataframe_from_dict(load_PAWN(col))
-df_pawn_long = df_pawn_long[df_pawn_long['median'] > Dummy_si[1][1]]
-df_pawn_median = df_pawn_long.loc[:, ["DAP","median", "names"]].pivot_table(index='DAP', columns='names', values='median').reset_index()
-
-df_pawn_median.set_index('DAP', inplace=True)
-df_pawn_median.index.name = 'index'
-df_sensitivity_ST, df_pawn_median = df_sensitivity_ST.align(df_pawn_median, axis=0, join='left')
-# %%
-fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(6, 7), sharex=True, sharey=True)
-if col in ['LAI', 'TWSO']:
-    start_date = emergence_date[0] if col == 'LAI' else tuber_initiation[0]
-    df_sensitivity_ST = df_sensitivity_ST.iloc[start_date:]
-    df_pawn = df_pawn_median.iloc[start_date:]
-df2 = normalize_sensitivity(df_sensitivity_ST)
-
-df3 = normalize_sensitivity(df_pawn)
-colors_final = [config.name_color_map.get(col, 'black') for col in df3.columns]
-df2.plot.area(ax=axes, stacked=True, color=colors_final, legend=False)
-# df3.plot.area(ax=axes, stacked=True, color=colors_final, legend=False)
-lines, labels = axes.get_legend_handles_labels()
-plt.ylim(0, 1)
-plt.xlim(0, config.sim_period)
-plt.xlabel('Day After Planting', fontsize = config.subplot_fs)
-# fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs-4)
-plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
-plt.gca().invert_yaxis()
-labels_final = [config.label_map.get(label, label) for label in labels]
-fig.legend(lines, labels_final, loc='center left', bbox_to_anchor=(1.0, 0.5), handlelength=1, borderpad=1, fontsize = 18)
-axes.set_yticks([0, 0.25, 0.5, 0.75, 1])
-axes.set_yticklabels(['100%', '75%', '50%', '25%', '0%'])
-scenario = 'NL_' if config.run_NL_conditions else ''
-plt.tight_layout()
-plt.savefig(f'{config.p_out}/{scenario}Sobol_Slide{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
-plt.savefig(f'{config.p_out}/{scenario}Sobol_Slide{col}_samplesize{GSA_sample_size}.png', dpi=300, bbox_inches='tight')
-plt.show()
-plt.close()
-plt.rcParams['font.size'] = original_font_size
-
-
-
-# %% 
-# df_sensitivity_S1.head(20)
-# normalize_sensitivity(df_sensitivity_S1).head(20)
-# # df_pawn_long.head(20)
-# # %%
-# import json
-# with open(f'{config.p_out_sims}/10.json', 'r') as f:
-#     data = json.load(f)
-#     data = pd.DataFrame(data)
-
-# data[data['DVS'] == 0].day.unique()
