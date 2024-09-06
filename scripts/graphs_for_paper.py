@@ -58,6 +58,7 @@ plt.legend()
 
 
 plt.savefig('../output/DTSMTB_curving_fitting.svg')
+plt.savefig('../output/DTSMTB_curving_fitting.png', dpi = 300)
 plt.show()
 plt.close()
 plt.rcParams['font.size'] = original_font_size
@@ -117,6 +118,7 @@ plt.ylabel('Effective Thermal Time (°C day)')
 plt.legend(loc = "upper left")
 
 plt.savefig('DTSMTB_sigmoid_fitting.svg')
+plt.savefig('DTSMTB_sigmoid_fitting.png', dpi = 300)
 plt.show()
 plt.close()
 
@@ -158,6 +160,7 @@ plt.ylabel('Reduction factor of \nMaximum leaf CO2 assimilation rate')
 plt.legend()
 
 plt.savefig('../output/TMPFTB_curving_fitting.svg')
+plt.savefig('../output/TMPFTB_curving_fitting.png', dpi = 300)
 plt.show()
 plt.close()
 
@@ -319,6 +322,7 @@ for i, ax in enumerate(axes.flatten(), start=1):
 scenario = 'NL_' if config.run_NL_conditions else ''
 plt.tight_layout()
 plt.savefig(f'{config.p_out}/{scenario}Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
+plt.savefig(f'{config.p_out}/{scenario}Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.png', dpi=300, bbox_inches='tight')
 plt.show()
 plt.close()
 
@@ -337,7 +341,8 @@ fig.legend(lines, labels, loc='center', ncol=8, handlelength = 1, handleheight =
 # plt.tight_layout(pad=0)  # Attempt to minimize padding, might not affect legends outside axes
 
 # Save the figure as an SVG file with minimal padding around the legend
-plt.savefig('../output/legend_graph.svg', format='svg')
+# plt.savefig('../output/legend_graph.svg', format='svg')
+plt.savefig('../output/legend_graph.png', format='png')
 
 # Show the plot
 plt.show()
@@ -351,7 +356,8 @@ labels_DVS = [config.label_map.get(label, label) for label in DVS_params]
 lines_DVS = [plt.Line2D([0], [0], color=c, linewidth=15, linestyle='-') for c in colors_DVS]
 fig.legend(lines_DVS, labels_DVS, loc='center', ncol=6, handlelength = 1, handleheight = 2, borderpad=1,
               markerscale = 3, handletextpad=1, columnspacing = 1.5, fontsize=config.subplot_fs, frameon=False)
-plt.savefig('../output/legend_DVS.svg', format='svg')
+# plt.savefig('../output/legend_DVS.svg', format='svg')
+plt.savefig('../output/legend_DVS.png', format='png')
 plt.show()
 
 
@@ -592,7 +598,8 @@ axes.set_yticks([0, 0.25, 0.5, 0.75, 1])
 axes.set_yticklabels(['100%', '75%', '50%', '25%', '0%'])
 scenario = 'NL_' if config.run_NL_conditions else ''
 plt.tight_layout()
-plt.savefig(os.path.join(config.p_out, f'{scenario}Sobol_Slide{col}_samplesize{GSA_sample_size}.svg'), bbox_inches='tight')
+# plt.savefig(os.path.join(config.p_out, f'{scenario}Sobol_Slide{col}_samplesize{GSA_sample_size}.svg'), bbox_inches='tight')
+plt.savefig(os.path.join(config.p_out, f'{scenario}Sobol_Slide{col}_samplesize{GSA_sample_size}.png'), dpi=300, bbox_inches='tight', pad_inches=0.1)
 plt.show()
 plt.close()
 plt.rcParams['font.size'] = original_font_size
@@ -646,6 +653,7 @@ axes.set_yticklabels(['100%', '75%', '50%', '25%', '0%'])
 scenario = 'NL_' if config.run_NL_conditions else ''
 plt.tight_layout()
 plt.savefig(f'{config.p_out}/{scenario}Sobol_Slide{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
+plt.savefig(f'{config.p_out}/{scenario}Sobol_Slide{col}_samplesize{GSA_sample_size}.png', dpi=300, bbox_inches='tight')
 plt.show()
 plt.close()
 plt.rcParams['font.size'] = original_font_size
