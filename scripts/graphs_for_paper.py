@@ -365,7 +365,7 @@ from matplotlib.ticker import MaxNLocator
 import string  # Ensure string is imported for subplot labels
 
 # Assuming `key_fig6`, `countries`, `df_fig6`, and `config` are defined in the user's context.
-
+plt.rcParams['font.size'] = config.subplot_fs
 # Create a figure with subplots on the left and colorbars on the right
 fig = plt.figure(figsize=(8, 12))
 gs = gridspec.GridSpec(5, 3, width_ratios=[4, 4, 0.5], wspace=0.2, hspace=0.2)  # Adjust the width ratio for colorbars
