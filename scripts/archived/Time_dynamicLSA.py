@@ -1,4 +1,6 @@
-# %%
+# The script was trying to plot the first and second derivatives of 
+# the LAI values for the different parameters of interest.
+# The script only works partially and was not used in the final analysis.
 #%%
 import json
 import config
@@ -48,10 +50,7 @@ te = te.replace(0, np.nan)
 te = te.dropna()
 
 # %%
-
-
 import seaborn as sns
-
 from matplotlib.cm import ScalarMappable
 import matplotlib.pyplot as plt
 

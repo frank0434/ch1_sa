@@ -1,3 +1,6 @@
+# The script was used to calculate the ratio of the maximum 
+# and minimum values of LAI, TWSO, and DVS for each parameter value.
+# This was not used in the final analysis, but was used to explore
 # %%
 import json
 import config
