@@ -23,34 +23,3 @@ def standardize_rank(df, column):
 base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
 col_variable = "TWSO" 
 file = os.path.join(base_path, f"output_NL_AUC_{col_variable}.csv") if config.run_NL_conditions else os.path.join(base_path, f"output_AUC_{col_variable}.csv")
-
-# Test the function below
-# df_pawn, df_st = process_AUC_file(file)
-# df_pawn = standardize_rank(df_pawn, 'PAWN')
-# df_st = standardize_rank(df_st, 'ST')
-
-# df_st, df_pawn
-# # %% 
-# col_variable = "TWSO" 
-# file = os.path.join(base_path, f"output_NL_AUC_{col_variable}.csv") 
-
-# df_pawn, df_st = process_AUC_file(file)
-# df_pawn = standardize_rank(df_pawn, 'PAWN')
-# df_st = standardize_rank(df_st, 'ST')
-# df_pawn, df_st
-# #%%
-# col_variable = "LAI" 
-# file = os.path.join(base_path, f"output_NL_AUC_{col_variable}.csv") if config.run_NL_conditions else os.path.join(base_path, f"output_AUC_{col_variable}.csv")
-
-# df_pawn, df_st = process_AUC_file(file)
-# df_pawn = standardize_rank(df_pawn, 'PAWN')
-# df_st = standardize_rank(df_st, 'ST')
-# df_pawn, df_st
-
-# col_variable = "LAI" 
-# file = os.path.join(base_path, f"output_NL_AUC_{col_variable}.csv") 
-
-# df_pawn, df_st = process_AUC_file(file)
-# df_pawn = standardize_rank(df_pawn, 'PAWN')
-# df_st = standardize_rank(df_st, 'ST')
-# df_pawn, df_st

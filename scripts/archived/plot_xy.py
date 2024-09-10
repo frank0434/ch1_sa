@@ -1,4 +1,6 @@
 # %% # try to add DVS into graph
+# the script is to visulise the relationship between parameters and outputs
+# require the parameter values as x-axis and the output values as y-axis
 import json
 import itertools
 import config
