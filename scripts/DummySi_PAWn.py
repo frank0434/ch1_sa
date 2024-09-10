@@ -176,33 +176,3 @@ import pickle
 # Save the results to a pickle file
 with open(f'{config.p_out}/DummySi_results.pkl', 'wb') as f:
     pickle.dump((dummySi, dummyCI), f)
-# for i, d in enumerate(config.days_s2):
-    # print(f'Calculating for day {d} and column {col}')
-    # calculation = DummyVarCalculation(config.problem, GSA_sample_size)
-    # calculation.import_data(d, 'LAI')
-    # calculation.calculate_for_all_variables()
-    # ax = axs[i // 2, i % 2]  # Select the appropriate subplot
-    # calculation.plot_results(ax)
-# plt.savefig(f'{config.p_out}/dummy_var_{col}.png', dpi=300)
-# plt.savefig(f'{config.p_out}/dummy_var_{col}.svg')
-# plt.show()
-# %% 
-# len(calculation.medians['dummy'])
-# %%
-# calculation_dummy128 = DummyVarCalculation(config.problem, GSA_sample_size)
-# calculation_dummy128.import_data(105, 'LAI')
-# calculation_dummy128.calculate_for_dummy_variable(1)
-# # %%
-# calculation_dummy256 = DummyVarCalculation(config.problem, GSA_sample_size)
-# calculation_dummy256.import_data(105, 'LAI')
-# calculation_dummy256.calculate_for_dummy_variable(1)
-# # %%
-# # calculation_dummy.medians['dummy'] == calculation.medians['dummy']
-# calculation_dummy128.medians['dummy'][9]
-# # calculation.medians['dummy'][9]
-# # # %%
-# plt.plot(range(1, 15), calculation_dummy128.medians['dummy'], label='dummy128', color='red', linestyle='dotted')
-# plt.plot(range(1, 15), calculation_dummy256.medians['dummy'], label='dummy256', color='blue', linestyle='dotted')
-# # plt.plot(range(1, 15), calculation.medians['dummy'], label='dummy', color='blue', linestyle='solid')
-# plt.ylim(0, 1)  
-# plt.legend()
