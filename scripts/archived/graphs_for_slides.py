@@ -1,4 +1,8 @@
 # graph for EAPR conference slides
+# session id = 703
+# title = Efforts to model crop response to hot and dry environments
+# Programme website and abstract booklet https://nibio.pameldingssystem.no/eapr2024#/program
+
 # %%
 import matplotlib.pyplot as plt
 import pandas as pd
