@@ -1,3 +1,6 @@
+# Exploring the possiblities of joining the LSA and GSA results
+# Stopped since it doesn't make sense to join the results of the local and global sensitivity analysis
+
 # %%
 import pandas as pd
 import matplotlib.pyplot as plt
