@@ -193,7 +193,7 @@ original_font_size = plt.rcParams['font.size']
 
 emergence_date, tuber_initiation = process_dvs_files()
 # %%  Figure 3 DVS, LAI, TWSO in both NL and IND - manual run with modifing config.py
-import RankingOverSeason as ros
+import untilties as ros
 
 base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
 col = "DVS" 
