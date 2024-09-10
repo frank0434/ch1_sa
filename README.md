@@ -1,6 +1,18 @@
-# Time-dependent sensitivity analysis is necessary to improve crop model performance under high temperatures (Submitted)
+# Time-dependent sensitivity analysis is necessary to improve crop model performance under high temperatures (Submitted - 2024-09-10)
 
-### Documentation for Scripts
+## Documentation for Scripts
+
+### Sampling and simulation excution
+
+**Key scripts**: `run_wofost.py`, `run_sims_GSA.py` and `slurm_script.sh`
+
+#### `run_wofost.py`
+This script runs WOFOST simulations with given parameters and agronomic details. It defines agromanagement, retrieves model parameters, and runs the simulation.
+
+- **Key Functions**:
+  - `define_agromanagement(run_details)`: Defines agromanagement for the crop.
+  - `get_modelparameters(run_details)`: Retrieves parameter sets for crop, soil, and site.
+  - `run_wofost_simulation(id, paramset, run_details, wdp, problem, local)`: Runs a WOFOST simulation and saves the output.
 
 #### `run_sims_GSA.py`
 This script runs Global Sensitivity Analysis (GSA) simulations using the WOFOST model. It reads weather data, sets up simulation parameters, and runs the simulations in parallel using multiple CPUs.
@@ -15,15 +27,13 @@ This script runs Global Sensitivity Analysis (GSA) simulations using the WOFOST 
   - `run_wofost_partial(args)`: Runs a single WOFOST simulation.
   - `main()`: Main function to run the simulations in parallel and save results.
 
-#### `run_sims_LSA.py`
-This script runs Local Sensitivity Analysis (LSA) simulations. It prepares simulation parameters, runs the simulations in parallel, and saves the results.
 
-- **Key Functions**:
-  - `load_parameter_values(path, variety_name)`: Loads parameter values from an Excel file.
-  - `prepare_simulation_parameters(key_range_df)`: Prepares parameters for simulations.
-  - `create_run_details()`: Creates a `RunDetails` object with agronomic details.
-  - `run_wofost_partial(args)`: Runs a single WOFOST simulation.
-  - `main()`: Main function to run the simulations in parallel and save results.
+#### `slurm_script.sh`
+This SLURM script runs GSA simulations on a high-performance computing cluster. It sets up the environment, specifies job requirements, and runs the `run_sims_GSA.py` script with different sample sizes.
+
+### Simulation results re-arrangement and Si calculation
+
+**Key Scripts**: `run_process_sim_res.py` and `run_calculate_Si.py`
 
 #### `run_process_sim_res.py`
 This script processes the results of GSA simulations. It reads simulation results, processes them for each day, and saves the processed results.
@@ -43,19 +53,12 @@ This script calculates Sobol sensitivity indices (Si) for GSA simulations. It us
   - `worker(day, column)`: Calculates Sobol indices for a single day.
   - `calculate_sobol_Si_multiprocessing()`: Uses multiprocessing to calculate Sobol indices for each day.
 
-#### `run_wofost.py`
-This script runs WOFOST simulations with given parameters and agronomic details. It defines agromanagement, retrieves model parameters, and runs the simulation.
-
-- **Key Functions**:
-  - `define_agromanagement(run_details)`: Defines agromanagement for the crop.
-  - `get_modelparameters(run_details)`: Retrieves parameter sets for crop, soil, and site.
-  - `run_wofost_simulation(id, paramset, run_details, wdp, problem, local)`: Runs a WOFOST simulation and saves the output.
-
-#### `slurm_script.sh`
-This SLURM script runs GSA simulations on a high-performance computing cluster. It sets up the environment, specifies job requirements, and runs the `run_sims_GSA.py` script with different sample sizes.
-
 #### `slurm_script_calculateSi.sh`
 This SLURM script processes GSA simulation results and calculates Sobol indices. It sets up the environment, specifies job requirements, and runs the `run_process_sim_res.py` script.
+
+## Visualisation 
+
+**Key Scripts**: `run_vis_GSA.py` and `run_vis_GSA_barh.py`
 
 #### `run_vis_GSA.py`
 This script visualizes the results of GSA simulations. It generates heatmaps and plots sensitivity indices over time.
@@ -69,12 +72,28 @@ This script visualizes the results of GSA simulations. It generates heatmaps and
   - `process_dvs_files()`: Processes files to extract specific data.
   - `plot_sensitivity_indices(df_sensitivity_S1, df_sensitivity_ST, df_pawn, emergence_date, tuber_initiation, col)`: Plots sensitivity indices.
 
+#### `run_vis_GSA_barh.py`
+
+- **Key Feature**:
+  - Draw conventional bar ranking graphs in arbitrary days. 
+
+
 #### `slurm_script_visSi.sh`
 This SLURM script visualizes Sobol indices for GSA simulations. It sets up the environment, specifies job requirements, and runs the `run_vis_GSA.py` script.
 
+
+#### `run_sims_LSA.py` - LSA can run on a normal laptop. No need to run it on HPC.
+This script runs Local Sensitivity Analysis (LSA) simulations. It prepares simulation parameters, runs the simulations in parallel, and saves the results.
+
+- **Key Functions**:
+  - `load_parameter_values(path, variety_name)`: Loads parameter values from an Excel file.
+  - `prepare_simulation_parameters(key_range_df)`: Prepares parameters for simulations.
+  - `create_run_details()`: Creates a `RunDetails` object with agronomic details.
+  - `run_wofost_partial(args)`: Runs a single WOFOST simulation.
+  - `main()`: Main function to run the simulations in parallel and save results.
+
 ---
 
-Feel free to let me know if you need any further details or modifications!
 
 ## Acknowledgements
 
