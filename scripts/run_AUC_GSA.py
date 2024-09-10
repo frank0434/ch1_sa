@@ -1,3 +1,4 @@
+# The script is used to calculate the area under the curve for the sensitivity analysis results
 # %%
 import pandas as pd
 import numpy as np
