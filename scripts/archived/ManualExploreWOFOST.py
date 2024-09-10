@@ -1,3 +1,4 @@
+# This script is used to manually explore the WOFOST model and its parameters.
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
