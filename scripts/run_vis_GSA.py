@@ -37,9 +37,9 @@ except:
 config.set_variables(GSA_sample_size)
 
 # Generator to create the file names
-def generate_file_names(col):
-    for day in range(config.sim_period):
-        filename = f"{config.p_out_daySi}/Saltelli_{day}_{col}.pkl"
+def generate_file_names(col, period = config.sim_period, path=config.p_out_daySi):
+    for day in range(period):
+        filename = f"{path}/Saltelli_{day}_{col}.pkl"
         yield day, filename 
 
 # S2
@@ -99,7 +99,7 @@ def plot_heatmaps(days, col):
 # Call the function
 
 # %%
-def process_files(col):
+def process_files(col, period = config.sim_period, path=config.p_out_daySi):
     """
     This function reads data from pickle files and stores them in two pandas DataFrames.
 
@@ -118,7 +118,7 @@ def process_files(col):
     df_sensitivity_ST = pd.DataFrame(columns=[f"{variable}" for variable in config.params_of_interests], index=range(config.sim_period))
 
     # Loop over the file names
-    for day, file_name in generate_file_names(col):
+    for day, file_name in generate_file_names(col, period, path):
         # print(day)
         # print(type(day))
         with open(file_name, 'rb') as f:
@@ -182,12 +182,12 @@ def plot_sobol_Si_multiprocessing():
 indices = GSA_sample_size* (len(config.params_of_interests) * 2 + 2)
 
 # %% 
-def generate_file_names_PAWN(col):
-    for day in range(config.sim_period):
-        filename = f"{config.p_out_daySi}/PAWN_{day}_{col}.pkl"
+def generate_file_names_PAWN(col, period = config.sim_period, path=config.p_out_daySi):
+    for day in range(period):
+        filename = f"{path}/PAWN_{day}_{col}.pkl"
         yield day, filename 
 
-def load_PAWN(col):
+def load_PAWN(col, period = config.sim_period, path=config.p_out_daySi):
     """
     This function loads data from pickle files for the specified column.
 
@@ -198,7 +198,7 @@ def load_PAWN(col):
     dict: A dictionary containing the loaded data.
     """
     dfs = {}
-    for day, file_name in generate_file_names_PAWN(col):
+    for day, file_name in generate_file_names_PAWN(col, period, path):
         with open(file_name, 'rb') as f:
             # Read the pickle file and store the data in the dictionary
             dfs.update(pickle.load(f))
@@ -277,9 +277,9 @@ def worker_plot(col):
 
 # %%
 
-def process_dvs_files():
+def process_dvs_files(base_path=config.p_out_daysims, planting_date=config.planting):
     # Define the pattern
-    pattern = f'{config.p_out_daysims}/day_dvs_*.json'
+    pattern = f'{base_path}/day_dvs_*.json'
 
     # Use glob to find files that match the pattern
     files = glob.glob(pattern)
@@ -294,7 +294,7 @@ def process_dvs_files():
 
     # Convert 'day' column to datetime and calculate 'DAP'
     df['day'] = pd.to_datetime(df['day'], format='%Y-%m-%d')
-    df['DAP'] = (df['day'] - pd.to_datetime(config.planting, format='%Y-%m-%d')).dt.days
+    df['DAP'] = (df['day'] - pd.to_datetime(planting_date, format='%Y-%m-%d')).dt.days
 
     # Calculate emergence_date and tuber_initiation
     emergence_date = df[df['DVS'] == 0]
