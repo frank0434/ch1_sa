@@ -10,13 +10,11 @@ from matplotlib.ticker import FuncFormatter
 import config
 colors = ['#0072B2', '#E69F00', '#009E73', '#D3D3D3', '#696969']
 config.set_variables(config.GSA_sample_size)
+original_font_size = plt.rcParams['font.size']
 # %%  Figure 1 DVS, LAI, TWSO in both NL and IND - manual run with modifing config.py
 import utilities as ros
-from run_vis_GSA import process_dvs_files, process_files, create_dataframe_from_dict, load_PAWN, normalize_sensitivity, config
-import pickle
+from run_vis_GSA import process_dvs_files, process_files, create_dataframe_from_dict, load_PAWN, normalize_sensitivity
 import os
-import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
 # Load dummy sensitivity indices
@@ -123,25 +121,52 @@ plt.close()
 
 
 # %% bar plot
-# Assuming `ros` is an object with a method `process_AUC_file`
+df_ros_sorted = df_ros.sort_values(by='ST', ascending=True).set_index('variable')
+df_ros_sorted_NL = df_ros_NL.sort_values(by='ST', ascending=True).set_index('variable')
+order = df_ros_sorted_NL.index
+# df_ros_sorted_NL = df_ros_sorted_NL.reindex(order)
+# df_ros_sorted = df_ros_sorted.reindex(order)
+display = ['te', 'TDWI',  'TSUM1', 't1_pheno', 'SPAN']
+Sis_ST_NLD = df_ros_sorted_NL.loc[display, ['ST']]
+Sis_PAWN_NLD = df_ros_sorted_NL.loc[display, ['PAWN']]
+Sis_ST_IND = df_ros_sorted.loc[display, ['ST']]
+Sis_PAWN_IND = df_ros_sorted.loc[display, ['PAWN']]
+
 # Create a 2x2 grid of subplots
-fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(7, 5), sharex=True)
 
 # Plot data for IND
-df_ros.loc[:,'ST'].plot.barh(ax=axes[0, 0], x='label', y='AUC_x', legend=False, color='blue', title='IND - ST')
-df_ros.loc[:,'PAWN'] .plot.barh(ax=axes[1, 0], x='label', y='AUC_y', legend=False, color='green', title='IND - PAWN')
+Sis_ST_NLD.plot.barh(ax=axes[0, 0], legend=False, color='red')
+Sis_PAWN_NLD.plot.barh(ax=axes[1, 0],  legend=False, color='black')
 
 # Plot data for NL
-df_ros_NL.loc
+Sis_ST_IND.plot.barh(ax=axes[0, 1], legend=False, color='red')
+Sis_PAWN_IND.plot.barh(ax=axes[1, 1], legend=False, color='black')
+
 # Add subplot labels
-labels = ['a)', 'b)', 'c)', 'd)']
+labels = ['a)', 'c)', 'b)', 'd)']
 for i, ax in enumerate(axes.flatten()):
     label = labels[i]
-    ax.text(-0.1, 1.05, label, transform=ax.transAxes, size=14, weight='bold')
+    ax.text(0.9, 0.9, label, transform=ax.transAxes, size=config.subplot_fs,weight='bold')
+    ax.set_ylabel('')
+    if i % 2 == 0:        
+        yticklabels =  [item.get_text() for item in ax.get_yticklabels()]
+        new_yticklabels = [config.label_map.get(label, label) for label in yticklabels]
+        ax.set_yticklabels(new_yticklabels)
+    else:
+        ax.set_yticklabels([])
+
+fig.text(0.5, 0.02, 'Integrated Sensitivity Indices', ha='center', fontsize=config.subplot_fs) 
 
 # Adjust the spacing between subplots
-plt.subplots_adjust(hspace=0.4, wspace=0.4)
+plt.subplots_adjust(hspace=0.1, wspace=0.05)
 
+# Save and show plot
+
+plt.savefig(f'{config.p_out}/AUC_barh_plots.svg', bbox_inches='tight')
+plt.savefig(f'{config.p_out}/AUC_barh_plots.png', dpi=300, bbox_inches='tight')
+plt.show()
+plt.close()
 
 #%%
 import json
@@ -324,26 +349,12 @@ output_path = f'{config.p_out}/PosterLSA'
 plt.savefig(f'{output_path}.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
 plt.show()
 plt.rcParams['font.size'] = original_font_size
-# %%
-# figure 3 
-def load_data(day, output_var='TWSO', method='Saltelli'):
-    # Load data
-    with open(f'{config.p_out_daySi}/{method}_{day}_{output_var}.pkl', 'rb') as f:
-        Si = pickle.load(f)
-    return Si
-# %%
-def to_df(self):
-    """Convert dict structure into Pandas DataFrame."""
-    keys_to_include = ['S1', 'S1_conf', 'ST', 'ST_conf']
-    return pd.DataFrame(
-        {k: v for k, v in self.items() if k in keys_to_include}, index = config.params_of_interests
-    )
 
 # %% Produce a fig that shows the last day of TWSO for both conditions with bar chart 
 # load NLD manually
 with open(f'../output_NL/daySi_32768/Saltelli_160_TWSO.pkl', 'rb') as f:
     Si_NLD = pickle.load(f)
-Si_df_NLD = to_df(Si_NLD['si_day_160_TWSO'])
+Si_df_NLD = ros.to_df(Si_NLD['si_day_160_TWSO'])
 df_sorted_NLD = Si_df_NLD.sort_values(by='ST', ascending=True)
 order = df_sorted_NLD.index
 conf_cols = df_sorted_NLD.columns.str.contains('_conf')
@@ -355,7 +366,7 @@ Sis_NLD = df_sorted_NLD.loc[display, ['ST']]
 
 # %%
 # load indian 
-Si_IND = load_data(105, 'TWSO', 'Saltelli')
+Si_IND = ros.load_data(105, 'TWSO', 'Saltelli')
 # %%
 Si_df_IND = to_df(Si_IND['si_day_105_TWSO'])
 
@@ -378,24 +389,14 @@ barplot = Sis_NLD.plot(kind='barh' , width = 0.9, ax=axs[0],
 # indian
 barplot = Sis_IND.plot(kind='barh' , width = 0.9, ax=axs[1],
                    legend=False, color = color)
-                   
-# Define the label mapping
-label_map = {
-    't2': '$T_{opt}$ for $A_{max}$',
-    'te': '$T_{max}$ for $A_{max}$',
-    'TDWI': 'Seed DW',
-    'Q10': 'Q10',
-    'TSUM1': 'TSUM1',
-    't1_pheno': '$T_b$',
-    'SPAN': 'Leaf Lifespan'
-}
-
 yticklabels =  [item.get_text() for item in axs[0].get_yticklabels()]
-new_yticklabels = [label_map.get(label, label) for label in yticklabels]
+new_yticklabels = [config.label_map.get(label, label) for label in yticklabels]
 axs[0].set_yticklabels(new_yticklabels)
 axs[1].set_yticklabels([])
 fig.text(0.5, 0.02, 'Sensitivity Indices', ha='center') 
 # barplot
 plt.xlim(0, 1)
+plt.savefig(f'{config.p_out}/PosterSobol_TWSO.svg', dpi=300, bbox_inches='tight')
 plt.show()
 plt.rcParams['font.size'] = original_font_size
+
