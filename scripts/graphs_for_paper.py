@@ -193,7 +193,7 @@ original_font_size = plt.rcParams['font.size']
 
 emergence_date, tuber_initiation = process_dvs_files()
 # %%  Figure 3 DVS, LAI, TWSO in both NL and IND - manual run with modifing config.py
-import untilties as ros
+import utilities as ros
 
 base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
 col = "DVS" 
@@ -268,6 +268,7 @@ def create_legend_figure(params, colors, labels, output_path, ncol):
     fig.legend(lines, labels, loc='center', ncol=ncol, handlelength=1, handleheight=2, borderpad=1,
                markerscale=3, handletextpad=1, columnspacing=1.5, fontsize=config.subplot_fs, frameon=False)
     plt.savefig(output_path, format='png', transparent=True)
+    plt.savefig(output_path.replace('.png', '.svg'), format='svg', transparent=True)
     plt.show()
     plt.close()
 
@@ -474,27 +475,29 @@ weather['DAP'] = np.arange(1, len(weather) + 1)
 weather_nl['DAP'] = np.arange(1, len(weather_nl) + 1)
 # %%
 def plot_data(df, scenario):
+    plt.style.use('classic')  # Use grayscale style for black and white theme
+
     # Plot the data
-    fig, ax1 = plt.subplots()
+    fig, ax1 = plt.subplots(facecolor='w')
 
-    color = 'tab:blue'
+    # color = 'tab:blue'
     ax1.set_xlabel('DAP', fontsize=config.subplot_fs)
-    ax1.set_ylabel('TMPFTB', color=color, fontsize=config.subplot_fs)
-    ax1.plot(df['DAP'], df['TMPFTB'], color=color, linewidth=1)
-    ax1.tick_params(axis='y', labelcolor=color)
-
+    ax1.set_ylabel('TMPFTB', fontsize=config.subplot_fs)
+    ax1.plot(df['DAP'], df['TMPFTB'], color='blue', linewidth=2)
+    ax1.tick_params(axis='y')
+    # ax1.set_facecolor('white')
 
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
-    color = 'tab:red'
+    # color = 'tab:red'
     # we already handled the x-label with ax1
-    ax2.set_ylabel('Temperature', color=color, fontsize=config.subplot_fs)  
-    ax2.plot(df['DAP'], df['Temperature...C.'], color=color, linewidth=1)
-    ax2.tick_params(axis='y', labelcolor=color)
+    ax2.set_ylabel('Temperature', color='red', fontsize=config.subplot_fs)  
+    ax2.plot(df['DAP'], df['Temperature...C.'], color='red', linewidth=2)
+    ax2.tick_params(axis='y')
 
     # Add horizontal lines
     ax2.axhline(15, color='green', linestyle='--')
-    ax2.axhline(24, color='green', linestyle='--')
+    ax2.axhline(25, color='green', linestyle='--')
 
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     ax1.set_ylim([0, 1.1])  # Set limits for first y-axis
