@@ -3,9 +3,11 @@
 #%%
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 from scipy.optimize import curve_fit
 original_font_size = plt.rcParams['font.size']
-
+wd = os.getcwd()
+# %%
 
 AGFUN_DTSMTB = [0.0,  0.0,
                 2.0,  0.0,
@@ -54,8 +56,8 @@ plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
 plt.xlabel('Mean Air Temperature (°C)')
 plt.ylabel('Effective Thermal Time (°C day)')
 plt.legend()
-plt.savefig('../output/DTSMTB_curving_fitting.svg')
-plt.savefig('../output/DTSMTB_curving_fitting.png', dpi = 300)
+plt.savefig(f'{wd}/output/DTSMTB_curving_fitting.svg')
+plt.savefig(f'{wd}/output/DTSMTB_curving_fitting.png', dpi = 300)
 plt.show()
 plt.close()
 plt.rcParams['font.size'] = original_font_size
@@ -96,8 +98,8 @@ plt.xlabel('Mean Daytime Temperature (°C)')
 plt.ylabel('Reduction factor of \nMaximum leaf CO2 assimilation rate')
 plt.legend()
 
-plt.savefig('../output/TMPFTB_curving_fitting.svg')
-plt.savefig('../output/TMPFTB_curving_fitting.png', dpi = 300)
+plt.savefig(f'{wd}/output/TMPFTB_curving_fitting.svg')
+plt.savefig(f'{wd}/output/TMPFTB_curving_fitting.png', dpi = 300)
 plt.show()
 plt.close()
 
@@ -171,8 +173,8 @@ ax2.legend()
 ax2.set_title('The Netherlands')
 ax2.text(indicatation_text_x, indicatation_text_y, 'a)', transform=ax2.transAxes, size=config.subplot_fs, weight='bold')
 
-plt.savefig(f'../output/weather_data.png', dpi = 300, bbox_inches='tight')
-plt.savefig(f'../output/weather_data.svg', dpi = 600, bbox_inches='tight')
+plt.savefig(f'{wd}/output/weather_data.png', dpi = 300, bbox_inches='tight')
+plt.savefig(f'{wd}/output/weather_data.svg', dpi = 600, bbox_inches='tight')
 plt.show()
 
 
@@ -192,6 +194,68 @@ original_font_size = plt.rcParams['font.size']
 # plt.rcParams['font.size'] = 22
 
 emergence_date, tuber_initiation = process_dvs_files()
+# %%
+
+# Parameters to be colored (in the order they should receive colors)
+main_params = [
+    'TSUM1', 'TSUM2', 'SPAN', 'TBASEM', 'TSUMEM', 'TEFFMX', 't1_pheno', 'te_pheno'  # First 8 params
+]
+
+secondary_params = [
+    'TDWI', 'RGRLAI', 'tm1', 't1', 't2', 'te', 'Q10'  # Last 7 params
+]
+
+# Create the name_color_map with automated color assignments
+name_color_map = {
+    'mean': 'blue',
+    'median': 'red',
+    'minimum': 'grey',
+    'maximum': 'grey',
+    'CV': 'green',  # Keep these standard colors
+}
+
+name_color_map = {
+    'mean': 'blue',
+    'median': 'red',
+    'minimum': 'grey',
+    'maximum': 'grey',
+    'CV': 'green',  # Adjust colors as needed
+    'TSUM1' : 'blue',
+    'TSUM2' : 'green',
+    'SPAN' :  '#BD0026',      # Light red
+    'Q10' : 'purple',
+    'TBASEM' : 'tan',
+    'TSUMEM' : 'orange',
+    'TEFFMX' : 'navy',
+    'TDWI' : 'brown', 
+    'RGRLAI' : 'pink',
+    'tm1' : 'cyan',
+    't1' : 'magenta',
+    't2' : 'lime',
+    'te' : 'yellow',
+    't1_pheno' : 'black',
+    'te_pheno' : 'lightblue'
+}
+# %% visualise the color map 
+
+for i, color in enumerate(name_color_map.values()):
+    plt.axvspan(i, i + 1, color=color)
+    plt.text(i + 0.5, 0.5, list(name_color_map.keys())[i], ha='center', va='center', fontsize=10, rotation=90)
+
+plt.xlim(0, len(name_color_map))
+plt.axis('off')  # Turn off axes
+plt.show()
+
+# After creating df2 and df3 but before plotting
+# Reorder columns to group secondary_params together
+def reorder_columns(df, secondary_params):
+    # Create a list of column names with secondary_params first, then others
+    secondary_cols = [col for col in df.columns if col in secondary_params]
+    other_cols = [col for col in df.columns if col not in secondary_params]
+    ordered_cols = secondary_cols + other_cols
+    
+    # Return the dataframe with reordered columns
+    return df[ordered_cols]
 # %%  Figure 3 DVS, LAI, TWSO in both NL and IND - manual run with modifing config.py
 import utilities as ros
 
@@ -222,11 +286,55 @@ else:
 
 df2 = normalize_sensitivity(df_sensitivity_ST)
 df3 = normalize_sensitivity(df_pawn)
+# Reorder the columns in both dataframes
+df2 = reorder_columns(df2, secondary_params)
+df3 = reorder_columns(df3, secondary_params)
+
+# Make sure the dataframes have numeric data types
+df2 = df2.apply(pd.to_numeric, errors='coerce')
+df3 = df3.apply(pd.to_numeric, errors='coerce')
+hatch_patterns = ['.']
+
 # colors_final = [config.name_color_map.get(col, 'black') for col in df2.columns]
-colors2 = [config.name_color_map.get(col, 'black') for col in df2.columns]
-colors3 = [config.name_color_map.get(col, 'black') for col in df3.columns]
-df2.plot.area(ax=axes[0],stacked=True, color=colors2, legend=False)
-df3.plot.area(ax=axes[1],stacked=True, color=colors3, legend=False)
+colors2 = [name_color_map.get(col, 'black') for col in df2.columns]
+colors3 = [name_color_map.get(col, 'black') for col in df3.columns]
+# df2.plot.area(ax=axes[0],stacked=True, color=colors2, legend=False)
+# df3.plot.area(ax=axes[1],stacked=True, color=colors3, legend=False)
+# Plot df2 with hatching (Total order Sobol indices)
+# Plot df2 with hatching (Total order Sobol indices)
+for i, column in enumerate(df2.columns):
+    y1 = df2.iloc[:, :i].sum(axis=1).values  # Convert to numpy array
+    y2 = (y1 + df2[column].values)  # Convert to numpy array
+    
+    # Only apply hatch pattern if the column is in secondary_params
+    hatch = hatch_patterns[i % len(hatch_patterns)] if column in secondary_params else None
+    
+    axes[0].fill_between(
+        df2.index, y1, y2, 
+        color=colors2[i], 
+        edgecolor='black',
+        linewidth=0.5,
+        hatch=hatch, 
+        label=column
+    )
+
+# Plot df3 with hatching (PAWN indices)
+for i, column in enumerate(df3.columns):
+    y1 = df3.iloc[:, :i].sum(axis=1).values  # Convert to numpy array
+    y2 = (y1 + df3[column].values)  # Convert to numpy array
+    
+    # Only apply hatch pattern if the column is in secondary_params
+    hatch = hatch_patterns[i % len(hatch_patterns)] if column in secondary_params else None
+    
+    axes[1].fill_between(
+        df3.index, y1, y2, 
+        color=colors3[i], 
+        edgecolor='black',
+        linewidth=0.5,
+        hatch=hatch, 
+        label=column
+    )
+
 lines, labels = fig.axes[0].get_legend_handles_labels()
 plt.ylim(0, 1.05)
 plt.xlim(0, config.sim_period)
@@ -238,7 +346,7 @@ labels_final = [config.label_map.get(label, label) for label in labels]
 # fig.legend(lines, labels_final, loc='center left', bbox_to_anchor=(1.0, 0.5), handlelength=1, borderpad=1, fontsize = 8)
 labels_AUC = df_ros.variable.unique()
 
-colors_AUC = [config.name_color_map.get(col, 'black') for col in labels_AUC]
+colors_AUC = [name_color_map.get(col, 'black') for col in labels_AUC]
 labels_AUC = [config.label_map.get(label, label) for label in labels_AUC]
 # labels_AUC = [f"{i+1}. {label}" for i, label in enumerate(labels_AUC)]
 lines_AUC = [plt.Line2D([0], [0], color=c, linewidth=8, linestyle='-') for c in colors_AUC]
@@ -274,19 +382,19 @@ def create_legend_figure(params, colors, labels, output_path, ncol):
 
 # DVS legend
 DVS_params = ['t1_pheno', 'TSUM1', 'TSUM2', 'TSUMEM', 'TBASEM', 'TEFFMX']
-colors_DVS = [config.name_color_map.get(col, 'black') for col in DVS_params]
+colors_DVS = [name_color_map.get(col, 'black') for col in DVS_params]
 labels_DVS = [config.label_map.get(label, label) for label in DVS_params]
 create_legend_figure(DVS_params, colors_DVS, labels_DVS, '../output/legend_DVS.png', ncol=6)
 
 # LAI legend
 LAI_params = config.params_of_interests
-colors_LAI = [config.name_color_map.get(col, 'black') for col in LAI_params]
+colors_LAI = [name_color_map.get(col, 'black') for col in LAI_params]
 labels_LAI = [config.label_map.get(label, label) for label in LAI_params]
 create_legend_figure(LAI_params, colors_LAI, labels_LAI, '../output/legend_LAI.png', ncol=8)
 
 # TWSO legend
 TWSO_params = config.params_of_interests
-colors_TWSO = [config.name_color_map.get(col, 'black') for col in TWSO_params]
+colors_TWSO = [name_color_map.get(col, 'black') for col in TWSO_params]
 labels_TWSO = [config.label_map.get(label, label) for label in TWSO_params]
 create_legend_figure(TWSO_params, colors_TWSO, labels_TWSO, '../output/legend_TWSO.png', ncol=8)
 
