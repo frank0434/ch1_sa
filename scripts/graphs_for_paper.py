@@ -53,11 +53,11 @@ y_smooth = combined_equation(x_smooth, *popt)
 # Plot the original data and the fitted curve
 plt.plot(x, y, 'o', label='Data points sampled from AFGEN')
 plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
-plt.xlabel('Mean Air Temperature (°C)')
+plt.xlabel('Daily Mean Air Temperature (°C)')
 plt.ylabel('Effective Thermal Time (°C day)')
 plt.legend()
-plt.savefig(f'{wd}/output/DTSMTB_curving_fitting.svg')
-plt.savefig(f'{wd}/output/DTSMTB_curving_fitting.png', dpi = 300)
+plt.savefig(f'{wd}/../manuscript/Fig2-i.svg')
+plt.savefig(f'{wd}/../manuscript/Fig2-i.png', dpi = 300)
 plt.show()
 plt.close()
 plt.rcParams['font.size'] = original_font_size
@@ -94,12 +94,12 @@ y_smooth = combined_equation(x_smooth, *popt)
 # Plot the original data and the fitted curve
 plt.plot(x, y, 'o', label='Data points sampled from AFGEN_TMPFTB', c = 'blue')
 plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
-plt.xlabel('Mean Daytime Temperature (°C)')
+plt.xlabel('Daily Daytime Mean Air Temperature (°C)')
 plt.ylabel('Reduction factor of \nMaximum leaf CO2 assimilation rate')
 plt.legend()
 
-plt.savefig(f'{wd}/output/TMPFTB_curving_fitting.svg')
-plt.savefig(f'{wd}/output/TMPFTB_curving_fitting.png', dpi = 300)
+plt.savefig(f'{wd}/../manuscript/Fig2-ii.svg')
+plt.savefig(f'{wd}/../manuscript/Fig2-ii.png', dpi = 300)
 plt.show()
 plt.close()
 
@@ -219,19 +219,19 @@ name_color_map = {
     'median': 'red',
     'minimum': 'grey',
     'maximum': 'grey',
-    'CV': 'green',  # Adjust colors as needed
+    'CV': 'black',  # Adjust colors as needed
     'TSUM1' : 'blue',
-    'TSUM2' : 'green',
+    'TSUM2' : '#E1BE6A',  # Light brown
     'SPAN' :  '#BD0026',      # Light red
     'Q10' : 'purple',
     'TBASEM' : 'tan',
     'TSUMEM' : 'orange',
     'TEFFMX' : 'navy',
-    'TDWI' : 'brown', 
+    'TDWI' : '#66FF33',  # Lime green
     'RGRLAI' : 'pink',
     'tm1' : 'cyan',
     't1' : 'magenta',
-    't2' : 'lime',
+    't2' : '#66CC99',      # Medium aquamarine
     'te' : 'yellow',
     't1_pheno' : 'black',
     'te_pheno' : 'lightblue'
@@ -261,9 +261,11 @@ import utilities as ros
 
 base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
 col = "DVS" 
-col = "LAI"
-col = "TWSO"
-file = os.path.join(base_path, f"output_NL_AUC_{col}.csv") if config.run_NL_conditions else os.path.join(base_path, f"output_AUC_{col}.csv")
+# col = "LAI"
+# col = "TWSO"
+file = os.path.join(base_path, f"output_NL_AUC_{col}.csv")
+# file = os.path.join(base_path, f"output_AUC_{col}.csv")
+# 
 df_pawn_ros, df_st_ros = ros.process_AUC_file(file)
 df_ros = pd.merge(df_st_ros, df_pawn_ros, how='inner', on=['variable','label','country'])
 df_sensitivity_S1, df_sensitivity_ST = process_files(col)
@@ -302,19 +304,21 @@ colors3 = [name_color_map.get(col, 'black') for col in df3.columns]
 # df3.plot.area(ax=axes[1],stacked=True, color=colors3, legend=False)
 # Plot df2 with hatching (Total order Sobol indices)
 # Plot df2 with hatching (Total order Sobol indices)
+alpha = 0.8  # Set the transparency level
 for i, column in enumerate(df2.columns):
     y1 = df2.iloc[:, :i].sum(axis=1).values  # Convert to numpy array
     y2 = (y1 + df2[column].values)  # Convert to numpy array
     
     # Only apply hatch pattern if the column is in secondary_params
     hatch = hatch_patterns[i % len(hatch_patterns)] if column in secondary_params else None
-    
+    diff_colour = '#ffff66' if column in secondary_params else '#b301b3'
     axes[0].fill_between(
         df2.index, y1, y2, 
-        color=colors2[i], 
+        color= colors2[i], 
         edgecolor='black',
         linewidth=0.5,
         hatch=hatch, 
+        # alpha=alpha,  # Set the transparency level
         label=column
     )
 
@@ -361,18 +365,42 @@ for i, ax in enumerate(axes.flatten(), start=1):
     ax.set_yticklabels(['100%', '75%', '50%', '25%', '0%'])
 scenario = 'NL_' if config.run_NL_conditions else ''
 plt.tight_layout()
-plt.savefig(f'{config.p_out}/{scenario}Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.svg', bbox_inches='tight')
-plt.savefig(f'{config.p_out}/{scenario}Sobol_Salteli_PAWN_{col}_samplesize{GSA_sample_size}.png', dpi=300, bbox_inches='tight')
+if col == 'DVS' and config.run_NL_conditions:
+    plt.savefig(f'../manuscript/Fig3-i.svg', bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig3-i.png', dpi=300, bbox_inches='tight')
+elif col == 'DVS' and not config.run_NL_conditions:
+    plt.savefig(f'../manuscript/Fig3-ii.svg', bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig3-ii.png', dpi=300, bbox_inches='tight')
+elif col == 'LAI' and config.run_NL_conditions:
+    plt.savefig(f'../manuscript/Fig4-i.svg', bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig4-i.png', dpi=300, bbox_inches='tight')
+elif col == 'LAI' and not config.run_NL_conditions:
+    plt.savefig(f'../manuscript/Fig4-ii.svg', bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig4-ii.png', dpi=300, bbox_inches='tight')
+elif col == 'TWSO' and config.run_NL_conditions:
+    plt.savefig(f'../manuscript/Fig5-i.svg', bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig5-i.png', dpi=300, bbox_inches='tight')
+elif col == 'TWSO' and not config.run_NL_conditions:
+    plt.savefig(f'../manuscript/Fig5-ii.svg', bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig5-ii.png', dpi=300, bbox_inches='tight')
 plt.show()
 plt.close()
 
 # %% figures legends
 import matplotlib.pyplot as plt
 
-def create_legend_figure(params, colors, labels, output_path, ncol):
+def create_legend_figure(params, colors, labels, output_path, ncol, dvs = False):
     fig, ax = plt.subplots(figsize=(12.5, 1), frameon=False)
     ax.axis('off')  # Hide the axes
-    lines = [plt.Line2D([0], [0], color=c, linewidth=15, linestyle='-') for c in colors]
+    # get the colors for the secondary params
+    colors = [name_color_map.get(col, 'black') for col in params]
+    # Create a legend with colored lines
+    if dvs:
+        lines = [plt.Line2D([0], [0], color=c, linewidth=15, linestyle='-') for c in colors]
+    else:
+        lines = [plt.Line2D([0], [0], color=c, linewidth=15, linestyle='-', 
+                        marker = '.' , markersize=1, markevery=0.2,
+                         markerfacecolor='black', markeredgecolor='black' ) for c in colors]
     fig.legend(lines, labels, loc='center', ncol=ncol, handlelength=1, handleheight=2, borderpad=1,
                markerscale=3, handletextpad=1, columnspacing=1.5, fontsize=config.subplot_fs, frameon=False)
     plt.savefig(output_path, format='png', transparent=True)
@@ -384,19 +412,37 @@ def create_legend_figure(params, colors, labels, output_path, ncol):
 DVS_params = ['t1_pheno', 'TSUM1', 'TSUM2', 'TSUMEM', 'TBASEM', 'TEFFMX']
 colors_DVS = [name_color_map.get(col, 'black') for col in DVS_params]
 labels_DVS = [config.label_map.get(label, label) for label in DVS_params]
-create_legend_figure(DVS_params, colors_DVS, labels_DVS, '../output/legend_DVS.png', ncol=6)
+create_legend_figure(DVS_params, colors_DVS, labels_DVS, '../manuscript/Fig4_legend.png', ncol=6, dvs=True)
 
-# LAI legend
-LAI_params = config.params_of_interests
-colors_LAI = [name_color_map.get(col, 'black') for col in LAI_params]
-labels_LAI = [config.label_map.get(label, label) for label in LAI_params]
-create_legend_figure(LAI_params, colors_LAI, labels_LAI, '../output/legend_LAI.png', ncol=8)
+# # LAI legend
+# LAI_params = config.params_of_interests
+# colors_LAI = [name_color_map.get(col, 'black') for col in LAI_params]
+# labels_LAI = [config.label_map.get(label, label) for label in LAI_params]
+# create_legend_figure(LAI_params, colors_LAI, labels_LAI, '../output/legend_LAI.png', ncol=8)
+# %%
 
 # TWSO legend
 TWSO_params = config.params_of_interests
 colors_TWSO = [name_color_map.get(col, 'black') for col in TWSO_params]
 labels_TWSO = [config.label_map.get(label, label) for label in TWSO_params]
-create_legend_figure(TWSO_params, colors_TWSO, labels_TWSO, '../output/legend_TWSO.png', ncol=8)
+# create_legend_figure(TWSO_params, colors_TWSO, labels_TWSO, '../output/legend_TWSO.png', ncol=8)
+fig, ax = plt.subplots(figsize=(12.5, 1), frameon=False)
+ax.axis('off')  # Hide the axes
+    # get the colors for the secondary params
+pattern_colors = [name_color_map.get(col, 'black') for col in secondary_params]
+cool_colors = [name_color_map.get(col, 'black') for col in main_params]
+    # Create a legend with colored lines
+lines_warm = [plt.Line2D([0], [0], color=c, linewidth=15, linestyle='-', 
+                        marker = '.' , markersize=3, markevery=0.2,
+                         markerfacecolor='black', markeredgecolor='black' ) for c in pattern_colors]
+lines_cool = [plt.Line2D([0], [0], color=c, linewidth=15, linestyle='-') for c in cool_colors]
+labels = [config.label_map.get(label, label) for label in secondary_params + main_params]
+lines = lines_warm + lines_cool
+fig.legend(lines, labels, loc='center', ncol=8, handlelength=1, handleheight=2, borderpad=1,
+               markerscale=3, handletextpad=1, columnspacing=1.5, fontsize=config.subplot_fs, frameon=False)
+plt.savefig('../manuscript/Fig5-legend.png', format='png', transparent=True)
+plt.savefig('../output/Fig5_legend.png'.replace('.png', '.svg'), format='svg', transparent=True)
+plt.show()
 
 
 ##  LSA figure 6 ------------------------------
