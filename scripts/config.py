@@ -68,12 +68,12 @@ problem = {
 # the legend key for the variables. since it was not provided in the data, 
 # we have to create it
 label_map = {
-    't1_pheno': r'$t_{b\_pheno}$',
-    'te': r'$t_{phot-max}$',
-    'te_pheno': r'$t_{e\_pheno}$',
-    't1': r'$t_1$',
-    't2': r'$t_2$',
-    'tm1': r'$t_{m1}$'
+    't1_pheno': r'$T_{b\_pheno}$',
+    'te': r'$T_{phot-max}$',
+    'te_pheno': r'$T_{e\_pheno}$',
+    't1': r'$T_1$',
+    't2': r'$T_2$',
+    'tm1': r'$T_{m1}$'
 }
 
 
