@@ -79,7 +79,7 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
             axs[j, i].axvline(x=saltelli_thres, color='r', linestyle='-')
 
             # Plot sorted DataFrame
-            barplot = Sis.plot(kind='barh', yerr=confs * scale_factor, ax=axs[j, i], width = 0.9,
+            barplot = Sis.plot(kind='barh', ax=axs[j, i], width = 0.9,
                                legend=False, color = colors)
         if i > 0:
             df_sorted_new = df.reindex(order)
@@ -90,8 +90,8 @@ for j, var in enumerate(['DVS','LAI','TWSO']):
             axs[j, i].axvline(x=saltelli_thres, color='r', linestyle='-')
 
             # Plot sorted DataFrame
-            barplot = Sis.plot(kind='barh', yerr=confs * scale_factor, ax=axs[j, i], 
-                               width = 0.9,legend=False, color = colors)
+            barplot = Sis.plot(kind='barh',  ax=axs[j, i], 
+                               width = 0.9,legend=False, color = colors, capsize=1)
 
         column_sums = df.loc[:, ~conf_cols].sum().round(2)
         if i > 0:
@@ -232,7 +232,7 @@ for i, d in enumerate(threedays):
         Sis = df_sorted.loc[:, ~conf_cols]
         axs[i].axvline(x=saltelli_thres, color='r', linestyle='-')
         # Plot sorted DataFrame
-        barplot = Sis.plot(kind='barh', yerr=confs * scale_factor, ax=axs[i], width = 0.9,
+        barplot = Sis.plot(kind='barh',  ax=axs[i], width = 0.9,
                            legend=False, color = colors)
     if i > 0:
         df_sorted_new = df.reindex(order)
@@ -242,7 +242,7 @@ for i, d in enumerate(threedays):
         Sis = df_sorted_new.loc[:, ~conf_cols]
         axs[i].axvline(x=saltelli_thres, color='r', linestyle='-')
         # Plot sorted DataFrame
-        barplot = Sis.plot(kind='barh', yerr=confs * scale_factor, ax=axs[i], 
+        barplot = Sis.plot(kind='barh', ax=axs[i], 
                            width = 0.9,legend=False, color = colors)
     column_sums = df.loc[:, ~conf_cols].sum().round(2)
     if i > 0:
@@ -279,11 +279,11 @@ GSA_sample_size = 65536
 config.set_variables(GSA_sample_size, local=True)
 # samplesize = [2 ** x for x in range(5, 16)]
 # %%
-plot_samplesize_effect()
-plot_pawn_effect()
+# plot_samplesize_effect()
+# plot_pawn_effect()
 # %%
 # 20240213 output for writing
-plot_samplesize_effect(start=5, end=17, index='te', day = 105, output_var='TWSO')
+# plot_samplesize_effect(start=5, end=17, index='te', day = 105, output_var='TWSO')
 
 
 
