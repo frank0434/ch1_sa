@@ -94,7 +94,7 @@ import numpy as np
 from matplotlib.colors import rgb2hex
 
 # Get the RGB values from the batlow colormap
-batlow_rgb = cm.buda.colors
+batlow_rgb = cm.berlin.colors
 
 # Convert RGB values to hex codes
 batlow_hex = [rgb2hex(rgb) for rgb in batlow_rgb]
