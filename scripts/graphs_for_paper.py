@@ -1,9 +1,99 @@
 # %%
+# Graphical abstract
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import config
+import utilities as ros
+
+# --- Load and process data ---
+base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
+col = "TWSO"
+file = os.path.join(base_path, f"output_AUC_{col}.csv")
+file_nl = os.path.join(base_path, f"output_NL_AUC_{col}.csv")
+
+df_pawn_ros, df_st_ros = ros.process_AUC_file(file)
+df_ros = pd.merge(df_st_ros, df_pawn_ros, how='inner', on=['variable', 'label', 'country'])
+df_pawn_ros_NL, df_st_ros_NL = ros.process_AUC_file(file_nl)
+df_ros_NL = pd.merge(df_st_ros_NL, df_pawn_ros_NL, how='inner', on=['variable', 'label', 'country'])
+
+df_ros_sorted = df_ros.sort_values(by='ST', ascending=False).set_index('variable')
+df_ros_sorted_NL = df_ros_NL.sort_values(by='ST', ascending=False).set_index('variable')
+df_ros_sorted['country'] = 'India'
+df_ros_sorted_NL['country'] = 'NL'
+
+# --- Define display parameters and color assignment ---
+display = ['te', 'TDWI', 'TSUM1', 't1_pheno', 'SPAN']
+growth_params = ['te', 'TDWI']
+import matplotlib.pyplot as plt
+
+import cmcrameri.cm as cmc
+batlow = cmc.batlow
+
+def assign_colors(index, growth_params):
+    # Pick two visually distinct colors from batlow
+    color_growth = "#e41a1c"  # e.g., yellowish
+    color_other = "#377eb8"   # e.g., blueish
+    return [color_growth if param in growth_params else color_other for param in index]
+# def assign_colors(index, growth_params):
+    # return ['#009E73' if param in growth_params else '#0072B2' for param in index]
+
+# Prepare DataFrames for plotting
+def prepare_df(df, params, value_col):
+    out = df.loc[params, [value_col, 'country']].copy()
+    out['color'] = assign_colors(out.index, growth_params)
+    return out
+
+Sis_ST_NLD = prepare_df(df_ros_sorted_NL, display, 'ST')
+Sis_PAWN_NLD = prepare_df(df_ros_sorted_NL, display, 'PAWN')
+Sis_ST_IND = prepare_df(df_ros_sorted, display, 'ST')
+Sis_PAWN_IND = prepare_df(df_ros_sorted, display, 'PAWN')
+
+# --- Plotting ---
+def plot_colored_barh(ax, df, value_col):
+    # Plot each bar individually to assign a color per bar
+    for i, (param, row) in enumerate(df.iterrows()):
+        ax.barh(i, row[value_col], color=row['color'])
+    ax.set_yticks(range(len(df)))
+    ax.set_yticklabels([config.label_map.get(idx, idx) for idx in df.index])
+    # ax.invert_yaxis()  # Optional: to match pandas' default order
+
+# --- Plotting ---
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 5), sharex=True)
+size_ticklabels = 24
+size_striplables = 22
+plot_colored_barh(axes[0, 0], Sis_ST_NLD, 'ST')
+
+axes[0, 0].set_title('Temperate', fontsize=size_ticklabels)
+plot_colored_barh(axes[1, 0], Sis_PAWN_NLD, 'PAWN')
+plot_colored_barh(axes[0, 1], Sis_ST_IND, 'ST')
+axes[0, 1].set_title('Subtropical', fontsize=size_ticklabels)
+plot_colored_barh(axes[1, 1], Sis_PAWN_IND, 'PAWN')
+# increase label size on first column 
+for i, ax in enumerate(axes.flatten()):
+    ax.tick_params(axis='y', labelsize=22)
+# Set y-tick labels only for left column, and relabel using config.label_map
+for i, ax in enumerate(axes.flatten()):
+    ax.set_ylabel('')
+    if i % 2 != 0:
+        ax.set_yticklabels([])
+
+fig.text(0.5, 0.02, 'Cumulative Sensitivity Indices', ha='center', fontsize=size_striplables)
+fig.text(0.91, 0.3, 'PAWN', va='center', rotation=270, fontsize=size_striplables)
+fig.text(0.91, 0.7, 'Sobol', va='center', rotation=270, fontsize=size_striplables)
+plt.subplots_adjust(hspace=0.1, wspace=0.05)
+
+plt.savefig('../manuscript/AUC_barh_plots.svg', bbox_inches='tight', transparent=True)
+plt.savefig('../manuscript/AUC_barh_plots.png', dpi=600, bbox_inches='tight', transparent=True)
+plt.show()
+plt.close()
+# %%
 # Figure one 
 #%%
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import config
 from scipy.optimize import curve_fit
 original_font_size = plt.rcParams['font.size']
 wd = os.getcwd()
@@ -53,8 +143,8 @@ y_smooth = combined_equation(x_smooth, *popt)
 # Plot the original data and the fitted curve
 plt.plot(x, y, 'o', label='Data points sampled from AFGEN')
 plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
-plt.xlabel('Daily Mean Air Temperature (°C)')
-plt.ylabel('Effective Thermal Time (°C day)')
+plt.xlabel('Daily mean air temperature (°C)', fontsize = config.subplot_fs)
+plt.ylabel('Effective thermal time (°C day)', fontsize = config.subplot_fs)
 plt.legend()
 plt.savefig(f'{wd}/../manuscript/Fig2-i.svg')
 plt.savefig(f'{wd}/../manuscript/Fig2-i.png', dpi = 300)
@@ -78,8 +168,8 @@ AGFUN_TMPFTB = [0.0,0.01,3.0,0.01,10.0,0.75, 11, 0.8,  12, 0.85, 13, 0.9,
 x = AGFUN_TMPFTB[::2]  # Values in odd positions
 y = AGFUN_TMPFTB[1::2]  # Values in even positions
 plt.plot(x, y)
-plt.xlabel('Temperature (°C)')
-plt.ylabel('Reduction factor of \nMaximum leaf CO2 assimilation rate')
+# plt.xlabel('Temperature (°C)')
+# plt.ylabel('Reduction factor of \nMaximum leaf CO2 assimilation rate')
 
 # Initial guess: [tm1, t1, t2, te, 1]
 p0 = [0, 10, 20, 30]
@@ -94,8 +184,8 @@ y_smooth = combined_equation(x_smooth, *popt)
 # Plot the original data and the fitted curve
 plt.plot(x, y, 'o', label='Data points sampled from AFGEN_TMPFTB', c = 'blue')
 plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
-plt.xlabel('Daily Daytime Mean Air Temperature (°C)')
-plt.ylabel('Reduction factor of \nMaximum leaf CO2 assimilation rate')
+plt.xlabel('Daily daytime mean air temperature (°C)', fontsize=config.subplot_fs)
+plt.ylabel('TMPFTB', fontsize=config.subplot_fs)
 plt.legend()
 
 plt.savefig(f'{wd}/../manuscript/Fig2-ii.svg')
@@ -261,8 +351,8 @@ import utilities as ros
 
 base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
 col = "DVS" 
-# col = "LAI"
-# col = "TWSO"
+col = "LAI"
+col = "TWSO"
 file = os.path.join(base_path, f"output_NL_AUC_{col}.csv")
 # file = os.path.join(base_path, f"output_AUC_{col}.csv")
 # 
@@ -343,7 +433,7 @@ lines, labels = fig.axes[0].get_legend_handles_labels()
 plt.ylim(0, 1.05)
 plt.xlim(0, config.sim_period)
 plt.xlabel('Day After Planting', fontsize = config.subplot_fs)
-fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs)
+# fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs)
 plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
 plt.gca().invert_yaxis()
 labels_final = [config.label_map.get(label, label) for label in labels]
@@ -366,23 +456,23 @@ for i, ax in enumerate(axes.flatten(), start=1):
 scenario = 'NL_' if config.run_NL_conditions else ''
 plt.tight_layout()
 if col == 'DVS' and config.run_NL_conditions:
-    plt.savefig(f'../manuscript/Fig3-i.svg', bbox_inches='tight')
-    plt.savefig(f'../manuscript/Fig3-i.png', dpi=300, bbox_inches='tight')
-elif col == 'DVS' and not config.run_NL_conditions:
-    plt.savefig(f'../manuscript/Fig3-ii.svg', bbox_inches='tight')
-    plt.savefig(f'../manuscript/Fig3-ii.png', dpi=300, bbox_inches='tight')
-elif col == 'LAI' and config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig4-i.svg', bbox_inches='tight')
     plt.savefig(f'../manuscript/Fig4-i.png', dpi=300, bbox_inches='tight')
-elif col == 'LAI' and not config.run_NL_conditions:
+elif col == 'DVS' and not config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig4-ii.svg', bbox_inches='tight')
     plt.savefig(f'../manuscript/Fig4-ii.png', dpi=300, bbox_inches='tight')
-elif col == 'TWSO' and config.run_NL_conditions:
+elif col == 'LAI' and config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig5-i.svg', bbox_inches='tight')
     plt.savefig(f'../manuscript/Fig5-i.png', dpi=300, bbox_inches='tight')
-elif col == 'TWSO' and not config.run_NL_conditions:
+elif col == 'LAI' and not config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig5-ii.svg', bbox_inches='tight')
     plt.savefig(f'../manuscript/Fig5-ii.png', dpi=300, bbox_inches='tight')
+elif col == 'TWSO' and config.run_NL_conditions:
+    plt.savefig(f'../manuscript/Fig6-i.svg', bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig6-i.png', dpi=300, bbox_inches='tight')
+elif col == 'TWSO' and not config.run_NL_conditions:
+    plt.savefig(f'../manuscript/Fig6-ii.svg', bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig6-ii.png', dpi=300, bbox_inches='tight')
 plt.show()
 plt.close()
 
@@ -561,9 +651,12 @@ for i, param in enumerate(key_fig6):
 
 # Add shared y-axis label
 fig.text(0.05, 0.5, 'Leaf Area Index', va='center', rotation='vertical', fontsize=config.subplot_fs)
+# fig.text(0.3, 0.04, 'The Netherlands', ha='center', fontsize=config.subplot_fs)
+# fig.text(0.65, 0.04, 'India', ha='center', fontsize=config.subplot_fs)
+units = ['°C', '°Cd', 'Days', r'DM kg ha$^{-1}$', '°C'] 
 
 # Create colorbars on the right for each parameter
-for i, param in enumerate(key_fig6):
+for i, (param, unit) in enumerate(zip(key_fig6, units)):
     ax_cbar = colorbar_axes[i]
     data = df_fig6[df_fig6['key'] == param]
     cmap = plt.get_cmap('viridis')
@@ -572,16 +665,50 @@ for i, param in enumerate(key_fig6):
     norm = Normalize(min_val, max_val)
     sm = ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])  # Only needed for older versions of Matplotlib
- 
-    cbar = fig.colorbar(sm, cax=ax_cbar, label=config.label_map.get(param, param))
+    # print(i, param, unit)
+
+    labels = f'{config.label_map.get(param, param)} ({unit})'  # Combine the parameter name with its unit
+    # combine the labels with units based on the order of the parameters
+    
+    cbar = fig.colorbar(sm, cax=ax_cbar, label=labels, orientation='vertical')
     cbar.ax.yaxis.set_major_locator(MaxNLocator(nbins=5, integer=True))  # Ensure integer ticks
     cbar.ax.yaxis.set_major_formatter('{x:.0f}')  # Format ticks without decimals
 
 # Save and show the plot
-output_path = f'{config.p_out}/mainTextFigLSA'
+output_path = f'{wd}/../manuscript/Fig7'
 plt.savefig(f'{output_path}.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
 plt.show()
 plt.rcParams['font.size'] = original_font_size
+
+# %% 
+# Figure 7 illustration more on the te relative changes 
+te_lai = data.loc[(data['key'] == 'te')&(data['country'] ==  'IND') &(data.index == 75), ['LAI', 'value']]
+import seaborn as sns
+
+sns.set_palette("pastel")
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='value', y='LAI', data=te_lai, hue = 'value')
+te_lai['value'].min(), te_lai['value'].max()
+plt.axhline(y=te_lai['LAI'].min(), color='r', linestyle='--', label='Min LAI')
+plt.axhline(y=te_lai['LAI'].max(), color='g', linestyle='--', label='Max LAI')
+te_lai['LAI'].max()/te_lai['LAI'].min()
+# non-linear effect of te on LAI
+# try other parameters
+# %%
+parameters = ['TDWI', 't1_pheno', 'TSUM1', 'SPAN', 'te']
+for param in parameters:
+    param_lai = df_fig6.loc[(df_fig6['key'] == param) & (df_fig6['country'] == 'IND') & (df_fig6.index == 75), ['LAI', 'value']]
+
+    sns.set_palette("pastel")
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(x='value', y='LAI', data=param_lai, hue='value')
+    ratio = param_lai['LAI'].max() / param_lai['LAI'].min()
+    plt.axhline(y=param_lai['LAI'].min(), color='r', linestyle='--', label='Min LAI')
+    plt.axhline(y=param_lai['LAI'].max(), color='g', linestyle='--', label='Max LAI')
+    plt.text(0.5, 0.5, f"Max/min LAI ratio: {ratio}", transform=plt.gca().transAxes)
+    plt.title(f"Effect of {param} on LAI")
+    plt.legend()
+    plt.show()
 
 
 # %% --------------------Figure 7
@@ -635,7 +762,7 @@ def plot_data(df, scenario):
     fig, ax1 = plt.subplots(facecolor='w')
 
     # color = 'tab:blue'
-    ax1.set_xlabel('DAP', fontsize=config.subplot_fs)
+    ax1.set_xlabel('Day After Planting', fontsize=config.subplot_fs)
     ax1.set_ylabel('TMPFTB', fontsize=config.subplot_fs)
     ax1.plot(df['DAP'], df['TMPFTB'], color='blue', linewidth=2)
     ax1.tick_params(axis='y')
@@ -648,6 +775,7 @@ def plot_data(df, scenario):
     ax2.set_ylabel('Temperature', color='red', fontsize=config.subplot_fs)  
     ax2.plot(df['DAP'], df['Temperature...C.'], color='red', linewidth=2)
     ax2.tick_params(axis='y')
+    
 
     # Add horizontal lines
     ax2.axhline(15, color='green', linestyle='--')
@@ -656,6 +784,8 @@ def plot_data(df, scenario):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     ax1.set_ylim([0, 1.1])  # Set limits for first y-axis
     ax2.set_ylim(0, 35)  # Set limits for second y-axis
+    # ax1.set_xlabel('Day After Planting', fontsize = config.subplot_fs)
+
     plt.savefig(f'../output/{scenario}tmpftb.svg', dpi = 600, bbox_inches='tight')
     plt.savefig(f'../output/{scenario}tmpftb.png', dpi = 300, bbox_inches='tight')
     # plt.savefig(f'../output/weather_data.svg', dpi = 600, bbox_inches='tight')
@@ -729,3 +859,25 @@ fig.savefig('../output/Distribution_105_TWSO.png', dpi=300)
 fig.savefig('../output/Distribution_105_TWSO.svg')
 
 plt.show()
+
+# visualise the leaf life span changes 
+# %%
+import pandas as pd
+threshold = 35
+Tbase = 2
+T = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+     16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+     26, 27, 28, 29, 30, 31,32 ,33 ,34 ,35 ,36 ,37 ,38 ,39 ,40]
+
+def lvage(T, Tbase, threshold):
+    if T < Tbase:
+        return 0
+    elif T > threshold:
+        return 1
+    else:
+        return (T - Tbase) / (threshold - Tbase)
+    
+lvage_values = [lvage(t, Tbase, threshold) for t in T]
+
+lvage_values = pd.DataFrame({'Temperature': T, 'lvage': lvage_values})
+lvage_values.plot(x='Temperature', y='lvage', kind='line')
