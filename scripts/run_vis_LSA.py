@@ -62,7 +62,7 @@ def create_figure(large_df, output_var, param_names):
         fig.colorbar(sc, ax=axs[i])
 
         if i >= 12:
-            axs[i].set_xlabel('DAP')
+            axs[i].set_xlabel('Day After Planting')
         if i % 3 == 0:
             axs[i].set_ylabel(output_var)    
         # Replace param_name with the corresponding value from label_map if it exists

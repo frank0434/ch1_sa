@@ -147,7 +147,7 @@ plt.xlabel('Daily mean air temperature (°C)', fontsize = config.subplot_fs)
 plt.ylabel('Effective thermal time (°C day)', fontsize = config.subplot_fs)
 plt.legend()
 plt.savefig(f'{wd}/../manuscript/Fig2-i.svg')
-plt.savefig(f'{wd}/../manuscript/Fig2-i.png', dpi = 300)
+plt.savefig(f'{wd}/../manuscript/Fig2-i.png', dpi = 600)
 plt.show()
 plt.close()
 plt.rcParams['font.size'] = original_font_size
@@ -189,7 +189,7 @@ plt.ylabel('TMPFTB', fontsize=config.subplot_fs)
 plt.legend()
 
 plt.savefig(f'{wd}/../manuscript/Fig2-ii.svg')
-plt.savefig(f'{wd}/../manuscript/Fig2-ii.png', dpi = 300)
+plt.savefig(f'{wd}/../manuscript/Fig2-ii.png', dpi = 600)
 plt.show()
 plt.close()
 
@@ -263,7 +263,7 @@ ax2.legend()
 ax2.set_title('The Netherlands')
 ax2.text(indicatation_text_x, indicatation_text_y, 'a)', transform=ax2.transAxes, size=config.subplot_fs, weight='bold')
 
-plt.savefig(f'{wd}/output/weather_data.png', dpi = 300, bbox_inches='tight')
+plt.savefig(f'{wd}/output/weather_data.png', dpi = 600, bbox_inches='tight')
 plt.savefig(f'{wd}/output/weather_data.svg', dpi = 600, bbox_inches='tight')
 plt.show()
 
@@ -311,7 +311,7 @@ name_color_map = {
     'maximum': 'grey',
     'CV': 'black',  # Adjust colors as needed
     'TSUM1' : 'blue',
-    'TSUM2' : '#E1BE6A',  # Light brown
+    'TSUM2' : '#6AE1C7',  # Light brown TO #6AE1C7
     'SPAN' :  '#BD0026',      # Light red
     'Q10' : 'purple',
     'TBASEM' : 'tan',
@@ -351,8 +351,8 @@ import utilities as ros
 
 base_path = "C:/Users/liu283/GitRepos/ch1_SA/"
 col = "DVS" 
-col = "LAI"
-col = "TWSO"
+# col = "LAI"
+# col = "TWSO"
 file = os.path.join(base_path, f"output_NL_AUC_{col}.csv")
 # file = os.path.join(base_path, f"output_AUC_{col}.csv")
 # 
@@ -432,7 +432,7 @@ for i, column in enumerate(df3.columns):
 lines, labels = fig.axes[0].get_legend_handles_labels()
 plt.ylim(0, 1.05)
 plt.xlim(0, config.sim_period)
-plt.xlabel('Day After Planting', fontsize = config.subplot_fs)
+plt.xlabel('DAP', fontsize = config.subplot_fs)
 # fig.text(0, 0.5, 'Proportion of Sensitivity indices', va='center', rotation='vertical', fontsize = config.subplot_fs)
 plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
 plt.gca().invert_yaxis()
@@ -457,22 +457,22 @@ scenario = 'NL_' if config.run_NL_conditions else ''
 plt.tight_layout()
 if col == 'DVS' and config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig4-i.svg', bbox_inches='tight')
-    plt.savefig(f'../manuscript/Fig4-i.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig4-i.png', dpi=600, bbox_inches='tight')
 elif col == 'DVS' and not config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig4-ii.svg', bbox_inches='tight')
-    plt.savefig(f'../manuscript/Fig4-ii.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig4-ii.png', dpi=600, bbox_inches='tight')
 elif col == 'LAI' and config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig5-i.svg', bbox_inches='tight')
-    plt.savefig(f'../manuscript/Fig5-i.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig5-i.png', dpi=600, bbox_inches='tight')
 elif col == 'LAI' and not config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig5-ii.svg', bbox_inches='tight')
-    plt.savefig(f'../manuscript/Fig5-ii.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig5-ii.png', dpi=600, bbox_inches='tight')
 elif col == 'TWSO' and config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig6-i.svg', bbox_inches='tight')
-    plt.savefig(f'../manuscript/Fig6-i.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig6-i.png', dpi=600, bbox_inches='tight')
 elif col == 'TWSO' and not config.run_NL_conditions:
     plt.savefig(f'../manuscript/Fig6-ii.svg', bbox_inches='tight')
-    plt.savefig(f'../manuscript/Fig6-ii.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'../manuscript/Fig6-ii.png', dpi=600, bbox_inches='tight')
 plt.show()
 plt.close()
 
@@ -531,6 +531,7 @@ lines = lines_warm + lines_cool
 fig.legend(lines, labels, loc='center', ncol=8, handlelength=1, handleheight=2, borderpad=1,
                markerscale=3, handletextpad=1, columnspacing=1.5, fontsize=config.subplot_fs, frameon=False)
 plt.savefig('../manuscript/Fig5-legend.png', format='png', transparent=True)
+plt.savefig('../manuscript/Fig6-legend.png', format='png', transparent=True)
 plt.savefig('../output/Fig5_legend.png'.replace('.png', '.svg'), format='svg', transparent=True)
 plt.show()
 
@@ -676,7 +677,7 @@ for i, (param, unit) in enumerate(zip(key_fig6, units)):
 
 # Save and show the plot
 output_path = f'{wd}/../manuscript/Fig7'
-plt.savefig(f'{output_path}.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
+plt.savefig(f'{output_path}.png', dpi=600, bbox_inches='tight', pad_inches=0.1)
 plt.show()
 plt.rcParams['font.size'] = original_font_size
 
@@ -756,13 +757,13 @@ weather['DAP'] = np.arange(1, len(weather) + 1)
 weather_nl['DAP'] = np.arange(1, len(weather_nl) + 1)
 # %%
 def plot_data(df, scenario):
-    plt.style.use('classic')  # Use grayscale style for black and white theme
+    # plt.style.use('classic')  # Use grayscale style for black and white theme
 
     # Plot the data
     fig, ax1 = plt.subplots(facecolor='w')
 
     # color = 'tab:blue'
-    ax1.set_xlabel('Day After Planting', fontsize=config.subplot_fs)
+    ax1.set_xlabel('DAP', fontsize=config.subplot_fs)
     ax1.set_ylabel('TMPFTB', fontsize=config.subplot_fs)
     ax1.plot(df['DAP'], df['TMPFTB'], color='blue', linewidth=2)
     ax1.tick_params(axis='y')
@@ -776,7 +777,6 @@ def plot_data(df, scenario):
     ax2.plot(df['DAP'], df['Temperature...C.'], color='red', linewidth=2)
     ax2.tick_params(axis='y')
     
-
     # Add horizontal lines
     ax2.axhline(15, color='green', linestyle='--')
     ax2.axhline(25, color='green', linestyle='--')
@@ -784,10 +784,15 @@ def plot_data(df, scenario):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     ax1.set_ylim([0, 1.1])  # Set limits for first y-axis
     ax2.set_ylim(0, 35)  # Set limits for second y-axis
-    # ax1.set_xlabel('Day After Planting', fontsize = config.subplot_fs)
+    ax1.set_xlim(0, )  # Set x-axis limits
 
-    plt.savefig(f'../output/{scenario}tmpftb.svg', dpi = 600, bbox_inches='tight')
-    plt.savefig(f'../output/{scenario}tmpftb.png', dpi = 300, bbox_inches='tight')
+    # ax1.set_xlabel('Day After Planting', fontsize = config.subplot_fs)
+    if scenario == 'India':
+        fig_number = 'Fig3-ii'
+    else:
+        fig_number = 'Fig3-i'
+    plt.savefig(f'../manuscript/{fig_number}.svg', dpi = 600, bbox_inches='tight')
+    plt.savefig(f'../manuscript/{fig_number}.png', dpi = 600, bbox_inches='tight')
     # plt.savefig(f'../output/weather_data.svg', dpi = 600, bbox_inches='tight')
     plt.show()
 
@@ -855,7 +860,7 @@ for i, (col, title) in enumerate(zip(columns, titles)):
 fig.tight_layout()
 
 # Save the figure
-fig.savefig('../output/Distribution_105_TWSO.png', dpi=300)
+fig.savefig('../output/Distribution_105_TWSO.png', dpi=600)
 fig.savefig('../output/Distribution_105_TWSO.svg')
 
 plt.show()
