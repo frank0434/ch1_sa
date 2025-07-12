@@ -79,28 +79,30 @@ label_map = {
 
 # run NL conditions
 if run_NL_conditions:
-    SIMULATION_START_DATE = "2021-04-22"
-    SIMULATION_CROP_START = '2021-04-22'
-    SIMULATION_END_DATE = "2021-09-30"
-    SIMULATION_END_DATE_real = "2021-09-30"  # Real weather station data ends at 24th
+    SIMULATION_START_DATE = "2022-04-22"
+    SIMULATION_CROP_START = '2022-04-22'
+    SIMULATION_END_DATE = "2022-09-30"
+    SIMULATION_END_DATE_real = "2022-09-30"  # Real weather station data ends at 24th
     variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
-    planting = "2021-04-22"
-    harvest = ['2021-06-17', '2021-07-14', '2021-08-12', "2021-09-30"]
+    planting = "2022-04-22"
+    harvest = ['2022-06-17', '2022-07-14', '2022-08-12', "2022-09-30"]
     # run the NL conditions
     Weather_real = p_dat_raw / "350_weatherfile_2021.xlsx"
+    Weather_real = p_dat_raw / "nl_NASA_Season2.xlsx"
     p_out_LSA = p / 'output/LSA_NL'
     p_out_LSAsims = p_out_LSA / f'sims_NL_{LSA_sample_size}'
 
 else:
     # Model configuration for Indian conditions
-    SIMULATION_START_DATE = "2022-11-10"
-    SIMULATION_CROP_START = '2022-11-10'
-    SIMULATION_END_DATE = "2023-02-28"
-    SIMULATION_END_DATE_real = "2023-02-24"  # Real weather station data ends at 24th
+    SIMULATION_START_DATE = "2023-11-10"
+    SIMULATION_CROP_START = '2023-11-10'
+    SIMULATION_END_DATE = "2024-02-28"
+    SIMULATION_END_DATE_real = "2024-02-24"  # Real weather station data ends at 24th
     variety_name = "Fontane"  # Other available cultivars: ["Fontane", "Markies","Premiere", "Festien", "Innovator"]
-    planting = "2022-11-10"
-    harvest = ['2022-12-19', '2023-01-16', '2023-02-14', "2023-02-24"]
+    planting = "2024-11-10"
+    harvest = ['2023-12-19', '2024-01-16', '2024-02-14', "2024-02-24"]
     Weather_real = p_dat_raw / "India2022_23.xlsx"
+    Weather_real = p_dat_raw / "ind_NASA_Season2.xlsx"
     p_out_LSA = p / 'output/LSA'
     p_out_LSAsims = p_out_LSA / f'sims_{LSA_sample_size}' 
 
