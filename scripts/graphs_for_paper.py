@@ -631,7 +631,8 @@ for i, param in enumerate(key_fig6):
         data = df_fig6[(df_fig6['key'] == param) & (df_fig6['country'] == country)]
         cmap = plt.get_cmap('viridis')
         norm = plt.Normalize(data['value'].min(), data['value'].max())
-        sc = ax.scatter(x=data.index, y=data['LAI'], c=data['value'], cmap=cmap, norm=norm, s=pointsize)
+        sc = ax.scatter(x=data.index, y=data['LAI'], c=data['value'], 
+                        cmap=cmap, norm=norm, s=pointsize)
         
         emergence_date = df_fig6[(df_fig6['DVS'] == 0) & (df_fig6['country'] == country)]['DVS'].drop_duplicates()
         tuberinitiation_date = df_fig6[(df_fig6['DVS'] == 1) & (df_fig6['country'] == country)]['DVS'].drop_duplicates()
@@ -648,7 +649,8 @@ for i, param in enumerate(key_fig6):
         # Add subplot label
         subplot_label = labels[j * len(key_fig6) + i]
         ax.text(subplotlab_x, subplotlab_y - 0.1, subplot_label + ")", transform=ax.transAxes, size=config.subplot_fs, weight='bold')
-        ax.set_ylim(0, 6)
+        ax.set_ylim(0, 7)
+        ax.set_yticks(range(0, 7))  # Set y-axis ticks at integer values 0, 1, 2, 3, 4, 5, 6
 
 # Add shared y-axis label
 fig.text(0.05, 0.5, 'Leaf Area Index', va='center', rotation='vertical', fontsize=config.subplot_fs)
@@ -677,6 +679,7 @@ for i, (param, unit) in enumerate(zip(key_fig6, units)):
 
 # Save and show the plot
 output_path = f'{wd}/../manuscript/Fig7'
+output_path = f'{wd}/../manuscript/rebut_evidence_LSA_Fig7'
 plt.savefig(f'{output_path}.png', dpi=600, bbox_inches='tight', pad_inches=0.1)
 plt.show()
 plt.rcParams['font.size'] = original_font_size
