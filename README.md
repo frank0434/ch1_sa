@@ -1,5 +1,4 @@
-# Time-dependent sensitivity analysis is necessary to improve crop model performance under high temperatures (Submitted - 2024-09-10)
-
+# Time-dependent sensitivity analysis of WOFOST-Potato for temperate and subtropical environments
 ## Documentation for Scripts
 
 ### Sampling and simulation excution
