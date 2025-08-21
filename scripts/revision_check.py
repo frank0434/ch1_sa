@@ -61,44 +61,53 @@ df_IND_monthly = df_IND.groupby(pd.to_datetime(df_IND.index).month).agg({
 
 # %% Plot the monthly temperature data for Netherlands and India
 import matplotlib.pyplot as plt
+
+# Define colors for easy modification
+colors = {
+    'tmean': 'blue',
+    'tmax': 'red', 
+    'tmin': 'green'
+}
+
 # Set the figure size
 # Create separate subplots for Netherlands and India
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 6), sharey=True)
 
 # Plot Netherlands data
 ax1.plot(Longterm_NL_filtered['Month'], Longterm_NL_filtered['Average Mean Surface Air Temperature'],
-    marker='o', label='Tmean (1991-2023)', color='blue')
+    marker='o', label='Tmean (1991-2023)', color=colors['tmean'])
 ax1.plot(Longterm_NL_filtered['Month'], Longterm_NL_filtered['Average Maximum Surface Air Temperature'],
-    marker='o', label='TMAX (1991-2023)', color='orange')
+    marker='o', label='TMAX (1991-2023)', color=colors['tmax'])
 ax1.plot(Longterm_NL_filtered['Month'], Longterm_NL_filtered['Average Minimum Surface Air Temperature'],
-    marker='o', label='TMIN (1991-2023)', color='green')
+    marker='o', label='TMIN (1991-2023)', color=colors['tmin'])
 
 # Add 2021 data for Netherlands
 months_nl = df_NL_monthly.index
 ax1.plot(months_nl, df_NL_monthly[('Tmean', 'mean')], 
-    marker='s', linestyle='--', label='Tmean (2021)', color='blue', alpha=0.7)
+    marker='s', linestyle='--', label='Tmean (2021)', color=colors['tmean'], alpha=0.7)
 ax1.plot(months_nl, df_NL_monthly[('TMAX', 'mean')], 
-    marker='s', linestyle='--', label='TMAX (2021)', color='orange', alpha=0.7)
+    marker='s', linestyle='--', label='TMAX (2021)', color=colors['tmax'], alpha=0.7)
 ax1.plot(months_nl, df_NL_monthly[('TMIN', 'mean')], 
-    marker='s', linestyle='--', label='TMIN (2021)', color='green', alpha=0.7)
+    marker='s', linestyle='--', label='TMIN (2021)', color=colors['tmin'], alpha=0.7)
 
 ax1.set_xticks([4, 5, 6, 7, 8, 9, 10])
 ax1.set_xticklabels(['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'])
 ax1.set_xlabel('Month')
 ax1.set_ylabel('Temperature (°C)')
-ax1.set_title('Netherlands - Monthly Temperature')
+ax1.set_title('The Netherlands - Monthly Temperature')
 ax1.legend()
 ax1.grid(True)
+ax1.set_ylim(0, 35)  # Set y-axis limit for better comparison
 
 # Plot India data - reorder x-axis to show continuous timeline from Nov to Feb
 india_months = [11, 12, 1, 2]
 india_labels = ['Nov', 'Dec', 'Jan', 'Feb']
 ax2.plot(range(len(india_months)), Longterm_IND_filtered['Average Mean Surface Air Temperature'],
-    marker='o', label='Tmean (1991-2023)', color='red')
+    marker='o', label='Tmean (1991-2023)', color=colors['tmean'])
 ax2.plot(range(len(india_months)), Longterm_IND_filtered['Average Maximum Surface Air Temperature'],
-    marker='o', label='TMAX (1991-2023)', color='purple')
+    marker='o', label='TMAX (1991-2023)', color=colors['tmax'])
 ax2.plot(range(len(india_months)), Longterm_IND_filtered['Average Minimum Surface Air Temperature'],
-    marker='o', label='TMIN (1991-2023)', color='brown')
+    marker='o', label='TMIN (1991-2023)', color=colors['tmin'])
 
 # Add 2022-2023 data for India
 months_ind = df_IND_monthly.index
@@ -110,21 +119,22 @@ if 11 in months_ind and 12 in months_ind and 1 in months_ind and 2 in months_ind
     reordered_data_tmin = [df_IND_monthly.loc[m, ('TMIN', 'mean')] for m in reordered_months]
     
     ax2.plot(range(len(india_months)), reordered_data_tmean, 
-        marker='s', linestyle='--', label='Tmean (2022-23)', color='red', alpha=0.7)
+        marker='s', linestyle='--', label='Tmean (2022-23)', color=colors['tmean'], alpha=0.7)
     ax2.plot(range(len(india_months)), reordered_data_tmax, 
-        marker='s', linestyle='--', label='TMAX (2022-23)', color='purple', alpha=0.7)
+        marker='s', linestyle='--', label='TMAX (2022-23)', color=colors['tmax'], alpha=0.7)
     ax2.plot(range(len(india_months)), reordered_data_tmin, 
-        marker='s', linestyle='--', label='TMIN (2022-23)', color='brown', alpha=0.7)
+        marker='s', linestyle='--', label='TMIN (2022-23)', color=colors['tmin'], alpha=0.7)
 
 ax2.set_xticks(range(len(india_months)))
 ax2.set_xticklabels(india_labels)
 ax2.set_xlabel('Month')
-ax2.set_ylabel('Temperature (°C)')
+# ax2.set_ylabel('Temperature (°C)')
 ax2.set_title('India - Monthly Temperature')
 ax2.legend()
 ax2.grid(True)
-
+ax2.set_ylim(0, 35)  # Set y-axis limit for better comparison
 plt.tight_layout()
+plt.savefig('../manuscript/FigS1.2.png', dpi=600, bbox_inches='tight')
 plt.show()
 
 # %% 
@@ -180,7 +190,8 @@ plt.text(0.05, 0.95, f'R² = {r_squared:.2f}\ny = {slope:.2f}x + {intercept:.2f}
 plt.xlabel('Weather Station solar radiation (J m⁻² day⁻¹)')
 plt.ylabel('NASA\'s solar radiation (J m⁻² day⁻¹)')
 plt.legend()
-plt.grid(True, alpha=0.3)
+# plt.grid(True, alpha=0.3)
+plt.savefig(f'../manuscript/FigS1.1.png', dpi=600, bbox_inches='tight', pad_inches=0.1)
 
 plt.show()
 

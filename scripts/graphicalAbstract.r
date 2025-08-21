@@ -27,7 +27,8 @@ create_plot <- function(data, color, month_label = c("Jan", "Jun"), title = "") 
     ggtitle(title) +
     theme_minimal() +
     theme(
-      title = element_text(size = fs, face = "bold"),
+      text = element_text(size = fs, family = "Times New Roman"),
+      title = element_text(size = fs, family = "Times New Roman", face = "bold"),
       plot.title = element_text(hjust = 0.5),
       axis.title = element_blank(),
       axis.text.x = element_text(size = fs, face = "bold"),
@@ -48,5 +49,5 @@ ind_plot <- create_plot(ind_data,  "red", month_label = c("Nov", "Feb"), title =
 print(nl_plot)
 print(ind_plot)
 
-ggsave("nl_temp_profile.png",plot = nl_plot, width = 4, height = 3, dpi = 300)
-ggsave("ind_temp_profile.png",plot = ind_plot, width = 4, height = 3, dpi = 300)
+ggsave("nl_temp_profile.svg",plot = nl_plot, width = 4, height = 3, dpi = 300)
+ggsave("ind_temp_profile.svg",plot = ind_plot, width = 4, height = 3, dpi = 300)

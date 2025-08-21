@@ -58,6 +58,9 @@ def plot_colored_barh(ax, df, value_col):
     ax.set_yticklabels([config.label_map.get(idx, idx) for idx in df.index])
     # ax.invert_yaxis()  # Optional: to match pandas' default order
 
+# Set font to Times New Roman
+plt.rcParams['font.family'] = 'Times New Roman'
+
 # --- Plotting ---
 fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 5), sharex=True)
 size_ticklabels = 24
@@ -185,7 +188,7 @@ y_smooth = combined_equation(x_smooth, *popt)
 plt.plot(x, y, 'o', label='Data points sampled from AFGEN_TMPFTB', c = 'blue')
 plt.plot(x_smooth, y_smooth, label='Fitted curve', c = 'red')
 plt.xlabel('Daily daytime mean air temperature (°C)', fontsize=config.subplot_fs)
-plt.ylabel('TMPFTB', fontsize=config.subplot_fs)
+plt.ylabel('Reduction factor of \nmaximum photosynthetic rate', fontsize=config.subplot_fs)
 plt.legend()
 
 plt.savefig(f'{wd}/../manuscript/Fig2-ii.svg')
@@ -767,7 +770,7 @@ def plot_data(df, scenario):
 
     # color = 'tab:blue'
     ax1.set_xlabel('DAP', fontsize=config.subplot_fs)
-    ax1.set_ylabel('TMPFTB', fontsize=config.subplot_fs)
+    ax1.set_ylabel('Reduction factor of \nmaximum photosynthetic rate', fontsize=config.subplot_fs)
     ax1.plot(df['DAP'], df['TMPFTB'], color='blue', linewidth=2)
     ax1.tick_params(axis='y')
     # ax1.set_facecolor('white')
